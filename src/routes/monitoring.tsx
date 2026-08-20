@@ -120,13 +120,16 @@ function MonitoringPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 shadow-sm border-slate-200 bg-[#000022] text-white overflow-hidden relative border-none">
+        <Card className="lg:col-span-2 premium-card bg-[#000022] text-white overflow-hidden relative border-none shadow-2xl ring-1 ring-white/5">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:30px_30px]" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-white/5 bg-white/[0.02] backdrop-blur-sm relative z-10">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 border-b border-white/5 bg-white/[0.02] backdrop-blur-sm relative z-10">
             <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">
               Console Operacional / Eventos Reais
             </CardTitle>
-            <Activity className="h-4 w-4 text-blue-400 opacity-50" />
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+              <Activity className="h-4 w-4 text-blue-400 opacity-50" />
+            </div>
           </CardHeader>
           <CardContent 
             ref={scrollRef}
