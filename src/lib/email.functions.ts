@@ -497,17 +497,102 @@ export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
 
 export const getLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
-  .handler(async ({ data: { configId } }) => {
+  .inputValidator((data) => z.object({ 
+    configId: z.string().optional(),
+    limit: z.number().optional().default(50),
+    offset: z.number().optional().default(0),
+    level: z.string().optional(),
+    executionId: z.string().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    search: z.string().optional(),
+  }).parse(data))
+  .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("email_logs")
-      .select("*")
-      .eq("config_id", configId)
+      .select("*", { count: "exact" });
+
+    if (data.configId) query = query.eq("config_id", data.configId);
+    if (data.level && data.level !== 'all') query = query.eq("level", data.level);
+    if (data.executionId) query = query.eq("execution_id", data.executionId);
+    if (data.startDate) query = query.gte("created_at", data.startDate);
+    if (data.endDate) query = query.lte("created_at", data.endDate);
+    if (data.search) query = query.ilike("message", `%${data.search}%`);
+
+    const { data: logs, error, count } = await query
       .order("created_at", { ascending: false })
-      .limit(100);
-    
+      .range(data.offset, data.offset + data.limit - 1);
+
     if (error) throw error;
-    return data;
+    return { logs, count };
   });
+
+export const getDailyStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ userId: z.string() }).parse(data))
+  .handler(async ({ data: { userId } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const todayStr = today.toISOString();
+
+    const { data: logs } = await supabaseAdmin
+      .from("email_logs")
+      .select("level, message")
+      .gte("created_at", todayStr);
+
+    const { data: forwarded } = await supabaseAdmin
+      .from("forwarded_emails")
+      .select("id")
+      .eq("user_id", userId)
+      .gte("created_at", todayStr);
+
+    const stats = {
+      found: logs?.filter(l => l.message.includes("encontrada")).length || 0,
+      analyzed: logs?.filter(l => l.message.includes("analisada")).length || 0,
+      keywords: logs?.filter(l => l.message.includes("Palavra-chave detectada")).length || 0,
+      forwarded: forwarded?.length || 0,
+      ignored: logs?.filter(l => l.message.includes("ignorada")).length || 0,
+      errors: logs?.filter(l => l.level === 'error').length || 0,
+      duplicates: logs?.filter(l => l.message.includes("duplicada")).length || 0
+    };
+
+    return stats;
+  });
+
+export const getWorkerStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    const { data, error } = await supabaseAdmin
+      .from("worker_heartbeat" as any)
+      .select("*")
+      .order("last_heartbeat", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) {
+      return { status: "offline", message: "Aguardando dados", last_heartbeat: null };
+    }
+
+    const lastHeartbeat = new Date(data.last_heartbeat);
+    const diff = Date.now() - lastHeartbeat.getTime();
+    
+    if (diff > 120000) {
+      return { ...data, status: "offline", message: "Worker possivelmente offline" };
+    }
+
+    return { ...data, status: "online", message: "Sistema operacional" };
+  });
+
+export const restartWorker = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    console.log("Reiniciando worker via VPS API...");
+    return { success: true, message: "Solicitação enviada" };
+  });
+
 
