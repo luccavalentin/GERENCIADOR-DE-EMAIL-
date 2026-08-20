@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 /**
- * coloque a logo ogirianl aqui E queor mais refinamento e sofisticação no sistema
+ * Agilliza Gerenciador de E-mail - Refinamento Final
  */
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
