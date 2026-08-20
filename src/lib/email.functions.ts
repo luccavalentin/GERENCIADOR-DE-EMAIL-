@@ -137,11 +137,12 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
 
 export const getActiveConfigs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("email_configurations")
-      .select("*");
+      .select("*")
+      .eq("user_id", context.userId);
 
     if (error) throw error;
     return data;
