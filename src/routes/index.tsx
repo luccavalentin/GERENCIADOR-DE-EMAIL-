@@ -175,12 +175,12 @@ function DashboardPage() {
             bg: "bg-red-50/50" 
           },
         ].map((stat, i) => (
-          <Card key={i} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden">
+          <Card key={i} className="premium-card group">
             <CardContent className="p-6">
-              <div className={cn("p-2 w-fit rounded-lg mb-4 transition-colors", stat.bg, stat.color)}>
-                <stat.icon className="h-5 w-5" />
+              <div className={cn("p-3 w-fit rounded-xl mb-4 transition-transform group-hover:scale-110", stat.bg, stat.color)}>
+                <stat.icon className="h-6 w-6" />
               </div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
               <h3 className="text-3xl font-bold text-slate-900 mt-2 tracking-tight">
                 {stat.value === "—" ? <span className="text-slate-200">—</span> : stat.value}
               </h3>
