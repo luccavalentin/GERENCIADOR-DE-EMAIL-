@@ -185,7 +185,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
               <ScrollArea className="flex-1">
                 <div className="p-6">
                   <TabsContent value="geral" className="mt-0 space-y-6">
-                    <Card className="shadow-none border-slate-100 bg-slate-50/50">
+                    <Card className="premium-card bg-slate-50/50 shadow-none">
                       <CardHeader className="pb-4">
                         <CardTitle className="text-sm font-bold flex items-center gap-2">
                           <Globe className="h-4 w-4 text-[#0000A0]" />
@@ -232,7 +232,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
 
                   <TabsContent value="entrada" className="mt-0 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Card className="shadow-none border-slate-100">
+                      <Card className="premium-card shadow-none">
                         <CardHeader className="pb-4">
                           <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
                             <HistoryIcon className="h-4 w-4" />
@@ -277,7 +277,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                         </CardContent>
                       </Card>
 
-                      <Card className="shadow-none border-slate-100">
+                      <Card className="premium-card shadow-none">
                         <CardHeader className="pb-4">
                           <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
                             <Mail className="h-4 w-4" />
@@ -325,7 +325,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                   </TabsContent>
 
                   <TabsContent value="destinatarios" className="mt-0 space-y-6">
-                    <Card className="shadow-none border-slate-100">
+                    <Card className="premium-card shadow-none">
                       <CardHeader>
                         <CardTitle className="text-sm font-bold">E-mails de Recebimento</CardTitle>
                         <CardDescription>Para onde os e-mails filtrados serão encaminhados.</CardDescription>
@@ -357,7 +357,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                   </TabsContent>
 
                   <TabsContent value="regras" className="mt-0 space-y-6">
-                    <Card className="shadow-none border-slate-100">
+                    <Card className="premium-card shadow-none">
                       <CardHeader className="pb-4">
                         <CardTitle className="text-sm font-bold flex items-center gap-2">
                           <Tags className="h-4 w-4 text-[#0000A0]" />

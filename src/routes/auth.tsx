@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import logoPrimary from "@/assets/logo-primary.png.asset.json";
+import logoPrimary from "@/assets/logo-original.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -58,63 +58,66 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="flex flex-col items-center">
-          <img src={logoPrimary.url} alt="Agilliza" className="mb-4 h-16 object-contain" />
-          <CardTitle>{isSignUp ? "Criar Conta" : "Entrar"}</CardTitle>
-          <CardDescription className="text-center pt-2">
+    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-4 font-sans">
+      <Card className="w-full max-w-md premium-card overflow-hidden">
+        <CardHeader className="flex flex-col items-center pt-10 pb-6 bg-slate-50/50 border-b border-slate-100">
+          <img src={logoPrimary.url} alt="Agilliza" className="mb-6 h-16 object-contain transition-transform hover:scale-105" />
+          <CardTitle className="text-2xl font-bold text-slate-900">{isSignUp ? "Criar Conta" : "Painel Agilliza"}</CardTitle>
+          <CardDescription className="text-center px-6 pt-2 text-slate-500 font-medium">
             {isSignUp
-              ? "Faça seu cadastro para começar a gerenciar seus e-mails."
-              : "Entre com suas credenciais para acessar o painel operacional Agilliza."}
+              ? "Cadastre-se para gerenciar seus e-mails com eficiência."
+              : "Entre para acessar sua central operacional de e-mails."}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
+        <CardContent className="p-8">
+          <form onSubmit={handleAuth} className="space-y-5">
             {isSignUp && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nome Completo</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Nome Completo</label>
                 <Input
                   type="text"
-                  placeholder="Seu Nome Completo"
+                  placeholder="Nome e Sobrenome"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
+                  className="h-12 border-slate-200 focus:border-agilliza focus:ring-agilliza/10 transition-all rounded-lg"
                 />
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-sm font-medium">E-mail</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">E-mail Corporativo</label>
               <Input
                 type="email"
-                placeholder="seu@email.com"
+                placeholder="exemplo@agilliza.net.br"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-12 border-slate-200 focus:border-agilliza focus:ring-agilliza/10 transition-all rounded-lg"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Senha</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Senha de Acesso</label>
               <Input
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="h-12 border-slate-200 focus:border-agilliza focus:ring-agilliza/10 transition-all rounded-lg"
               />
             </div>
-            <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? "Processando..." : isSignUp ? "Cadastrar" : "Entrar"}
+            <Button className="w-full h-12 bg-agilliza hover:bg-blue-900 font-bold text-base shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98] mt-2" type="submit" disabled={loading}>
+              {loading ? "Processando..." : isSignUp ? "Cadastrar Agora" : "Acessar Sistema"}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center">
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-blue-600 hover:underline"
+              className="text-agilliza font-bold text-sm hover:underline hover:text-blue-900 transition-colors"
             >
               {isSignUp
-                ? "Já tem uma conta? Entre aqui"
-                : "Não tem uma conta? Cadastre-se"}
+                ? "Já tem uma conta? Clique para entrar"
+                : "Ainda não tem acesso? Cadastre-se"}
             </button>
           </div>
         </CardContent>

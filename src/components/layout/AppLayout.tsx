@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
-import logoPrimary from "@/assets/logo-primary.png.asset.json";
+import logoPrimary from "@/assets/logo-original.png.asset.json";
 
 interface EmailConfig {
   id: string;
@@ -166,11 +166,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ActiveAccountContext.Provider value={{ selectedConfigId, setSelectedConfigId: handleAccountChange, configs, refreshConfigs: fetchConfigs }}>
-      <div className="flex min-h-screen bg-[#f8fafc]">
+      <div className="flex min-h-screen bg-[#f8fafc] font-sans">
         {/* Sidebar */}
         <aside 
           className={cn(
-            "border-r bg-[#000033] flex flex-col fixed inset-y-0 shadow-xl z-50 transition-all duration-300 ease-in-out",
+            "border-r border-white/5 bg-[#000033] flex flex-col fixed inset-y-0 shadow-2xl z-50 transition-all duration-300 ease-in-out",
             isCollapsed ? "w-20" : "w-64"
           )}
         >
@@ -179,9 +179,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             isCollapsed && "p-4"
           )}>
             {!isCollapsed ? (
-              <img src={logoPrimary.url} alt="Agilliza" className="h-9 object-contain brightness-0 invert opacity-90 transition-all" />
+              <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain transition-all" />
             ) : (
-              <div className="h-9 w-9 bg-white/10 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
+              <img src={logoPrimary.url} alt="A" className="h-8 w-8 object-contain" />
             )}
             
             <button 
@@ -200,11 +200,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-3 px-4 py-3 rounded-lg text-[13px] font-bold uppercase tracking-wider transition-all duration-200",
                     isCollapsed && "justify-center px-0",
                     isActive
                       ? "bg-white/10 text-white shadow-sm ring-1 ring-white/20"
-                      : "text-blue-100/70 hover:bg-white/5 hover:text-white"
+                      : "text-blue-100/60 hover:bg-white/5 hover:text-white"
                   )}
                   title={isCollapsed ? item.label : undefined}
                 >
@@ -329,6 +329,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
+          
+          <div className="h-px bg-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]" />
 
           {/* Page Body */}
           <div className="p-8 max-w-[1600px] w-full mx-auto">

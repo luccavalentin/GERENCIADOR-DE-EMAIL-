@@ -115,7 +115,7 @@ function AccountsPage() {
         </Button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="premium-card overflow-hidden">
         <div className="p-4 border-b bg-slate-50/50 flex items-center gap-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />

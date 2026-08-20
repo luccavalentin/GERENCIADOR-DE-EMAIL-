@@ -62,8 +62,8 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --radius: 0.75rem;
+  --background: #f8fafc;
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -79,22 +79,22 @@
   --accent-foreground: oklch(0.208 0.042 265.755);
   --destructive: #FF4D4D; /* Tom de vermelho da logo */
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
+  --border: rgba(0, 0, 51, 0.08);
   --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --ring: rgba(0, 0, 160, 0.2);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar: #000033;
+  --sidebar-foreground: rgba(255, 255, 255, 0.85);
+  --sidebar-primary: #0000A0;
   --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --sidebar-accent: rgba(255, 255, 255, 0.08);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-ring: rgba(0, 0, 160, 0.2);
 }
 
 .dark {
@@ -138,10 +138,19 @@
   }
 
   body {
-    background-color: #f8fafc;
+    background-color: var(--background);
     color: var(--color-foreground);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply antialiased;
   }
 
+  .premium-card {
+    @apply bg-white border border-slate-200/60 rounded-xl shadow-[0_2px_10px_-3px_rgba(0,0,51,0.08)] transition-all duration-300 hover:shadow-[0_8px_30px_-5px_rgba(0,0,51,0.12)] hover:border-agilliza/20;
+  }
+}
+
+@theme {
+  --color-agilliza: #0000A0;
+  --color-navy-dark: #000033;
 }
 
