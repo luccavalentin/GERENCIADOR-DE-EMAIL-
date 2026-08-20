@@ -231,13 +231,19 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       try {
         await imap.connect();
       } catch (connErr: any) {
+        console.error(`[IMAP Connection Error Details] Config ${configId}:`, connErr);
         throw new Error(`IMAP Connection Failure: ${connErr.message}`);
       }
       
       stats.imapConnected = true;
       await log("Conectado ao IMAP. Verificando novos e-mails...");
-
-      let mailboxLock = await imap.getMailboxLock("INBOX");
+      
+      let mailboxLock;
+      try {
+        mailboxLock = await imap.getMailboxLock("INBOX");
+      } catch (lockErr: any) {
+        throw new Error(`IMAP Mailbox Lock Failure: ${lockErr.message}`);
+      }
       try {
         const fetchOptions = { seen: false };
         const fetchQuery = { envelope: true, source: true, uid: true, flags: true };
@@ -355,10 +361,14 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
           }
         }
       } finally {
-        mailboxLock.release();
+        if (mailboxLock) mailboxLock.release();
       }
 
-      await imap.logout();
+      try {
+        await imap.logout();
+      } catch (logoutErr) {
+        // Silently ignore logout errors as connection might already be closed
+      }
       await updateHeartbeat('success');
       return { success: true, stats };
     } catch (error: any) {
