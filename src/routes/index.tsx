@@ -69,6 +69,7 @@ function Dashboard() {
     smtp_secure: true,
     email_user: "thiago@agilliza.net.br",
     email_password: "",
+    allow_invalid: true,
     destinations: "renzo@agilliza.net.br, carlos@agilliza.net.br, pamela@agilliza.net.br, paula@agilliza.net.br",
     keywords: "codigo",
   });
