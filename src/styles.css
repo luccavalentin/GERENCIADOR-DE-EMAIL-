@@ -138,10 +138,19 @@
   }
 
   body {
-    background-color: #f8fafc;
+    background-color: var(--background);
     color: var(--color-foreground);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply antialiased;
   }
 
+  .premium-card {
+    @apply bg-white border border-slate-200/60 rounded-xl shadow-[0_2px_10px_-3px_rgba(0,0,51,0.08)] transition-all duration-300 hover:shadow-[0_8px_30px_-5px_rgba(0,0,51,0.12)] hover:border-agilliza/20;
+  }
+}
+
+@theme {
+  --color-agilliza: #0000A0;
+  --color-navy-dark: #000033;
 }
 
