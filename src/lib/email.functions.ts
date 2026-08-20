@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { ImapFlow } from "imapflow";
 import nodemailer from "nodemailer";
+import { simpleParser } from "mailparser";
+import { convert } from "html-to-text";
 
 const connectionSchema = z.object({
   imap_host: z.string(),
@@ -17,7 +19,6 @@ const connectionSchema = z.object({
 export const testConnection = createServerFn({ method: "POST" })
   .inputValidator((data) => connectionSchema.parse(data))
   .handler(async ({ data }) => {
-    // 1. Test IMAP
     const imap = new ImapFlow({
       host: data.imap_host,
       port: data.imap_port,
@@ -36,7 +37,6 @@ export const testConnection = createServerFn({ method: "POST" })
       throw new Error(`IMAP Error: ${error.message}`);
     }
 
-    // 2. Test SMTP
     const transporter = nodemailer.createTransport({
       host: data.smtp_host,
       port: data.smtp_port,
@@ -68,6 +68,13 @@ export const getActiveConfigs = createServerFn({ method: "GET" })
     return data;
   });
 
+function normalizeText(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 export const processEmailsForConfig = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
   .handler(async ({ data: { configId } }) => {
@@ -90,6 +97,16 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       });
     };
 
+    const updateHeartbeat = async (status: string, errorMsg?: string) => {
+      await supabaseAdmin.from("email_configurations").update({
+        last_heartbeat: new Date().toISOString(),
+        last_check_at: new Date().toISOString(),
+        status,
+        last_error: errorMsg || null,
+        ...(status === 'success' ? { last_success_at: new Date().toISOString() } : {})
+      }).eq("id", configId);
+    };
+
     const imap = new ImapFlow({
       host: config.imap_host,
       port: config.imap_port,
@@ -107,43 +124,112 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
 
       let lock = await imap.getMailboxLock("INBOX");
       try {
-        for await (let message of imap.fetch({ seen: false }, { envelope: true, source: true })) {
-          if (!message.envelope || !message.source) continue;
+        // Fetch only UNSEEN emails
+        const fetchOptions = { seen: false };
+        const fetchQuery = { envelope: true, source: true, uid: true, flags: true };
 
-          const subject = message.envelope.subject || "";
-          const from = message.envelope.from?.[0]?.address || "desconhecido";
-          const bodyText = message.source.toString();
-          const bodyTextLower = bodyText.toLowerCase();
+        for await (let message of imap.fetch(fetchOptions, fetchQuery)) {
+          if (!message.envelope || !message.source || !message.uid) continue;
 
-          const hasKeyword = config.keywords.some((kw: string) => bodyTextLower.includes(kw.toLowerCase()));
+          const imapUid = BigInt(message.uid);
+          const mailbox = "INBOX";
 
-          if (hasKeyword) {
-            await log(`Palavra-chave detectada no e-mail de ${from}: "${subject}"`);
+          // 1. Atomic Reservation (Deduplication)
+          const { data: reserved, error: reserveError } = await supabaseAdmin.rpc('reserve_email_for_processing', {
+            p_config_id: configId,
+            p_mailbox: mailbox,
+            p_imap_uid: imapUid
+          });
+
+          if (reserveError || !reserved) {
+            // Already processing or processed
+            continue;
+          }
+
+          try {
+            // 2. Parse Email properly
+            const parsed = await simpleParser(message.source);
+            const subject = parsed.subject || "";
+            const from = parsed.from?.value[0]?.address || "desconhecido";
             
-            const transporter = nodemailer.createTransport({
-              host: config.smtp_host,
-              port: config.smtp_port,
-              secure: config.smtp_secure,
-              auth: {
-                user: config.email_user,
-                pass: config.email_password,
-              },
+            // Loop Protection
+            const isLoop = 
+              from.toLowerCase() === config.email_user.toLowerCase() ||
+              subject.toUpperCase().startsWith("ENC:") ||
+              parsed.headers.get('auto-submitted') === 'auto-generated' ||
+              parsed.headers.get('x-email-monitor') === 'processed';
+
+            if (isLoop) {
+              await supabaseAdmin.from("email_processing_state").update({ status: 'ignored' }).eq("config_id", configId).eq("imap_uid", imapUid);
+              continue;
+            }
+
+            const plainContent = parsed.text || "";
+            const htmlContent = parsed.html ? convert(parsed.html) : "";
+            const fullContent = normalizeText(`${subject} ${plainContent} ${htmlContent}`);
+
+            // Regex for keyword matching: \w*codigo\w*
+            const hasKeyword = config.keywords.some((kw: string) => {
+              const normalizedKw = normalizeText(kw);
+              const regex = new RegExp(`\\w*${normalizedKw}\\w*`, 'i');
+              return regex.test(fullContent);
             });
 
-            await transporter.sendMail({
-              from: config.email_user,
-              to: config.destinations.join(", "),
-              subject: `ENC: ${subject}`,
-              text: `E-mail encaminhado automaticamente.\n\nDe: ${from}\nAssunto: ${subject}\n\nConteúdo:\n${bodyText}`,
-            });
+            if (hasKeyword) {
+              await log(`Palavra-chave detectada no e-mail de ${from}: "${subject}"`);
+              
+              const transporter = nodemailer.createTransport({
+                host: config.smtp_host,
+                port: config.smtp_port,
+                secure: config.smtp_secure,
+                auth: {
+                  user: config.email_user,
+                  pass: config.email_password,
+                },
+              });
 
-            await supabaseAdmin.from("forwarded_emails").insert({
-              config_id: configId,
-              original_subject: subject,
-              original_from: from,
-            });
+              // 3. Send via SMTP with original email attached as .eml
+              await transporter.sendMail({
+                from: config.email_user,
+                to: config.destinations.join(", "),
+                subject: `ENC: ${subject}`,
+                text: `E-mail encaminhado automaticamente.\n\nDe: ${from}\nAssunto: ${subject}\n\n[Email original anexado como rfc822]`,
+                attachments: [
+                  {
+                    filename: 'email-original.eml',
+                    content: message.source,
+                    contentType: 'message/rfc822'
+                  }
+                ],
+                headers: {
+                  'X-Email-Monitor': 'processed'
+                }
+              });
 
-            await log(`E-mail encaminhado com sucesso para ${config.destinations.join(", ")}`, "success");
+              // 4. Register Success in DB
+              await supabaseAdmin.from("forwarded_emails").insert({
+                config_id: configId,
+                original_subject: subject,
+                original_from: from,
+              });
+
+              await supabaseAdmin.from("email_processing_state").update({ 
+                status: 'forwarded',
+                forwarded_at: new Date().toISOString()
+              }).eq("config_id", configId).eq("imap_uid", imapUid);
+
+              // 5. Mark as Seen ONLY after success
+              await imap.messageFlagsAdd(message.uid, ['\\Seen'], { uid: true });
+              await log(`E-mail encaminhado com sucesso para ${config.destinations.join(", ")}`, "success");
+            } else {
+              await supabaseAdmin.from("email_processing_state").update({ status: 'ignored' }).eq("config_id", configId).eq("imap_uid", imapUid);
+            }
+          } catch (msgError: any) {
+            await log(`Erro no processamento individual (UID ${message.uid}): ${msgError.message}`, "error");
+            await supabaseAdmin.from("email_processing_state").update({ 
+              status: 'error',
+              last_error: msgError.message
+            }).eq("config_id", configId).eq("imap_uid", imapUid);
           }
         }
       } finally {
@@ -151,9 +237,11 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       }
 
       await imap.logout();
+      await updateHeartbeat('success');
       return { success: true };
     } catch (error: any) {
       await log(`Erro ao processar e-mails: ${error.message}`, "error");
+      await updateHeartbeat('error', error.message);
       return { success: false, error: error.message };
     }
   });
