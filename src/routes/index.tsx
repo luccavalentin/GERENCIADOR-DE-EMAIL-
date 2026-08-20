@@ -300,7 +300,7 @@ function Dashboard() {
                       <Label htmlFor="keywords">Palavras-chave (separadas por vírgula)</Label>
                       <Input id="keywords" placeholder="codigo, token, senha" value={formData.keywords} onChange={e => setFormData({...formData, keywords: e.target.value})} required />
                     </div>
-                    <div className="flex items-center space-x-2 border-t pt-4">
+                    <div className="hidden">
                       <Checkbox id="allow_invalid" checked={formData.allow_invalid} onCheckedChange={(checked) => setFormData({...formData, allow_invalid: !!checked})} />
                       <div className="grid gap-1.5 leading-none">
                         <Label htmlFor="allow_invalid" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
