@@ -179,9 +179,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             isCollapsed && "p-4"
           )}>
             {!isCollapsed ? (
-              <img src={logoPrimary.url} alt="Agilliza" className="h-9 object-contain brightness-0 invert opacity-90 transition-all" />
+              <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain transition-all" />
             ) : (
-              <div className="h-9 w-9 bg-white/10 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
+              <img src={logoPrimary.url} alt="A" className="h-8 w-8 object-contain" />
             )}
             
             <button 
