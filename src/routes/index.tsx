@@ -61,15 +61,15 @@ function Dashboard() {
   const runTestConnection = useServerFn(testConnection);
 
   const [formData, setFormData] = useState({
-    imap_host: "",
+    imap_host: "imap.uhserver.com",
     imap_port: 993,
     imap_secure: true,
-    smtp_host: "",
+    smtp_host: "smtps.uhserver.com",
     smtp_port: 465,
     smtp_secure: true,
-    email_user: "",
+    email_user: "thiago@agilliza.net.br",
     email_password: "",
-    destinations: "",
+    destinations: "renzo@agilliza.net.br, carlos@agilliza.net.br, pamela@agilliza.net.br, paula@agilliza.net.br",
     keywords: "codigo",
   });
 
