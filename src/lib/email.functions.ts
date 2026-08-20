@@ -96,17 +96,18 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
     if (configId) {
       const { error: updateError } = await supabaseAdmin
         .from("email_configurations")
-        .update(configData as any)
+        .update(configData)
         .eq("id", configId);
       if (updateError) throw updateError;
     } else {
       const { data, error: insertError } = await supabaseAdmin
         .from("email_configurations")
-        .insert(configData as any)
+        .insert(configData)
         .select("id")
         .single();
       if (insertError) throw insertError;
       targetConfigId = data.id;
+
     }
 
     if (!targetConfigId) throw new Error("Failed to get config ID");

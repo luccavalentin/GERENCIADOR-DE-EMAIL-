@@ -14,7 +14,11 @@ function LogsPage() {
   const { configId } = Route.useParams();
   const [logs, setLogs] = useState<any[]>([]);
   const [config, setConfig] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     fetchConfig();
@@ -51,23 +55,64 @@ function LogsPage() {
   }, [logs]);
 
   const fetchConfig = async () => {
-    const { data } = await supabase
-      .from("email_configurations")
-      .select("*")
-      .eq("id", configId)
-      .single();
-    setConfig(data);
+    try {
+      const { data, error } = await supabase
+        .from("email_configurations")
+        .select("*")
+        .eq("id", configId)
+        .single();
+      if (error) throw error;
+      setConfig(data);
+    } catch (err: any) {
+      setError(err.message || "Erro ao carregar configuração");
+    }
   };
 
   const fetchInitialLogs = async () => {
-    const { data } = await supabase
-      .from("email_logs")
-      .select("*")
-      .eq("config_id", configId)
-      .order("created_at", { ascending: true })
-      .limit(100);
-    setLogs(data || []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("email_logs")
+        .select("*")
+        .eq("config_id", configId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      
+      if (error) throw error;
+      setLogs(data?.reverse() || []);
+      setHasMore(data?.length === 50);
+    } catch (err: any) {
+      setError(err.message || "Erro ao carregar logs");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const loadMoreLogs = async () => {
+    if (!logs.length) return;
+    const oldestLog = logs[0];
+    
+    try {
+      const { data, error } = await supabase
+        .from("email_logs")
+        .select("*")
+        .eq("config_id", configId)
+        .lt("created_at", oldestLog.created_at)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      
+      if (error) throw error;
+      if (data && data.length > 0) {
+        setLogs(prev => [...data.reverse(), ...prev]);
+        setHasMore(data.length === 50);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err: any) {
+      console.error("Error loading more logs:", err);
+    }
+  };
+
 
   const getLevelIcon = (level: string) => {
     switch (level) {
@@ -77,7 +122,27 @@ function LogsPage() {
     }
   };
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#fcfbf8] p-8 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-red-600 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" />
+              Erro
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Link to="/" className="text-blue-600 hover:underline">Voltar ao Dashboard</Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
+
     <div className="min-h-screen bg-[#fcfbf8] p-8">
       <div className="mx-auto max-w-4xl">
         <header className="mb-8">
@@ -110,9 +175,22 @@ function LogsPage() {
           <CardContent className="p-0">
             <ScrollArea className="h-[600px] w-full p-4" ref={scrollRef}>
               <div className="space-y-1">
-                {logs.length === 0 ? (
+                {hasMore && (
+                  <div className="flex justify-center py-2">
+                    <button 
+                      onClick={loadMoreLogs}
+                      className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                    >
+                      Carregar logs anteriores...
+                    </button>
+                  </div>
+                )}
+                {loading ? (
+                  <div className="text-slate-500 italic">Carregando logs...</div>
+                ) : logs.length === 0 ? (
                   <div className="text-slate-500 italic">Aguardando eventos...</div>
                 ) : (
+
                   logs.map((log) => (
                     <div key={log.id} className="flex gap-3 hover:bg-slate-900/50 py-0.5 px-2 rounded">
                       <span className="text-slate-500 shrink-0">

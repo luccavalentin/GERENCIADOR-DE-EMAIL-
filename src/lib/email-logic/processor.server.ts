@@ -275,7 +275,7 @@ export async function processEmailsForConfigLogic(
               forwarded_at: new Date().toISOString()
             }).eq("config_id", configId).eq("imap_uid", imapUid);
 
-            await imap.messageFlagsAdd(message.uid, ['\\Seen'], { uid: true });
+            await imap.messageFlagsAdd(message.uid.toString(), ['\\Seen'], { uid: true });
             stats.forwarded++;
             await log(`E-mail encaminhado com sucesso para ${config.destinations.join(", ")}`, "success");
           } else {
