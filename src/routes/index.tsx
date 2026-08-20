@@ -654,10 +654,10 @@ function Dashboard() {
                 </div>
                 
                 <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className={`p-2 rounded-full ${testResult.result.tcp === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.tcp === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
-                    {testResult.result.tcp === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.tcp === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
+                  <div className={`p-2 rounded-full ${testResult.result.tcp === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.tcp === 'TIMEOUT' ? 'bg-amber-100 text-amber-600' : (testResult.result.tcp === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'))}`}>
+                    {testResult.result.tcp === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.tcp === 'TIMEOUT' ? <Clock className="h-5 w-5" /> : (testResult.result.tcp === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />))}
                   </div>
-                  <span className="text-[10px] font-bold uppercase">TCP</span>
+                  <span className="text-[10px] font-bold uppercase">{testResult.result.tcp === 'TIMEOUT' ? 'TIMEOUT' : 'TCP'}</span>
                 </div>
 
                 <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
@@ -677,18 +677,18 @@ function Dashboard() {
                 )}
 
                 <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className={`p-2 rounded-full ${testResult.result.auth === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.auth === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
-                    {testResult.result.auth === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.auth === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
+                  <div className={`p-2 rounded-full ${testResult.result.auth === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.auth === 'Não testada' ? 'bg-amber-100 text-amber-600' : (testResult.result.auth === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'))}`}>
+                    {testResult.result.auth === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.auth === 'Não testada' ? <AlertCircle className="h-5 w-5" /> : (testResult.result.auth === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />))}
                   </div>
-                  <span className="text-[10px] font-bold uppercase">Auth</span>
+                  <span className="text-[10px] font-bold uppercase">{testResult.result.auth === 'Não testada' ? 'N/T' : 'Auth'}</span>
                 </div>
 
                 {testResult.type === 'IMAP' && (
                   <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                    <div className={`p-2 rounded-full ${testResult.result.inbox === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.inbox === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
-                      {testResult.result.inbox === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.inbox === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
+                    <div className={`p-2 rounded-full ${testResult.result.inbox === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.inbox === 'Não testada' ? 'bg-amber-100 text-amber-600' : (testResult.result.inbox === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'))}`}>
+                      {testResult.result.inbox === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.inbox === 'Não testada' ? <AlertCircle className="h-5 w-5" /> : (testResult.result.inbox === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />))}
                     </div>
-                    <span className="text-[10px] font-bold uppercase">INBOX</span>
+                    <span className="text-[10px] font-bold uppercase">{testResult.result.inbox === 'Não testada' ? 'N/T' : 'INBOX'}</span>
                   </div>
                 )}
               </div>

@@ -449,7 +449,7 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
 
       if (!config || !creds?.password) throw new Error("Configuração ou credenciais não encontradas");
 
-      // External Timeout to prevent hanging for 70s
+      // External rigid timeout (20s)
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 20000);
 
@@ -461,72 +461,84 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
             user: config.email_user,
             pass: creds.password,
           },
-          logger: false, // Don't leak to console, we capture events
+          logger: false,
           connectionTimeout: 10000,
           greetingTimeout: 10000,
           socketTimeout: 15000,
       });
 
-      // Event Tracking
       imap.on('error', (err) => {
         console.error(`[IMAP FLOW ERROR]`, err);
       });
 
       try {
-        result.dns = "ok"; // If we start connecting, DNS resolved
+        result.dns = "ok";
         
-        // Manual timeout wrapper
+        // Race between the entire operation and the 20s timeout
         await Promise.race([
-          imap.connect(),
+          (async () => {
+            await imap.connect();
+            result.tcp = "ok";
+            result.tls = "ok";
+            result.greeting = "ok";
+            result.auth = "ok";
+            
+            const lock = await imap.getMailboxLock("INBOX");
+            try {
+              result.inbox = "ok";
+            } finally {
+              lock.release();
+            }
+            await imap.logout();
+          })(),
           new Promise((_, reject) => {
-            controller.signal.addEventListener('abort', () => reject(new Error("Timeout Global (20s)")));
+            controller.signal.addEventListener('abort', () => {
+              reject(new Error("Timeout de conexão IMAP após 20 segundos"));
+            });
           })
         ]);
-
-        result.tcp = "ok";
-        result.tls = "ok";
-        result.greeting = "ok";
-        result.auth = "ok";
-        
-        let lock = await imap.getMailboxLock("INBOX");
-        try {
-          result.inbox = "ok";
-        } finally {
-          lock.release();
-        }
-        
-        await imap.logout();
       } catch (err: any) {
         clearTimeout(timeout);
-        const detailedError = {
+        
+        if (err.message === "Timeout de conexão IMAP após 20 segundos") {
+          result.tcp = "TIMEOUT";
+          result.auth = "Não testada";
+          result.inbox = "Não testada";
+        }
+        
+        result.error = {
           message: err.message,
           code: err.code,
           errno: err.errno,
           syscall: err.syscall,
-          address: err.address,
-          port: err.port,
-          command: err.command,
           response: err.response,
-          responseCode: err.responseCode,
+          command: err.command,
           stack: err.stack
         };
-        result.error = detailedError;
-        
-        // Determine stage
-        if (result.tcp === "pending") result.tcp = "error";
-        else if (result.tls === "pending") result.tls = "error";
-        else if (result.greeting === "pending") result.greeting = "error";
-        else if (result.auth === "pending") result.auth = "error";
-        else if (result.inbox === "pending") result.inbox = "error";
+
+        // Strict stage mapping for non-timeout errors
+        if (err.message !== "Timeout de conexão IMAP após 20 segundos") {
+          if (result.tcp === "pending") result.tcp = "error";
+          else if (result.tls === "pending") result.tls = "error";
+          else if (result.greeting === "pending") result.greeting = "error";
+          else if (result.auth === "pending") result.auth = "error";
+          else if (result.inbox === "pending") result.inbox = "error";
+        }
+
+        // Ensure logout to clean up resources if possible
+        try {
+          await imap.logout();
+        } catch (e) {}
         
         throw err;
+      } finally {
+        clearTimeout(timeout);
       }
 
-      clearTimeout(timeout);
-      result.time = Date.now() - startTime;
+      result.time = Math.round(Date.now() - startTime);
       return { success: true, result };
     } catch (error: any) {
-      result.time = Date.now() - startTime;
+      result.time = Math.round(Date.now() - startTime);
       return { success: false, error: error.message, result };
     }
   });
