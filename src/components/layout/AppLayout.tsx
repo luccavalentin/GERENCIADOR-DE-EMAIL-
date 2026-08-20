@@ -45,22 +45,18 @@ const navItems = [
   { label: "Configurações", icon: Settings, to: "/settings" },
 ];
 
-function ClientOnlyTime() {
-  const [time, setTime] = React.useState<string>("");
-  
-  React.useEffect(() => {
-    setTime(new Date().toLocaleTimeString());
-    const interval = setInterval(() => {
-      setTime(new Date().toLocaleTimeString());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!time) return null;
+function LastHeartbeat({ time }: { time?: string }) {
+  if (!time) {
+    return (
+      <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
+        Aguardando heartbeat...
+      </span>
+    );
+  }
 
   return (
     <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
-      Última atualização: {time}
+      Última atualização: {new Date(time).toLocaleTimeString()}
     </span>
   );
 }
