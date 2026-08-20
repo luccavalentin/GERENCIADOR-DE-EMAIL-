@@ -232,7 +232,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
 
                   <TabsContent value="entrada" className="mt-0 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Card className="shadow-none border-slate-100">
+                      <Card className="premium-card shadow-none">
                         <CardHeader className="pb-4">
                           <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
                             <HistoryIcon className="h-4 w-4" />
