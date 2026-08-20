@@ -1,8 +1,7 @@
-import { ImapFlow } from "imapflow";
-import nodemailer from "nodemailer";
-import { simpleParser } from "mailparser";
-import { convert } from "html-to-text";
-import { SupabaseClient } from "@supabase/supabase-js";
+import type { ImapFlow as ImapFlowType } from "imapflow";
+import type nodemailerType from "nodemailer";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 
 export function normalizeText(text: string): string {
   return text
