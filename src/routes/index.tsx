@@ -175,8 +175,10 @@ function Dashboard() {
                     <Button variant="outline" size="icon">
                       <SettingsIcon className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="icon">
-                      <History className="h-4 w-4" />
+                    <Button variant="outline" size="icon" asChild>
+                      <a href={`/logs/${config.id}`}>
+                        <History className="h-4 w-4" />
+                      </a>
                     </Button>
                   </div>
                 </CardContent>
