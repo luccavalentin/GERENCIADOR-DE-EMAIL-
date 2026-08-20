@@ -1,4 +1,4 @@
-import { createServerFn, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { getActiveConfigs, processEmailsForConfig } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/api/public/cron/monitor")({
@@ -14,13 +14,12 @@ export const Route = createFileRoute("/api/public/cron/monitor")({
 
         console.log("Starting cron monitor...");
         try {
-          const configs = await getActiveConfigs();
+          const configs = await (getActiveConfigs as any)();
           console.log(`Processing ${configs?.length || 0} active configurations`);
 
           const results = [];
           for (const config of configs || []) {
             try {
-              // Lock: Each config is processed individually
               const res = await (processEmailsForConfig as any)({ data: { configId: config.id } });
               results.push({ id: config.id, success: res.success });
             } catch (err: any) {
