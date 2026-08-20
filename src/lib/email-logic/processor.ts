@@ -223,6 +223,9 @@ export async function processEmailsForConfigLogic(
                 user: config.email_user,
                 pass: creds.password,
               },
+              connectionTimeout: 20000, // 20s timeout
+              greetingTimeout: 20000,
+              socketTimeout: 30000,
             });
 
             await transporter.sendMail({
