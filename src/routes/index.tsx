@@ -76,7 +76,7 @@ function DashboardPage() {
   const isOnline = workerStatus?.status === 'online';
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
