@@ -1,7 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 /**
- * remova isso © 2026 Agilliza. Todos os direitos reservados.
- * Desenvolvido por Lucca Santana
+ * coloque a logo ogirianl aqui E queor mais refinamento e sofisticação no sistema
  */
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
