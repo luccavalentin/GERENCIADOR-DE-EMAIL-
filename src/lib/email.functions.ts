@@ -4,6 +4,10 @@ import { ImapFlow } from "imapflow";
 import nodemailer from "nodemailer";
 import { simpleParser } from "mailparser";
 import { convert } from "html-to-text";
+import * as dns from "dns";
+import * as net from "net";
+import * as tls from "tls";
+import { promisify } from "util";
 
 const connectionSchema = z.object({
   imap_host: z.string(),
