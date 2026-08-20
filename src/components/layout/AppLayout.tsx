@@ -49,7 +49,15 @@ const navItems = [
 ];
 
 function LastHeartbeat({ time }: { time?: string }) {
-  if (!time) {
+  const [formattedTime, setFormattedTime] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (time) {
+      setFormattedTime(new Date(time).toLocaleTimeString());
+    }
+  }, [time]);
+
+  if (!formattedTime) {
     return (
       <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
         Aguardando heartbeat...
@@ -59,7 +67,7 @@ function LastHeartbeat({ time }: { time?: string }) {
 
   return (
     <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
-      Última atualização: {new Date(time).toLocaleTimeString()}
+      Última atualização: {formattedTime}
     </span>
   );
 }
