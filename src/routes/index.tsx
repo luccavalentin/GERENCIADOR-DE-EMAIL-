@@ -1,4 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+/**
+ * No perfil do usuario coloque a opção de configurações e etc inclusive mudar a senha.
+ */
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { 
