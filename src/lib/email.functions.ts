@@ -220,9 +220,9 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
 
       // TEST 1: DNS
       try {
-        const lookup = promisify(dns.lookup);
-        const addresses = await lookup(imapHost, { all: true });
+        const addresses = await dns.lookup(imapHost, { all: true });
         diagResults.dns = { status: "ok", data: addresses };
+
       } catch (e: any) {
         diagResults.dns = { status: "error", error: e.message };
       }
