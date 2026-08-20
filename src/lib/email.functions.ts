@@ -146,14 +146,32 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       details: [] as string[]
     };
 
+    const executionId = crypto.randomUUID();
+    
     // Global Lock Attempt
     const { data: lockId, error: lockError } = await supabaseAdmin.rpc('acquire_email_config_lock', {
       p_config_id: configId,
-      p_lock_timeout: '5 minutes'
+      p_lock_timeout: '2 minutes' // Reduced TTL for testing and safety
     });
 
     if (lockError || !lockId) {
-      return { success: false, error: "Locked or error acquiring lock", stats };
+      // Check if it's already locked to provide a better message
+      const { data: currentConfig } = await supabaseAdmin
+        .from("email_configurations")
+        .select("processing_lock_id, processing_lock_until")
+        .eq("id", configId)
+        .single();
+
+      const isLocked = currentConfig?.processing_lock_id && 
+                       currentConfig.processing_lock_until && 
+                       new Date(currentConfig.processing_lock_until) > new Date();
+
+      return { 
+        success: false, 
+        error: isLocked ? "Processamento: Bloqueado por outra execução" : "Locked or error acquiring lock",
+        isLocked: !!isLocked,
+        stats 
+      };
     }
 
     const updateHeartbeat = async (status: string, errorMsg?: string) => {
@@ -332,8 +350,9 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       await updateHeartbeat('success');
       return { success: true, stats };
     } catch (error: any) {
-      await updateHeartbeat('error', error.message);
-      return { success: false, error: error.message, stats };
+      const errorMsg = error.message || "Unknown error during processing";
+      await updateHeartbeat('error', errorMsg);
+      return { success: false, error: errorMsg, stats };
     } finally {
       // Global Lock Release
       await supabaseAdmin.rpc('release_email_config_lock', {
