@@ -178,7 +178,7 @@ function Dashboard() {
             <div className="flex items-center gap-4">
               <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Gerenciador de E-mail</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Painel de Monitoramento</h1>
                 <p className="text-gray-600">Olá, {session.user.email}</p>
               </div>
             </div>
