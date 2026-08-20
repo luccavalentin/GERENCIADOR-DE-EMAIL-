@@ -25,12 +25,15 @@ export const Route = createFileRoute("/logs")({
 function LogsIndexPage() {
   const [level, setLevel] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const limit = 50;
   
   const { data: logsData, isLoading } = useQuery({
-    queryKey: ["allLogs", level, search],
+    queryKey: ["allLogs", level, search, page],
     queryFn: () => getLogs({ 
       data: { 
-        limit: 50,
+        limit,
+        offset: page * limit,
         level: level === "all" ? undefined : level as any,
         search
       } 
@@ -38,6 +41,8 @@ function LogsIndexPage() {
   });
 
   const logs = logsData?.logs || [];
+  const totalCount = logsData?.count || 0;
+  const totalPages = Math.ceil(totalCount / limit);
 
   return (
     <AppLayout>
