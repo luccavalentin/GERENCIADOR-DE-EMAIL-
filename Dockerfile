@@ -14,8 +14,6 @@ WORKDIR /app/worker
 COPY worker/package*.json ./
 RUN npm install
 COPY worker/ ./
-# O worker é autocontido agora
-COPY worker/ ./
 RUN npm run build
 
 # --- Stage 3: Base for Production (Shared Utilities) ---
