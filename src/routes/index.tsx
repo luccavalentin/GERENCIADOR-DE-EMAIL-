@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { testConnection, saveEmailConfiguration, processEmailsForConfig } from "@/lib/email.functions";
+import { testConnection, saveEmailConfiguration, processEmailsForConfig, testImapConnectionDetailed, testSmtpConnectionDetailed } from "@/lib/email.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Settings as SettingsIcon, Play, Square, History, Mail, LogOut, Loader2, Activity, ShieldCheck, AlertCircle } from "lucide-react";
+import { Plus, Settings as SettingsIcon, Play, Square, History, Mail, LogOut, Loader2, Activity, ShieldCheck, AlertCircle, CheckCircle2, XCircle, Clock } from "lucide-react";
 import logoPrimary from "@/assets/logo-primary.png.asset.json";
 import {
   Dialog,
@@ -62,9 +62,16 @@ function Dashboard() {
   const runTestConnection = useServerFn(testConnection);
   const runSaveConfig = useServerFn(saveEmailConfiguration);
   const runProcessNow = useServerFn(processEmailsForConfig);
+  const runTestImap = useServerFn(testImapConnectionDetailed);
+  const runTestSmtp = useServerFn(testSmtpConnectionDetailed);
+  
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
   const [processStats, setProcessStats] = useState<any>(null);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+
+  const [testResult, setTestResult] = useState<any>(null);
+  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+  const [testingConfigId, setTestingConfigId] = useState<string | null>(null);
 
   const initialFormData = {
     imap_host: "imap.uhserver.com",
@@ -219,6 +226,45 @@ function Dashboard() {
       setIsProcessing(null);
     }
   };
+
+  const handleTestImap = async (configId: string) => {
+    setTestingConfigId(configId);
+    setTestResult(null);
+    try {
+      const result = await runTestImap({ data: { configId } });
+      setTestResult({ type: 'IMAP', ...result });
+      setIsTestModalOpen(true);
+      if (result.success) {
+        toast.success("Teste IMAP concluído com sucesso!");
+      } else {
+        toast.error(`Falha no teste IMAP: ${result.error}`);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao testar IMAP");
+    } finally {
+      setTestingConfigId(null);
+    }
+  };
+
+  const handleTestSmtp = async (configId: string) => {
+    setTestingConfigId(configId);
+    setTestResult(null);
+    try {
+      const result = await runTestSmtp({ data: { configId } });
+      setTestResult({ type: 'SMTP', ...result });
+      setIsTestModalOpen(true);
+      if (result.success) {
+        toast.success("Teste SMTP concluído com sucesso!");
+      } else {
+        toast.error(`Falha no teste SMTP: ${result.error}`);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao testar SMTP");
+    } finally {
+      setTestingConfigId(null);
+    }
+  };
+
 
   if (!session) {
     return null;
@@ -457,6 +503,29 @@ function Dashboard() {
                         <SettingsIcon className="h-4 w-4" />
                       </Button>
                     </div>
+                    
+                    <div className="flex gap-2 pt-2 flex-wrap">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1 gap-2 h-8 text-[10px] uppercase font-bold text-gray-500 hover:text-blue-600 border-dashed"
+                        onClick={() => handleTestImap(config.id)}
+                        disabled={testingConfigId === config.id}
+                      >
+                        {testingConfigId === config.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Mail className="h-3 w-3" />}
+                        Testar IMAP
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1 gap-2 h-8 text-[10px] uppercase font-bold text-gray-500 hover:text-blue-600 border-dashed"
+                        onClick={() => handleTestSmtp(config.id)}
+                        disabled={testingConfigId === config.id}
+                      >
+                        {testingConfigId === config.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Activity className="h-3 w-3" />}
+                        Testar SMTP
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -521,6 +590,86 @@ function Dashboard() {
 
           <DialogFooter>
             <Button onClick={() => setIsStatsOpen(false)} className="w-full">Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isTestModalOpen} onOpenChange={setIsTestModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-blue-600" />
+              Resultado do Teste {testResult?.type}
+            </DialogTitle>
+            <DialogDescription>
+              Detalhes técnicos da conexão e autenticação.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {testResult && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">Conexão TCP/SSL</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.connection === 'ok' ? (
+                      <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
+                    ) : testResult.result.connection === 'error' ? (
+                      <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
+                    ) : (
+                      <span className="text-xs text-gray-400">Pendente</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">Autenticação</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.auth === 'ok' ? (
+                      <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
+                    ) : testResult.result.auth === 'error' ? (
+                      <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
+                    ) : (
+                      <span className="text-xs text-gray-400">Pendente</span>
+                    )}
+                  </div>
+                </div>
+
+                {testResult.type === 'IMAP' && (
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <span className="text-sm font-medium text-gray-600">Acesso INBOX</span>
+                    <div className="flex items-center gap-2">
+                      {testResult.result.inbox === 'ok' ? (
+                        <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
+                      ) : testResult.result.inbox === 'error' ? (
+                        <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
+                      ) : (
+                        <span className="text-xs text-gray-400">Pendente</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">Tempo de Resposta</span>
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-xs font-bold">{testResult.result.time}ms</span>
+                  </div>
+                </div>
+
+                {!testResult.success && testResult.error && (
+                  <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+                    <span className="text-[10px] uppercase font-bold text-red-400 block mb-1">Log de Erro</span>
+                    <p className="text-xs text-red-700 break-words">{testResult.error}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setIsTestModalOpen(false)} className="w-full">Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
