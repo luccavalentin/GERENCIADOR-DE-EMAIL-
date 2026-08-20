@@ -159,7 +159,7 @@ function UsersPage() {
         </Dialog>
       </div>
 
-      <Card className="shadow-sm border-slate-200">
+      <Card className="premium-card overflow-hidden">
         <CardContent className="p-0">
           <Table>
             <TableHeader className="bg-slate-50">
