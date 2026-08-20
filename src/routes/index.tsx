@@ -214,7 +214,11 @@ function Dashboard() {
         toast.success("Processamento concluído!");
         fetchConfigs();
       } else {
-        toast.error(`Erro: ${result.error}`);
+        if (result.isLocked) {
+          toast.error("Processamento: Bloqueado por outra execução");
+        } else {
+          toast.error(`Erro: ${result.error}`);
+        }
         if (result.stats) {
           setProcessStats(result.stats);
           setIsStatsOpen(true);
