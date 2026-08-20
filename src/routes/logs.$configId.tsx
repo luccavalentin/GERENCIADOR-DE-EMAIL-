@@ -191,6 +191,7 @@ function LogsPage() {
                           variant="ghost" 
                           size="icon" 
                           className="h-4 w-4 opacity-0 group-hover/id:opacity-100 transition-opacity"
+                          title="Copiar ID"
                           onClick={() => {
                             navigator.clipboard.writeText(log.details.executionId);
                             toast.success("ID copiado");
