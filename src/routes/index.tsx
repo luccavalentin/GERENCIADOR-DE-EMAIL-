@@ -62,9 +62,16 @@ function Dashboard() {
   const runTestConnection = useServerFn(testConnection);
   const runSaveConfig = useServerFn(saveEmailConfiguration);
   const runProcessNow = useServerFn(processEmailsForConfig);
+  const runTestImap = useServerFn(testImapConnectionDetailed);
+  const runTestSmtp = useServerFn(testSmtpConnectionDetailed);
+  
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
   const [processStats, setProcessStats] = useState<any>(null);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+
+  const [testResult, setTestResult] = useState<any>(null);
+  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+  const [testingConfigId, setTestingConfigId] = useState<string | null>(null);
 
   const initialFormData = {
     imap_host: "imap.uhserver.com",
