@@ -93,6 +93,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [session, setSession] = React.useState<any>(null);
   const [configs, setConfigs] = React.useState<EmailConfig[]>([]);
   const [selectedConfigId, setSelectedConfigId] = React.useState<string | null>(null);
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
   
   const { data: workerStatus } = useQuery({
     queryKey: ['workerStatus'],
