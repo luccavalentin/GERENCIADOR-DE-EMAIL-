@@ -294,8 +294,8 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
                 ],
                 headers: {
                   'X-Email-Monitor': 'processed'
-                }
-              });
+    }
+  });
 
               await supabaseAdmin.from("forwarded_emails").insert({
                 config_id: configId,
