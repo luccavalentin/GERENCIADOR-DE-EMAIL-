@@ -185,7 +185,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
               <ScrollArea className="flex-1">
                 <div className="p-6">
                   <TabsContent value="geral" className="mt-0 space-y-6">
-                    <Card className="shadow-none border-slate-100 bg-slate-50/50">
+                    <Card className="premium-card bg-slate-50/50 shadow-none">
                       <CardHeader className="pb-4">
                         <CardTitle className="text-sm font-bold flex items-center gap-2">
                           <Globe className="h-4 w-4 text-[#0000A0]" />
