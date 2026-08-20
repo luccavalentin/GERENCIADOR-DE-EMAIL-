@@ -184,8 +184,8 @@ export const createSystemUser = createServerFn({ method: "POST" })
 
     // The trigger usually creates the profile, but we ensure full_name is set
     const { error: profileError } = await supabaseAdmin
-      .from("profiles")
-      .update({ full_name })
+      .from("profiles" as any)
+      .update({ full_name } as any)
       .eq("id", data.user.id);
     
     if (profileError) {
