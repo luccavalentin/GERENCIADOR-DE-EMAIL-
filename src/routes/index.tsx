@@ -196,6 +196,29 @@ function Dashboard() {
       setIsTesting(false);
     }
   };
+  
+  const handleManualProcess = async (configId: string) => {
+    setIsProcessing(configId);
+    try {
+      const result = await runProcessNow({ data: { configId } });
+      if (result.success) {
+        setProcessStats(result.stats);
+        setIsStatsOpen(true);
+        toast.success("Processamento concluído!");
+        fetchConfigs();
+      } else {
+        toast.error(`Erro: ${result.error}`);
+        if (result.stats) {
+          setProcessStats(result.stats);
+          setIsStatsOpen(true);
+        }
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao processar e-mails");
+    } finally {
+      setIsProcessing(null);
+    }
+  };
 
   if (!session) {
     return null;
