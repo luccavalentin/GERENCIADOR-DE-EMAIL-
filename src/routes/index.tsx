@@ -161,7 +161,7 @@ function Dashboard() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#fcfbf8] p-4 text-center">
         <Mail className="mb-4 h-16 w-16 text-blue-600" />
         <h1 className="mb-4 text-4xl font-bold text-gray-900">
-          recrie tudo no supabse
+          recrie tudo no supabse lembre-se que o sistema é multitenanci
         </h1>
 
         <p className="mb-8 text-lg text-gray-600">
