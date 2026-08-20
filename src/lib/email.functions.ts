@@ -377,10 +377,15 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
             }
           } catch (msgError: any) {
             stats.errors++;
+            const detailedMsgError = {
+              message: msgError.message,
+              code: msgError.code,
+              stack: msgError.stack
+            };
             await log(`Erro no processamento individual (UID ${message.uid}): ${msgError.message}`, "error");
             await supabaseAdmin.from("email_processing_state").update({ 
               status: 'error',
-              last_error: msgError.message
+              last_error: JSON.stringify(detailedMsgError)
             }).eq("config_id", configId).eq("imap_uid", imapUid);
           }
         }
