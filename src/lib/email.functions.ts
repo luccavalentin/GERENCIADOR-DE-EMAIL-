@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 function normalizeTextInternal(text: string): string {
@@ -20,6 +21,7 @@ const connectionSchema = z.object({
 });
 
 export const testConnection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => connectionSchema.parse(data))
   .handler(async ({ data }) => {
     const { ImapFlow } = await import("imapflow");
@@ -63,6 +65,7 @@ export const testConnection = createServerFn({ method: "POST" })
   });
 
 export const saveEmailConfiguration = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({
     configId: z.string().optional(),
     configData: z.object({
@@ -122,6 +125,7 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
   });
 
 export const getActiveConfigs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
@@ -134,6 +138,7 @@ export const getActiveConfigs = createServerFn({ method: "GET" })
   });
 
 export const processEmailsForConfig = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -142,6 +147,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
   });
 
 export const testImapConnectionDetailed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -328,6 +334,7 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
   });
 
 export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

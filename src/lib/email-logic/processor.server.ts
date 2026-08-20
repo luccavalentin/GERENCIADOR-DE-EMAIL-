@@ -1,8 +1,8 @@
-import { ImapFlow } from "imapflow";
-import nodemailer from "nodemailer";
-import { simpleParser } from "mailparser";
-import { convert } from "html-to-text";
-import { SupabaseClient } from "@supabase/supabase-js";
+import type { ImapFlow as ImapFlowType } from "imapflow";
+import type nodemailerType from "nodemailer";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+
 
 export function normalizeText(text: string): string {
   return text
@@ -113,6 +113,11 @@ export async function processEmailsForConfigLogic(
       });
     };
 
+    const { ImapFlow } = await import("imapflow");
+    const { simpleParser } = await import("mailparser");
+    const { convert } = await import("html-to-text");
+    const nodemailer = (await import("nodemailer")).default;
+
     const imap = new ImapFlow({
       host: config.imap_host,
       port: config.imap_port,
@@ -127,9 +132,10 @@ export async function processEmailsForConfigLogic(
       socketTimeout: 30000,
     });
 
-    imap.on('error', (err) => {
+    imap.on('error', (err: any) => {
       console.error(`[IMAP Global Error] Config ${configId}:`, err);
     });
+
 
     await log(`Execution ID criado: ${executionId}`);
     await log("Lock solicitado e adquirido no banco.");
@@ -195,7 +201,7 @@ export async function processEmailsForConfigLogic(
         stats.analyzed++;
 
         try {
-          const parsed = await simpleParser(message.source);
+          const parsed = await simpleParser(message.source as any);
           const subject = parsed.subject || "";
           const from = parsed.from?.value[0]?.address || "desconhecido";
           
@@ -215,7 +221,7 @@ export async function processEmailsForConfigLogic(
           }
 
           const plainContent = parsed.text || "";
-          const htmlContent = parsed.html ? convert(parsed.html) : "";
+          const htmlContent = parsed.html ? convert(parsed.html as string) : "";
           const fullContent = normalizeText(`${subject} ${plainContent} ${htmlContent}`);
 
           const hasKeyword = config.keywords.some((kw: string) => {
@@ -228,7 +234,7 @@ export async function processEmailsForConfigLogic(
             stats.withCode++;
             await log(`Palavra-chave detectada no e-mail de ${from}: "${subject}"`);
             
-            const transporter = nodemailer.createTransport({
+            const transporter = (nodemailer as any).createTransport({
               host: config.smtp_host,
               port: config.smtp_port,
               secure: config.smtp_secure,
