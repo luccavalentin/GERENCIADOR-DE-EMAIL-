@@ -268,7 +268,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-4 text-slate-600">
               <div className="text-right flex flex-col mr-2">
                 <span className="text-sm font-bold text-slate-900">{session?.user?.user_metadata?.full_name || session?.user?.email || "Usuário"}</span>
-                <ClientOnlyTime />
+                <LastHeartbeat time={workerStatus?.last_heartbeat} />
               </div>
             </div>
 
