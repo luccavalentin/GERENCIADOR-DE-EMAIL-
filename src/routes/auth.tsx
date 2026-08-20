@@ -71,6 +71,18 @@ function AuthPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
+            {isSignUp && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Nome Completo</label>
+                <Input
+                  type="text"
+                  placeholder="Seu Nome Completo"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-sm font-medium">E-mail</label>
               <Input
