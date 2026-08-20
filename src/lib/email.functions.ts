@@ -1,12 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { ImapFlow } from "imapflow";
-import nodemailer from "nodemailer";
-import * as dns from "dns";
-import * as net from "net";
-import * as tls from "tls";
-import { promisify } from "util";
-import { processEmailsForConfigLogic, normalizeText as sharedNormalizeText } from "./email-logic/processor";
+
+function normalizeText(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 const connectionSchema = z.object({
   imap_host: z.string(),
