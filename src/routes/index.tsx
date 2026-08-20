@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { testConnection } from "@/lib/email.functions";
+import { testConnection, saveEmailConfiguration } from "@/lib/email.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Settings as SettingsIcon, Play, Square, History, Mail, LogOut, Loader2, Activity, ShieldCheck, AlertCircle } from "lucide-react";
 import logoPrimary from "@/assets/logo-primary.png.asset.json";
