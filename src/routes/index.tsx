@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { testConnection } from "@/lib/email.functions";
+import { testConnection, saveEmailConfiguration } from "@/lib/email.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Settings as SettingsIcon, Play, Square, History, Mail, LogOut, Loader2, Activity, ShieldCheck, AlertCircle } from "lucide-react";
 import logoPrimary from "@/assets/logo-primary.png.asset.json";
@@ -60,6 +60,7 @@ function Dashboard() {
   const [editingConfig, setEditingConfig] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
   const runTestConnection = useServerFn(testConnection);
+  const runSaveConfig = useServerFn(saveEmailConfiguration);
 
   const initialFormData = {
     imap_host: "imap.uhserver.com",
@@ -167,25 +168,20 @@ function Dashboard() {
         smtp_port: formData.smtp_port,
         smtp_secure: formData.smtp_secure,
         email_user: formData.email_user,
-        email_password: formData.email_password,
         destinations: formData.destinations.split(",").map(e => e.trim()),
         keywords: formData.keywords.split(",").map(e => e.trim()),
         provider: "Custom"
       };
 
-      if (editingConfig) {
-        const { error } = await supabase
-          .from("email_configurations")
-          .update(configData)
-          .eq("id", editingConfig.id);
-        if (error) throw error;
-        toast.success("Configuração atualizada com sucesso!");
-      } else {
-        const { error } = await supabase.from("email_configurations").insert(configData);
-        if (error) throw error;
-        toast.success("Configuração criada com sucesso!");
-      }
+      await runSaveConfig({
+        data: {
+          configId: editingConfig?.id,
+          configData,
+          emailPassword: formData.email_password,
+        }
+      });
 
+      toast.success(editingConfig ? "Configuração atualizada com sucesso!" : "Configuração criada com sucesso!");
       setIsModalOpen(false);
       setEditingConfig(null);
       setFormData(initialFormData);
