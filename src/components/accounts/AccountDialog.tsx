@@ -12,8 +12,11 @@ import {
   AlertCircle,
   CheckCircle2,
   Trash2,
-  Tags
+  Tags,
+  History as HistoryIcon
 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -169,230 +172,224 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))} className="flex-1 overflow-hidden flex flex-col">
-            <ScrollArea className="flex-1 px-6">
-              <div className="py-4 space-y-8">
-                {/* Section 1: E-MAIL DE SAÍDA / CONTA PRINCIPAL */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-[#0000A0]">
-                    <Shield className="h-5 w-5" />
-                    <h3 className="font-bold uppercase tracking-wider text-sm">E-mail de Saída / Conta Principal</h3>
-                  </div>
-                  <Separator className="bg-blue-100" />
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="email_user"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>E-mail da Conta</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                              <Input placeholder="exemplo@agilliza.net.br" className="pl-10" {...field} />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email_password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Senha / App Password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                              <Input type="password" placeholder="••••••••" className="pl-10" {...field} />
-                            </div>
-                          </FormControl>
-                          <FormDescription>Senha de aplicativo ou acesso direto.</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+            <Tabs defaultValue="geral" className="flex-1 overflow-hidden flex flex-col">
+              <div className="px-6 border-b">
+                <TabsList className="w-full justify-start bg-transparent h-12 p-0 gap-6">
+                  <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">Geral</TabsTrigger>
+                  <TabsTrigger value="entrada" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">Conta principal</TabsTrigger>
+                  <TabsTrigger value="destinatarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">Destinatários</TabsTrigger>
+                  <TabsTrigger value="regras" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">Regras</TabsTrigger>
+                </TabsList>
+              </div>
 
-                  <Tabs defaultValue="imap" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-slate-100">
-                      <TabsTrigger value="imap" className="data-[state=active]:bg-white data-[state=active]:text-[#0000A0]">IMAP (Entrada)</TabsTrigger>
-                      <TabsTrigger value="smtp" className="data-[state=active]:bg-white data-[state=active]:text-[#0000A0]">SMTP (Saída)</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="imap" className="space-y-4 pt-4">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-2">
+              <ScrollArea className="flex-1">
+                <div className="p-6">
+                  <TabsContent value="geral" className="mt-0 space-y-6">
+                    <Card className="shadow-none border-slate-100 bg-slate-50/50">
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-bold flex items-center gap-2">
+                          <Globe className="h-4 w-4 text-[#0000A0]" />
+                          Informações Básicas
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="email_user"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>E-mail da Conta</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                  <Input placeholder="exemplo@agilliza.net.br" className="pl-10 bg-white" {...field} />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="email_password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Senha / App Password</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                  <Input type="password" placeholder="••••••••" className="pl-10 bg-white" {...field} />
+                                </div>
+                              </FormControl>
+                              <FormDescription>Senha de aplicativo ou acesso direto.</FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="entrada" className="mt-0 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Card className="shadow-none border-slate-100">
+                        <CardHeader className="pb-4">
+                          <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
+                            <HistoryIcon className="h-4 w-4" />
+                            IMAP (Entrada)
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
                           <FormField
                             control={form.control}
                             name="imap_host"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Host IMAP</FormLabel>
+                                <FormLabel>Host</FormLabel>
                                 <Input {...field} />
                               </FormItem>
                             )}
                           />
-                        </div>
-                        <FormField
-                          control={form.control}
-                          name="imap_port"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Porta</FormLabel>
-                              <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        control={form.control}
-                        name="imap_secure"
-                        render={({ field }) => (
-                          <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                              <FormLabel>Conexão Segura (SSL/TLS)</FormLabel>
-                            </div>
-                            <FormControl>
-                              <Switch checked={field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </TabsContent>
-                    <TabsContent value="smtp" className="space-y-4 pt-4">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-2">
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="imap_port"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Porta</FormLabel>
+                                  <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="imap_secure"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col justify-end pb-2">
+                                  <div className="flex items-center gap-2">
+                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    <FormLabel className="cursor-pointer">SSL/TLS</FormLabel>
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="shadow-none border-slate-100">
+                        <CardHeader className="pb-4">
+                          <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
+                            <Mail className="h-4 w-4" />
+                            SMTP (Saída)
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
                           <FormField
                             control={form.control}
                             name="smtp_host"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Host SMTP</FormLabel>
+                                <FormLabel>Host</FormLabel>
                                 <Input {...field} />
                               </FormItem>
                             )}
                           />
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="smtp_port"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Porta</FormLabel>
+                                  <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="smtp_secure"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col justify-end pb-2">
+                                  <div className="flex items-center gap-2">
+                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    <FormLabel className="cursor-pointer">SSL/TLS</FormLabel>
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="destinatarios" className="mt-0 space-y-6">
+                    <Card className="shadow-none border-slate-100">
+                      <CardHeader>
+                        <CardTitle className="text-sm font-bold">E-mails de Recebimento</CardTitle>
+                        <CardDescription>Para onde os e-mails filtrados serão encaminhados.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="Adicionar e-mail de destino..." 
+                            value={destinationInput}
+                            onChange={e => setDestinationInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDestination())}
+                          />
+                          <Button type="button" onClick={addDestination} variant="secondary">
+                            <Plus className="h-4 w-4" />
+                          </Button>
                         </div>
-                        <FormField
-                          control={form.control}
-                          name="smtp_port"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Porta</FormLabel>
-                              <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        control={form.control}
-                        name="smtp_secure"
-                        render={({ field }) => (
-                          <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                              <FormLabel>Conexão Segura (SSL/TLS)</FormLabel>
-                            </div>
-                            <FormControl>
-                              <Switch checked={field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </TabsContent>
-                  </Tabs>
+                        <div className="flex flex-wrap gap-2 min-h-[100px] p-4 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                          {form.watch("destinations").map((email) => (
+                            <Badge key={email} variant="outline" className="pl-3 pr-1 py-1 gap-2 bg-white border-blue-200 text-blue-700 font-medium">
+                              {email}
+                              <button type="button" onClick={() => removeDestination(email)} className="hover:text-red-500 p-0.5">
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="regras" className="mt-0 space-y-6">
+                    <Card className="shadow-none border-slate-100">
+                      <CardHeader>
+                        <CardTitle className="text-sm font-bold">Palavras-chave de Filtro</CardTitle>
+                        <CardDescription>Termos que identificam e-mails para processamento.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="codigo; token; senha" 
+                            value={keywordInput}
+                            onChange={e => setKeywordInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addKeywords())}
+                          />
+                          <Button type="button" onClick={addKeywords} variant="secondary">
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2 min-h-[100px] p-4 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                          {form.watch("keywords").map((kw) => (
+                            <Badge key={kw} className="pl-3 pr-1 py-1 gap-2 bg-[#0000A0] text-white hover:bg-[#0000A0]">
+                              {kw}
+                              <button type="button" onClick={() => removeKeyword(kw)} className="hover:bg-white/20 p-0.5">
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
                 </div>
-
-                {/* Section 2: E-MAILS DE RECEBIMENTO */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-[#0000A0]">
-                    <Mail className="h-5 w-5" />
-                    <h3 className="font-bold uppercase tracking-wider text-sm">E-mails de Recebimento</h3>
-                  </div>
-                  <Separator className="bg-blue-100" />
-                  
-                  <div className="space-y-4">
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Input 
-                          placeholder="Adicionar e-mail de destino..." 
-                          value={destinationInput}
-                          onChange={e => setDestinationInput(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDestination())}
-                        />
-                      </div>
-                      <Button type="button" onClick={addDestination} variant="secondary" className="bg-slate-100 hover:bg-slate-200">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-slate-50 rounded-lg border border-slate-200 border-dashed">
-                      {form.watch("destinations").map((email) => (
-                        <Badge key={email} variant="outline" className="pl-3 pr-1 py-1 gap-2 bg-white border-blue-200 text-blue-700 font-medium">
-                          {email}
-                          <button 
-                            type="button"
-                            onClick={() => removeDestination(email)}
-                            className="hover:bg-red-50 hover:text-red-500 rounded-full p-0.5 transition-colors"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                      {form.watch("destinations").length === 0 && (
-                        <span className="text-xs text-slate-400 italic flex items-center gap-2 py-1">
-                          <AlertCircle className="h-3 w-3" />
-                          Nenhum destinatário configurado.
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 3: PALAVRAS-CHAVE */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-[#0000A0]">
-                    <Tags className="h-5 w-5" />
-                    <h3 className="font-bold uppercase tracking-wider text-sm">Palavras-chave de Filtro</h3>
-                  </div>
-                  <Separator className="bg-blue-100" />
-                  
-                  <div className="space-y-4">
-                    <FormDescription>
-                      Insira termos como "codigo", "token" ou "senha". O sistema normaliza automaticamente.
-                    </FormDescription>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Input 
-                          placeholder="codigo; token; senha" 
-                          value={keywordInput}
-                          onChange={e => setKeywordInput(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addKeywords())}
-                        />
-                      </div>
-                      <Button type="button" onClick={addKeywords} variant="secondary" className="bg-slate-100 hover:bg-slate-200">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-slate-50 rounded-lg border border-slate-200 border-dashed">
-                      {form.watch("keywords").map((kw) => (
-                        <Badge key={kw} className="pl-3 pr-1 py-1 gap-2 bg-[#0000A0] text-white hover:bg-[#0000A0]">
-                          {kw}
-                          <button 
-                            type="button"
-                            onClick={() => removeKeyword(kw)}
-                            className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ScrollArea>
+              </ScrollArea>
+            </Tabs>
 
             <DialogFooter className="p-6 border-t bg-slate-50/50">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

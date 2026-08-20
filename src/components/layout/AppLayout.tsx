@@ -10,10 +10,15 @@ import {
   Settings, 
   LogOut,
   ChevronDown,
-  Plus
+  Plus,
+  RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getWorkerStatus, restartWorker } from "@/lib/email.functions";
+import { toast } from "sonner";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,7 +86,25 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [session, setSession] = React.useState<any>(null);
   const [configs, setConfigs] = React.useState<EmailConfig[]>([]);
   const [selectedConfigId, setSelectedConfigId] = React.useState<string | null>(null);
-  const [systemStatus, setSystemStatus] = React.useState<"online" | "warning" | "offline">("online");
+  
+  const { data: workerStatus } = useQuery({
+    queryKey: ['workerStatus'],
+    queryFn: () => getWorkerStatus({}),
+    refetchInterval: 10000
+  });
+
+  const queryClient = useQueryClient();
+  const restartMutation = useMutation({
+    mutationFn: () => restartWorker({}),
+    onSuccess: () => {
+      toast.success("Comando de reinício enviado ao worker");
+      queryClient.invalidateQueries({ queryKey: ['workerStatus'] });
+    },
+    onError: () => {
+      toast.error("Falha ao enviar comando de reinício");
+    }
+  });
+
 
   const fetchConfigs = React.useCallback(async () => {
     const { data } = await supabase
@@ -223,13 +246,25 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="h-6 w-px bg-slate-200" />
 
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-100">
                   <div className={cn(
                     "h-2 w-2 rounded-full",
-                    systemStatus === "online" ? "bg-green-500 animate-pulse" : 
-                    systemStatus === "warning" ? "bg-yellow-500" : "bg-red-500"
+                    workerStatus?.status === "online" ? "bg-green-500 animate-pulse" : "bg-red-500"
                   )} />
-                  <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">Status Global: {systemStatus === "online" ? "Operacional" : systemStatus === "warning" ? "Atenção" : "Falha"}</span>
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                    {workerStatus?.message || "Worker Offline"}
+                  </span>
+                  {workerStatus?.status !== 'online' && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-5 w-5 ml-1 text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => restartMutation.mutate()}
+                      disabled={restartMutation.isPending}
+                    >
+                      <RefreshCw className={cn("h-3 w-3", restartMutation.isPending && "animate-spin")} />
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

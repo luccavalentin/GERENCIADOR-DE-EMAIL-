@@ -1,16 +1,34 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { 
   Mail, 
   Activity, 
   History, 
   Server,
   Shield,
+  Search,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  ArrowRight,
+  Filter
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getDailyStats, getWorkerStatus, getLogs } from "@/lib/email.functions";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -31,6 +49,28 @@ function DashboardPageWithLayout() {
 }
 
 function DashboardPage() {
+  const { data: session } = useQuery({ 
+    queryKey: ['session'], 
+    queryFn: async () => (await supabase.auth.getSession()).data.session 
+  });
+  
+  const { data: stats } = useQuery({
+    queryKey: ['stats'],
+    queryFn: () => getDailyStats({ data: { userId: session?.user?.id || '' } }),
+    enabled: !!session?.user?.id
+  });
+
+  const { data: workerStatus } = useQuery({
+    queryKey: ['workerStatus'],
+    queryFn: () => getWorkerStatus({}),
+    refetchInterval: 30000
+  });
+
+  const { data: recentLogs } = useQuery({
+    queryKey: ['recentLogs'],
+    queryFn: () => getLogs({ data: { limit: 5 } }),
+  });
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -39,18 +79,22 @@ function DashboardPage() {
           <p className="text-slate-500 mt-1">Visão geral da infraestrutura e processamento Agilliza.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="outline" className="bg-white border-blue-100 text-[#0000A0] font-bold py-1 px-3">
-            v2.0 Production
-          </Badge>
+          <div className={cn(
+            "flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold uppercase",
+            workerStatus?.status === 'online' ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"
+          )}>
+            {workerStatus?.status === 'online' ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+            {workerStatus?.message || "Carregando..."}
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: "Contas Ativas", value: "Ativas", icon: Mail, color: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Processamento", value: "24h/7d", icon: Activity, color: "text-green-600", bg: "bg-green-50" },
-          { label: "Integridade", value: "100%", icon: History, color: "text-[#0000A0]", bg: "bg-slate-50" },
-          { label: "Servidor VPS", value: "Online", icon: Server, color: "text-indigo-600", bg: "bg-indigo-50" },
+          { label: "Mensagens Hoje", value: stats?.found || 0, icon: Mail, color: "text-blue-600", bg: "bg-blue-50" },
+          { label: "Palavras-Chave", value: stats?.keywords || 0, icon: Activity, color: "text-green-600", bg: "bg-green-50" },
+          { label: "Encaminhadas", value: stats?.forwarded || 0, icon: History, color: "text-[#0000A0]", bg: "bg-slate-50" },
+          { label: "Erros", value: stats?.errors || 0, icon: AlertCircle, color: "text-red-600", bg: "bg-red-50" },
         ].map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-[#0000A0] transition-all">
             <div>
@@ -65,202 +109,95 @@ function DashboardPage() {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Activity className="h-5 w-5 text-[#0000A0]" />
-                Monitoramento Operacional
-              </h2>
-              <Button variant="ghost" size="sm" className="text-[#0000A0] font-bold">Ver tudo</Button>
-            </div>
-            <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-xl bg-slate-50/50 text-slate-400 gap-3">
-              <div className="p-3 bg-white rounded-full shadow-sm">
-                <Server className="h-6 w-6 opacity-20" />
-              </div>
-              <p className="text-sm font-medium">Aguardando fluxo de telemetria da VPS...</p>
-            </div>
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="font-bold text-slate-900">Últimos Encaminhamentos</h3>
+            <Button variant="ghost" size="sm" className="text-[#0000A0] font-bold" asChild>
+              <a href="/logs">Ver tudo</a>
+            </Button>
           </div>
+          <Table>
+            <TableHeader className="bg-slate-50">
+              <TableRow>
+                <TableHead>Horário</TableHead>
+                <TableHead>Assunto / Mensagem</TableHead>
+                <TableHead>Nível</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentLogs?.logs?.length ? recentLogs.logs.map((log: any) => (
+                <TableRow key={log.id}>
+                  <TableCell className="text-xs text-slate-500 font-mono">{format(new Date(log.created_at), "HH:mm:ss")}</TableCell>
+                  <TableCell className="text-sm truncate max-w-[300px]">{log.message}</TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "text-[10px] capitalize",
+                        log.level === 'error' ? "bg-red-50 text-red-700" : 
+                        log.level === 'success' ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"
+                      )}
+                    >
+                      {log.level || 'info'}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-8 text-slate-400 text-xs italic">
+                    Nenhuma atividade recente encontrada.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
-          <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-2xl overflow-hidden relative group">
-            <div className="absolute top-0 right-0 p-4">
-              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
-            </div>
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Requisitos de Evolução Agilliza</h3>
-            <div className="font-mono text-[10px] leading-relaxed text-slate-400 max-h-[400px] overflow-y-auto custom-scrollbar">
-              <div className="text-green-400 opacity-80 mb-2">// Especificações Técnicas e Funcionais</div>
-              {`MONITORAMENTO AO VIVO
+        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-2xl overflow-hidden relative group">
+          <div className="absolute top-0 right-0 p-4">
+            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+          </div>
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Requisitos de Evolução Agilliza</h3>
+          <div className="font-mono text-[10px] leading-relaxed text-slate-400 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
+            <div className="text-green-400 opacity-80 mb-2">// Especificações Técnicas e Funcionais</div>
+            <pre className="whitespace-pre-wrap">
+{`9. MONITORAMENTO AO VIVO
 Quero enxergar o funcionamento do worker em tempo real.
 Exibir uma interface semelhante a console profissional.
-Exemplo:
-18:42:01  Worker ativo
-18:42:02  Conectando IMAP
-18:42:02  TLS estabelecido
-18:42:03  Autenticação aceita
-18:42:03  INBOX aberta
-18:42:03  3 mensagens encontradas
-18:42:04  Palavra-chave detectada
-18:42:05  SMTP conectado
-18:42:05  E-mail encaminhado
-18:42:06  Ciclo concluído
-
 Atualizar automaticamente sem precisar atualizar a página.
 Utilizar os logs reais existentes no Supabase.
-Não criar logs fictícios.
 
 10. STATUS DO WORKER
 No topo do sistema mostrar um indicador permanente:
-🟢 Sistema operacional
-ou
-🟡 Atenção
-ou
-🔴 Worker offline
-Mostrar: worker ativo/inativo; última execução; último heartbeat; última conexão IMAP; último encaminhamento; último erro; tempo desde último heartbeat.
-Se o heartbeat ficar antigo, mostrar automaticamente:
-Worker possivelmente offline
+🟢 Sistema operacional ou 🟡 Atenção ou 🔴 Worker offline
 
 11. DASHBOARD OPERACIONAL
-Criar dashboard inicial contendo:
-SISTEMA
-Worker🟢 Online
-IMAP🟢 Conectado
-SMTP🟢 Operacional
-Supabase🟢 Conectado
-PROCESSAMENTO
-Hoje: mensagens encontradas; mensagens analisadas; palavras-chave detectadas; encaminhadas; ignoradas; duplicadas; erros.
-ÚLTIMOS ENCAMINHAMENTOS
-Tabela:| Horário | Conta | Remetente | Assunto | Destino | Status |
-Dados reais.
+Criar dashboard inicial contendo indicadores reais.
 
 12. TELA DE LOGS
-Criar página: Logs
-Com atualização automática.
-Filtros: Todas; Info; Sucesso; Atenção; Erro.
-Também permitir filtrar por: conta; período; texto; execução.
-Cada log deve mostrar: data/hora; nível; conta; execução; mensagem.
-Criar botão: Limpar visualização
-Isso NÃO deve apagar o banco.
+Página de Logs com atualização automática e filtros.
 
 13. DETALHES DA EXECUÇÃO
-Cada processamento deve ter um execution_id.
-Ao clicar em uma execução, abrir timeline:
-Execução 8fca...
-18:55:01 Iniciada
-18:55:01 Lock adquirido
-18:55:02 IMAP conectado
-18:55:02 INBOX aberta
-18:55:03 2 mensagens analisadas
-18:55:04 Palavra-chave detectada
-18:55:05 E-mail enviado
-18:55:05 Execução finalizada
-Se houver erro, mostrar exatamente a etapa.
+Cada processamento deve ter um execution_id e timeline.
 
 14. CONTROLE DO SERVIDOR / WORKER
-Criar página: SERVIDOR
-Mas atenção:
-NÃO permita execução arbitrária de comandos Linux pelo navegador.
-Quero ações controladas e previamente definidas.
-Botões:
-Reiniciar Worker
-Parar Worker
-Iniciar Worker
-Reiniciar Aplicação Web
-Verificar Saúde
-Para ações destrutivas mostrar confirmação:
-Tem certeza que deseja reiniciar o worker?
-Esses botões devem chamar endpoints protegidos no backend da VPS.
-NÃO colocar: senha SSH; root password; shell; terminal aberto; comandos arbitrários no frontend.
-Somente usuários autorizados podem executar essas ações.
+Reiniciar Worker, Parar Worker, Verificar Saúde.
 
 15. STATUS DO SERVIDOR
-Na página Servidor mostrar:
-VPS Online; uptime; memória RAM; CPU; armazenamento; versão do worker; última inicialização.
-Worker PID/container; status; uptime; última execução; última falha.
-Docker container web; container worker; status.
-Atualizar periodicamente.
+Na página Servidor mostrar: VPS Online; uptime; RAM; CPU.
 
 16. REINÍCIO SEGURO
-Quando clicar: Reiniciar Worker
-Fluxo: solicitação → confirmação → backend VPS → restart controlado → heartbeat → confirmação
-Na interface: Reiniciando...
-Depois: 🟢 Worker reiniciado com sucesso
-Se não voltar: 🔴 Worker não respondeu após reinicialização
-Nunca mostrar sucesso sem verificar heartbeat.
-
-17. BOTÃO "PROCESSAR AGORA"
-Continuar oferecendo: Processar agora
-Porém deve acionar o worker da VPS, não criar processamento paralelo na Lovable.
-Não reativar cron antigo.
-O worker permanente continua sendo a única autoridade de processamento.
-
-18. TESTAR IMAP E SMTP
-Manter: Testar IMAP, Testar SMTP
-Mas agora o teste deve acontecer a partir da infraestrutura da VPS, porque já comprovamos que o runtime da Lovable pode apresentar problemas de socket.
-Exibir resultado por etapas:
-IMAP DNS; TCP; TLS; autenticação; INBOX.
-SMTP DNS; TCP; TLS; autenticação.
+Fluxo controlado de reinicialização com verificação de heartbeat.
 
 19. EXPERIÊNCIA VISUAL DAS CONFIGURAÇÕES
-Não quero formulário longo e pesado.
-Separar em abas: Geral, Conta principal, Destinatários, Regras, Servidor, Histórico.
-Dentro de cada aba usar cards leves e bem organizados.
-
-20. PRESERVAÇÃO DOS DADOS
-Não excluir nem recriar: usuários existentes; contas existentes; senhas; logs; email_processing_state; forwarded_emails; configurações; histórico.
-Fazer migrations incrementais quando necessário.
+Separar em abas: Geral, Conta principal, Destinatários, Regras.
 
 21. NÃO CRIAR DADOS MOCK
-Não quero: Servidor Online, 23 mensagens, 99% uptime se isso não vier de dados reais.
-Qualquer informação operacional deve vir: Supabase; worker; backend da VPS.
-Se a informação ainda não estiver disponível, mostrar: Aguardando dados e não inventar valor.
-
-22. NÃO QUEBRAR O QUE JÁ FOI CORRIGIDO
-Já foram identificados e corrigidos problemas anteriores envolvendo: socket IMAP no runtime antigo; Node 20/WebSocket; funções RPC duplicadas; cron antigo; deduplicação; parsing de arrays; processamento na VPS.
-NÃO recrie esses problemas.
-A aplicação de produção será executada na Hostinger VPS.
-O Supabase continuará sendo utilizado.`}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 mb-4">Últimos Eventos</h3>
-            <div className="space-y-4">
-              {[
-                { type: 'success', msg: 'Worker conectado com sucesso', time: '2m atrás' },
-                { type: 'info', msg: 'Nova conta monitorada adicionada', time: '1h atrás' },
-                { type: 'success', msg: 'Normalização de keywords aplicada', time: '3h atrás' },
-              ].map((event, i) => (
-                <div key={i} className="flex gap-3">
-                  <div className={cn(
-                    "h-2 w-2 rounded-full mt-1.5 shrink-0",
-                    event.type === 'success' ? "bg-green-500" : "bg-blue-500"
-                  )} />
-                  <div>
-                    <p className="text-xs font-medium text-slate-700">{event.msg}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{event.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-[#0000A0] p-6 rounded-xl shadow-lg text-white relative overflow-hidden group">
-            <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
-              <Shield className="h-24 w-24" />
-            </div>
-            <h3 className="text-sm font-bold uppercase tracking-wider opacity-80">Segurança Agilliza</h3>
-            <p className="text-2xl font-bold mt-2">100%</p>
-            <p className="text-xs mt-1 opacity-70">Privacidade & Criptografia</p>
-            <Button className="w-full mt-6 bg-white text-[#0000A0] hover:bg-blue-50 font-bold text-xs h-8">
-              Auditar Logs
-            </Button>
+Qualquer informação operacional deve vir de dados reais.`}
+            </pre>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
