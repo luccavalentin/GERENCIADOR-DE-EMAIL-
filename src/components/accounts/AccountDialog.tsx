@@ -277,7 +277,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                         </CardContent>
                       </Card>
 
-                      <Card className="shadow-none border-slate-100">
+                      <Card className="premium-card shadow-none">
                         <CardHeader className="pb-4">
                           <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
                             <Mail className="h-4 w-4" />
