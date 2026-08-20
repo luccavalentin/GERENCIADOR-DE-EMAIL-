@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # Aplicação Web (Painel de Controle)
+  web:
+    build:
+      context: .
+      target: production
+    environment:
+      - MODE=web
+      - VITE_SUPABASE_URL=${SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+    ports:
+      - "80:3000"
+    restart: always
+
+  # Worker de E-mail (Processamento 24/7)
+  worker:
+    build:
+      context: .
+      target: production
+    environment:
+      - MODE=worker
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - CHECK_INTERVAL_MS=60000
+    restart: always
