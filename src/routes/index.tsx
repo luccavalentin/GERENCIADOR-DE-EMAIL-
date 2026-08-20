@@ -304,9 +304,11 @@ function Dashboard() {
                       <Checkbox id="allow_invalid" checked={formData.allow_invalid} onCheckedChange={(checked) => setFormData({...formData, allow_invalid: !!checked})} />
                       <div className="grid gap-1.5 leading-none">
                         <Label htmlFor="allow_invalid" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Salvar mesmo que as credenciais falhem no teste
+                          remova essa msg mesmo que as credenciais falhem no teste
                         </Label>
                         <p className="text-xs text-muted-foreground">
+                          remova essa msg mesmo que as credenciais falhem no teste
+                          {"\n\n"}
                           Ele deve me permitir salvas as configurações mesmo que não tenha a senha e etc.
                         </p>
                       </div>
