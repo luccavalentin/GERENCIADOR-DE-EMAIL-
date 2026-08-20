@@ -632,82 +632,89 @@ function Dashboard() {
       </Dialog>
 
       <Dialog open={isTestModalOpen} onOpenChange={setIsTestModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-blue-600" />
               Resultado do Teste {testResult?.type}
             </DialogTitle>
             <DialogDescription>
-              Detalhes técnicos da conexão e autenticação.
+              Diagnóstico detalhado por camadas da conexão.
             </DialogDescription>
           </DialogHeader>
           
           {testResult && (
             <div className="space-y-4 py-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-sm font-medium text-gray-600">Conexão TCP/SSL</span>
-                  <div className="flex items-center gap-2">
-                    {testResult.result.connection === 'ok' ? (
-                      <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
-                    ) : testResult.result.connection === 'error' ? (
-                      <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
-                    ) : (
-                      <span className="text-xs text-gray-400">Pendente</span>
-                    )}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
+                  <div className={`p-2 rounded-full ${testResult.result.dns === 'ok' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                    {testResult.result.dns === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
                   </div>
+                  <span className="text-[10px] font-bold uppercase">DNS</span>
+                </div>
+                
+                <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
+                  <div className={`p-2 rounded-full ${testResult.result.tcp === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.tcp === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
+                    {testResult.result.tcp === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.tcp === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
+                  </div>
+                  <span className="text-[10px] font-bold uppercase">TCP</span>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-sm font-medium text-gray-600">Autenticação</span>
-                  <div className="flex items-center gap-2">
-                    {testResult.result.auth === 'ok' ? (
-                      <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
-                    ) : testResult.result.auth === 'error' ? (
-                      <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
-                    ) : (
-                      <span className="text-xs text-gray-400">Pendente</span>
-                    )}
+                <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
+                  <div className={`p-2 rounded-full ${testResult.result.tls === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.tls === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
+                    {testResult.result.tls === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.tls === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
                   </div>
+                  <span className="text-[10px] font-bold uppercase">TLS</span>
                 </div>
 
                 {testResult.type === 'IMAP' && (
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                    <span className="text-sm font-medium text-gray-600">Acesso INBOX</span>
-                    <div className="flex items-center gap-2">
-                      {testResult.result.inbox === 'ok' ? (
-                        <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
-                      ) : testResult.result.inbox === 'error' ? (
-                        <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
-                      ) : (
-                        <span className="text-xs text-gray-400">Pendente</span>
-                      )}
+                  <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
+                    <div className={`p-2 rounded-full ${testResult.result.greeting === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.greeting === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
+                      {testResult.result.greeting === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.greeting === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
                     </div>
+                    <span className="text-[10px] font-bold uppercase">Greeting</span>
                   </div>
                 )}
 
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-sm font-medium text-gray-600">Tempo de Resposta</span>
-                  <div className="flex items-center gap-2 text-gray-500">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-xs font-bold">{testResult.result.time}ms</span>
+                <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
+                  <div className={`p-2 rounded-full ${testResult.result.auth === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.auth === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
+                    {testResult.result.auth === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.auth === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
                   </div>
+                  <span className="text-[10px] font-bold uppercase">Auth</span>
                 </div>
 
-                {!testResult.success && testResult.error && (
-                  <div className="p-3 bg-red-50 rounded-lg border border-red-100">
-                    <span className="text-[10px] uppercase font-bold text-red-400 block mb-1">Log de Erro</span>
-                    <p className="text-xs text-red-700 break-words">{testResult.error}</p>
+                {testResult.type === 'IMAP' && (
+                  <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
+                    <div className={`p-2 rounded-full ${testResult.result.inbox === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.inbox === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
+                      {testResult.result.inbox === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.inbox === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase">INBOX</span>
                   </div>
                 )}
               </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <span className="text-sm font-medium text-gray-600">Duração Total</span>
+                <span className="text-sm font-bold text-gray-900">{testResult.result.time}ms</span>
+              </div>
+
+              {testResult.result.error && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-lg overflow-x-auto">
+                  <p className="text-sm font-semibold text-red-800 mb-2 flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" /> Detalhes do Erro
+                  </p>
+                  <pre className="text-[10px] text-red-700 leading-tight">
+                    {JSON.stringify(testResult.result.error, null, 2)}
+                  </pre>
+                </div>
+              )}
             </div>
           )}
 
           <DialogFooter>
             <Button onClick={() => setIsTestModalOpen(false)} className="w-full">Fechar</Button>
           </DialogFooter>
+        </DialogContent>
         </DialogContent>
       </Dialog>
     </div>
