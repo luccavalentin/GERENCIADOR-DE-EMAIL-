@@ -20,7 +20,7 @@ function LogsIndexPage() {
       .select("id, email_user")
       .order("created_at", { ascending: false });
     
-    if (data && data.length > 0) {
+    if (data && data.length > 0 && data[0]) {
       // Automatic redirect to first account if exists
       navigate({ to: `/logs/${data[0].id}` });
     }
