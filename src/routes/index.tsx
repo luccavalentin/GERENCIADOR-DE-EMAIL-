@@ -593,6 +593,86 @@ function Dashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={isTestModalOpen} onOpenChange={setIsTestModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-blue-600" />
+              Resultado do Teste {testResult?.type}
+            </DialogTitle>
+            <DialogDescription>
+              Detalhes técnicos da conexão e autenticação.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {testResult && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">Conexão TCP/SSL</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.connection === 'ok' ? (
+                      <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
+                    ) : testResult.result.connection === 'error' ? (
+                      <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
+                    ) : (
+                      <span className="text-xs text-gray-400">Pendente</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">Autenticação</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.auth === 'ok' ? (
+                      <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
+                    ) : testResult.result.auth === 'error' ? (
+                      <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
+                    ) : (
+                      <span className="text-xs text-gray-400">Pendente</span>
+                    )}
+                  </div>
+                </div>
+
+                {testResult.type === 'IMAP' && (
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <span className="text-sm font-medium text-gray-600">Acesso INBOX</span>
+                    <div className="flex items-center gap-2">
+                      {testResult.result.inbox === 'ok' ? (
+                        <><CheckCircle2 className="h-4 w-4 text-green-500" /> <span className="text-xs font-bold text-green-700">OK</span></>
+                      ) : testResult.result.inbox === 'error' ? (
+                        <><XCircle className="h-4 w-4 text-red-500" /> <span className="text-xs font-bold text-red-700">ERRO</span></>
+                      ) : (
+                        <span className="text-xs text-gray-400">Pendente</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">Tempo de Resposta</span>
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-xs font-bold">{testResult.result.time}ms</span>
+                  </div>
+                </div>
+
+                {!testResult.success && testResult.error && (
+                  <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+                    <span className="text-[10px] uppercase font-bold text-red-400 block mb-1">Log de Erro</span>
+                    <p className="text-xs text-red-700 break-words">{testResult.error}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setIsTestModalOpen(false)} className="w-full">Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
