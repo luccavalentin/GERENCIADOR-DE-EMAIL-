@@ -515,7 +515,7 @@ export const getLogs = createServerFn({ method: "GET" })
 
     if (data.configId) query = query.eq("config_id", data.configId);
     if (data.level && data.level !== 'all') query = query.eq("level", data.level);
-    if (data.executionId) query = query.eq("execution_id", data.executionId);
+    if (data.executionId) query = query.eq("execution_id" as any, data.executionId);
     if (data.startDate) query = query.gte("created_at", data.startDate);
     if (data.endDate) query = query.lte("created_at", data.endDate);
     if (data.search) query = query.ilike("message", `%${data.search}%`);
@@ -525,7 +525,7 @@ export const getLogs = createServerFn({ method: "GET" })
       .range(data.offset, data.offset + data.limit - 1);
 
     if (error) throw error;
-    return { logs, count };
+    return { logs: logs as any[], count };
   });
 
 export const getDailyStats = createServerFn({ method: "GET" })
@@ -546,7 +546,7 @@ export const getDailyStats = createServerFn({ method: "GET" })
     const { data: forwarded } = await supabaseAdmin
       .from("forwarded_emails")
       .select("id")
-      .eq("user_id", userId)
+      .eq("user_id" as any, userId)
       .gte("created_at", todayStr);
 
     const stats = {
@@ -578,14 +578,15 @@ export const getWorkerStatus = createServerFn({ method: "GET" })
       return { status: "offline", message: "Aguardando dados", last_heartbeat: null };
     }
 
-    const lastHeartbeat = new Date(data.last_heartbeat);
+    const heartbeatData = data as any;
+    const lastHeartbeat = new Date(heartbeatData.last_heartbeat);
     const diff = Date.now() - lastHeartbeat.getTime();
     
     if (diff > 120000) {
-      return { ...data, status: "offline", message: "Worker possivelmente offline" };
+      return { ...heartbeatData, status: "offline", message: "Worker possivelmente offline" };
     }
 
-    return { ...data, status: "online", message: "Sistema operacional" };
+    return { ...heartbeatData, status: "online", message: "Sistema operacional" };
   });
 
 export const restartWorker = createServerFn({ method: "POST" })
@@ -594,5 +595,6 @@ export const restartWorker = createServerFn({ method: "POST" })
     console.log("Reiniciando worker via VPS API...");
     return { success: true, message: "Solicitação enviada" };
   });
+
 
 
