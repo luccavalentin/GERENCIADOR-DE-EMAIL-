@@ -11,7 +11,10 @@ import {
   LogOut,
   ChevronDown,
   Plus,
-  RefreshCw
+  RefreshCw,
+  Menu,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -46,7 +49,15 @@ const navItems = [
 ];
 
 function LastHeartbeat({ time }: { time?: string }) {
-  if (!time) {
+  const [formattedTime, setFormattedTime] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (time) {
+      setFormattedTime(new Date(time).toLocaleTimeString());
+    }
+  }, [time]);
+
+  if (!formattedTime) {
     return (
       <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
         Aguardando heartbeat...
@@ -56,7 +67,7 @@ function LastHeartbeat({ time }: { time?: string }) {
 
   return (
     <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
-      Última atualização: {new Date(time).toLocaleTimeString()}
+      Última atualização: {formattedTime}
     </span>
   );
 }
@@ -82,6 +93,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [session, setSession] = React.useState<any>(null);
   const [configs, setConfigs] = React.useState<EmailConfig[]>([]);
   const [selectedConfigId, setSelectedConfigId] = React.useState<string | null>(null);
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
   
   const { data: workerStatus } = useQuery({
     queryKey: ['workerStatus'],
@@ -156,9 +168,28 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <ActiveAccountContext.Provider value={{ selectedConfigId, setSelectedConfigId: handleAccountChange, configs, refreshConfigs: fetchConfigs }}>
       <div className="flex min-h-screen bg-[#f8fafc]">
         {/* Sidebar */}
-        <aside className="w-64 border-r bg-[#000033] flex flex-col fixed inset-y-0 shadow-xl z-50">
-          <div className="p-8 mb-4 flex items-center justify-center border-b border-white/5 bg-white/[0.02]">
-            <img src={logoPrimary.url} alt="Agilliza" className="h-9 object-contain brightness-0 invert opacity-90" />
+        <aside 
+          className={cn(
+            "border-r bg-[#000033] flex flex-col fixed inset-y-0 shadow-xl z-50 transition-all duration-300 ease-in-out",
+            isCollapsed ? "w-20" : "w-64"
+          )}
+        >
+          <div className={cn(
+            "p-8 mb-4 flex items-center justify-center border-b border-white/5 bg-white/[0.02] relative",
+            isCollapsed && "p-4"
+          )}>
+            {!isCollapsed ? (
+              <img src={logoPrimary.url} alt="Agilliza" className="h-9 object-contain brightness-0 invert opacity-90 transition-all" />
+            ) : (
+              <div className="h-9 w-9 bg-white/10 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
+            )}
+            
+            <button 
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="absolute -right-3 top-10 h-6 w-6 rounded-full bg-[#0000A0] text-white flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform z-50"
+            >
+              {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+            </button>
           </div>
           
           <nav className="flex-1 px-4 space-y-1">
@@ -170,13 +201,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   to={item.to}
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                    isCollapsed && "justify-center px-0",
                     isActive
                       ? "bg-white/10 text-white shadow-sm ring-1 ring-white/20"
                       : "text-blue-100/70 hover:bg-white/5 hover:text-white"
                   )}
+                  title={isCollapsed ? item.label : undefined}
                 >
-                  <item.icon className={cn("h-5 w-5", isActive ? "text-white" : "text-blue-100/50")} />
-                  {item.label}
+                  <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : "text-blue-100/50")} />
+                  {!isCollapsed && <span>{item.label}</span>}
                 </Link>
               );
             })}
@@ -185,17 +218,26 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="p-6 border-t border-white/10">
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-blue-100/70 hover:text-white hover:bg-white/5 font-medium"
+              className={cn(
+                "w-full text-blue-100/70 hover:text-white hover:bg-white/5 font-medium",
+                isCollapsed ? "justify-center px-0" : "justify-start"
+              )}
               onClick={handleSignOut}
+              title={isCollapsed ? "Sair da conta" : undefined}
             >
-              <LogOut className="mr-3 h-5 w-5" />
-              Sair da conta
+              <LogOut className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
+              {!isCollapsed && <span>Sair da conta</span>}
             </Button>
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 pl-64 flex flex-col">
+        <main 
+          className={cn(
+            "flex-1 flex flex-col transition-all duration-300 ease-in-out",
+            isCollapsed ? "pl-20" : "pl-64"
+          )}
+        >
           {/* Top Header */}
           <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40 shadow-sm">
             <div className="flex items-center gap-6">

@@ -137,11 +137,12 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
 
 export const getActiveConfigs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("email_configurations")
-      .select("*");
+      .select("*")
+      .eq("user_id", context.userId);
 
     if (error) throw error;
     return data;
@@ -149,11 +150,12 @@ export const getActiveConfigs = createServerFn({ method: "GET" })
 
 export const getProfiles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("profiles" as any)
       .select("*")
+      .eq("id", context.userId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -509,20 +511,33 @@ export const getLogs = createServerFn({ method: "GET" })
     clearView: z.boolean().optional(),
   }).parse(data))
 
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
-    if (data.clearView && data.configId) {
-      // Mark logs as "read" or similar for this user session if we had that column
-      // For now, we'll just implement the filter logic and return a special flag if needed
-      // Actually, Req #12 says "Isso NÃO deve apagar o banco", so it's just a UI state
-    }
+    // First, get all config IDs for this user
+    const { data: userConfigs } = await supabaseAdmin
+      .from("email_configurations")
+      .select("id")
+      .eq("user_id", context.userId);
+    
+    const configIds = userConfigs?.map(c => c.id) || [];
 
     let query = supabaseAdmin
       .from("email_logs")
       .select("*", { count: "exact" });
 
-    if (data.configId) query = query.eq("config_id", data.configId);
+    // Filter by user's configs
+    if (data.configId) {
+      // Ensure the requested configId belongs to the user
+      if (!configIds.includes(data.configId)) {
+        throw new Error("Unauthorized: Config not found");
+      }
+      query = query.eq("config_id", data.configId);
+    } else {
+      // Return logs for all user's configs
+      query = query.in("config_id", configIds);
+    }
+
     if (data.level && data.level !== 'all') query = query.eq("level", data.level);
     if (data.executionId) query = query.eq("execution_id" as any, data.executionId);
     if (data.startDate) query = query.gte("created_at", data.startDate);
@@ -535,32 +550,45 @@ export const getLogs = createServerFn({ method: "GET" })
 
     if (error) throw error;
     return { logs: logs as any[], count };
-
   });
 
 export const getDailyStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ userId: z.string() }).parse(data))
-  .handler(async ({ data: { userId } }) => {
+  .handler(async ({ data: { userId }, context }) => {
+    // Security check: only allow querying own stats unless maybe an admin role exists
+    if (userId !== context.userId) {
+      throw new Error("Unauthorized");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
     const today = new Date();
     today.setHours(0,0,0,0);
     const todayStr = today.toISOString();
 
+    // Get config IDs for this user to filter logs
+    const { data: userConfigs } = await supabaseAdmin
+      .from("email_configurations")
+      .select("id")
+      .eq("user_id", userId);
+    
+    const configIds = userConfigs?.map(c => c.id) || [];
+
     const { data: logs } = await supabaseAdmin
       .from("email_logs")
       .select("level, message")
+      .in("config_id", configIds)
       .gte("created_at", todayStr);
 
     const { data: forwarded } = await supabaseAdmin
       .from("forwarded_emails")
       .select("id")
-      .eq("user_id" as any, userId)
+      .in("config_id", configIds)
       .gte("created_at", todayStr);
 
     const stats = {
-      found: logs?.filter(l => l.message.includes("encontrada")).length || 0,
+      found: logs?.filter(l => l.message.includes("identificada")).length || 0,
       analyzed: logs?.filter(l => l.message.includes("analisada")).length || 0,
       keywords: logs?.filter(l => l.message.includes("Palavra-chave detectada")).length || 0,
       forwarded: forwarded?.length || 0,
