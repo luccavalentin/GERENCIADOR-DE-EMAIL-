@@ -364,7 +364,11 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
         if (mailboxLock) mailboxLock.release();
       }
 
-      await imap.logout();
+      try {
+        await imap.logout();
+      } catch (logoutErr) {
+        // Silently ignore logout errors as connection might already be closed
+      }
       await updateHeartbeat('success');
       return { success: true, stats };
     } catch (error: any) {
