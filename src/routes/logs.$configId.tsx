@@ -80,7 +80,7 @@ function LogsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {logs?.map((log: any) => (
+              {logs?.logs?.map((log: any) => (
                 <TableRow key={log.id} className="hover:bg-slate-50/50 group transition-colors">
                   <TableCell className="text-slate-500 text-[10px] font-mono whitespace-nowrap">
                     [{format(new Date(log.created_at), "HH:mm:ss")}]
