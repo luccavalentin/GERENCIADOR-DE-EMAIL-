@@ -1,16 +1,34 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { 
   Mail, 
   Activity, 
   History, 
   Server,
   Shield,
+  Search,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  ArrowRight,
+  Filter
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getDailyStats, getWorkerStatus, getLogs } from "@/lib/email.functions";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -29,6 +47,7 @@ function DashboardPageWithLayout() {
     </AppLayout>
   );
 }
+
 
 function DashboardPage() {
   return (
