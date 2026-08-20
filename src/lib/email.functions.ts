@@ -242,8 +242,9 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
 
             const hasKeyword = config.keywords.some((kw: string) => {
               const normalizedKw = normalizeText(kw);
-              const regex = new RegExp(`\\w*${normalizedKw}\\w*`, 'i');
-              return regex.test(fullContent);
+              // Regex match for the word containing the keyword anywhere
+              // e.g. "codigo" matches "meucodigo", "Código123", etc.
+              return fullContent.includes(normalizedKw);
             });
 
             if (hasKeyword) {
