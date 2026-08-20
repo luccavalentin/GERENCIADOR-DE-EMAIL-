@@ -389,22 +389,23 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                   </TabsContent>
                 </div>
               </ScrollArea>
+            </Tabs>
 
-              <DialogFooter className="p-6 bg-slate-50 border-t gap-3">
-                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="font-bold border-slate-200">
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold px-8" 
-                  disabled={saveMutation.isPending}
-                >
-                  {saveMutation.isPending ? "Salvando..." : config ? "Salvar Alterações" : "Criar Conta"}
-                </Button>
-              </DialogFooter>
-
+            <DialogFooter className="p-6 bg-slate-50 border-t gap-3">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="font-bold border-slate-200">
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold px-8" 
+                disabled={saveMutation.isPending}
+              >
+                {saveMutation.isPending ? "Salvando..." : config ? "Salvar Alterações" : "Criar Conta"}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
+
       </DialogContent>
     </Dialog>
   );
