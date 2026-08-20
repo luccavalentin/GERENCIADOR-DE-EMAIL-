@@ -81,8 +81,20 @@ export async function processEmailsForConfigLogic(
       .select("*")
       .eq("id", configId)
       .single();
-
+    
     if (configError || !config) return { success: false, error: "Config not found" };
+
+    // Migração em tempo real de configurações antigas (Legacy separation by ; or ,)
+    const normalizeConfigArray = (arr: any) => {
+      if (!Array.isArray(arr)) return [];
+      if (arr.length === 1 && (arr[0].includes(';') || arr[0].includes(','))) {
+        return arr[0].split(/[;,\n\r]+/).map((s: string) => s.trim()).filter((s: string) => s.length > 0);
+      }
+      return arr;
+    };
+
+    config.destinations = normalizeConfigArray(config.destinations);
+    config.keywords = normalizeConfigArray(config.keywords);
 
     const { data: creds } = await supabaseAdmin
       .from("email_credentials")
@@ -208,6 +220,7 @@ export async function processEmailsForConfigLogic(
 
           const hasKeyword = config.keywords.some((kw: string) => {
             const normalizedKw = normalizeText(kw);
+            // Busca por inclusão da forma normalizada
             return fullContent.includes(normalizedKw);
           });
 

@@ -82,6 +82,11 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
   }).parse(data))
   .handler(async ({ data: { configId, configData, emailPassword } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Garantir que as keywords e destinatários sejam salvos de forma limpa
+    // Apenas a forma base para keywords (lowercase, sem acentos, sem espaços extras)
+    configData.keywords = configData.keywords.map(kw => normalizeTextInternal(kw).trim()).filter(kw => kw.length > 0);
+    configData.destinations = configData.destinations.map(d => d.trim()).filter(d => d.length > 0);
     
     let targetConfigId = configId;
 

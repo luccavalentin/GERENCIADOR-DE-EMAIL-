@@ -83,7 +83,7 @@ function Dashboard() {
     email_user: "thiago@agilliza.net.br",
     email_password: "",
     allow_invalid: true,
-    destinations: "renzo@agilliza.net.br, carlos@agilliza.net.br, pamela@agilliza.net.br, paula@agilliza.net.br",
+    destinations: "renzo@agilliza.net.br; carlos@agilliza.net.br; pamela@agilliza.net.br; paula@agilliza.net.br",
     keywords: "codigo",
   };
 
@@ -144,8 +144,8 @@ function Dashboard() {
       email_user: config.email_user,
       email_password: config.email_password,
       allow_invalid: true,
-      destinations: config.destinations.join(", "),
-      keywords: config.keywords.join(", "),
+      destinations: config.destinations.join("; "),
+      keywords: config.keywords.join("; "),
     });
     setIsModalOpen(true);
   };
@@ -170,6 +170,14 @@ function Dashboard() {
         });
       }
 
+      const parseArray = (input: string) => {
+        if (!input) return [];
+        return input
+          .split(/[;,\n\r]+/)
+          .map(item => item.trim())
+          .filter(item => item.length > 0);
+      };
+
       const configData = {
         user_id: session.user.id,
         imap_host: formData.imap_host,
@@ -179,8 +187,8 @@ function Dashboard() {
         smtp_port: formData.smtp_port,
         smtp_secure: formData.smtp_secure,
         email_user: formData.email_user,
-        destinations: formData.destinations.split(",").map(e => e.trim()),
-        keywords: formData.keywords.split(",").map(e => e.trim()),
+        destinations: parseArray(formData.destinations),
+        keywords: parseArray(formData.keywords),
         provider: "Custom"
       };
 
@@ -370,12 +378,12 @@ function Dashboard() {
                   <div className="space-y-4 border-t pt-4">
                     <h3 className="font-semibold text-sm uppercase text-gray-500">Regras de Encaminhamento</h3>
                     <div className="space-y-2">
-                      <Label htmlFor="destinations">Destinatários (separados por vírgula)</Label>
-                      <Input id="destinations" placeholder="destinatario1@gmail.com, destinatario2@gmail.com" value={formData.destinations} onChange={e => setFormData({...formData, destinations: e.target.value})} required />
+                      <Label htmlFor="destinations">Destinatários (separados por vírgula, ponto e vírgula ou Enter)</Label>
+                      <Input id="destinations" placeholder="destinatario1@gmail.com; destinatario2@gmail.com" value={formData.destinations} onChange={e => setFormData({...formData, destinations: e.target.value})} required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="keywords">Palavras-chave (separadas por vírgula)</Label>
-                      <Input id="keywords" placeholder="codigo, token, senha" value={formData.keywords} onChange={e => setFormData({...formData, keywords: e.target.value})} required />
+                      <Label htmlFor="keywords">Palavras-chave (separadas por vírgula, ponto e vírgula ou Enter)</Label>
+                      <Input id="keywords" placeholder="codigo" value={formData.keywords} onChange={e => setFormData({...formData, keywords: e.target.value})} required />
                     </div>
                     <div className="hidden">
                       <Checkbox id="allow_invalid" checked={formData.allow_invalid} onCheckedChange={(checked) => setFormData({...formData, allow_invalid: !!checked})} />
