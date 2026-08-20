@@ -102,15 +102,15 @@ function AccountsPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contas de E-mail Monitoradas</h1>
-          <p className="text-slate-500 mt-1">Gestão de caixas de entrada e fluxo de encaminhamento.</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contas monitoradas</h1>
+          <p className="text-slate-500 mt-1">Gerencie as caixas de e-mail utilizadas pelo processamento.</p>
         </div>
         <Button 
           onClick={handleCreate}
           className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Nova Conta
+          + Nova conta
         </Button>
       </div>
 
@@ -130,11 +130,14 @@ function AccountsPage() {
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
-              <TableHead className="font-bold text-slate-700">E-mail de Saída</TableHead>
-              <TableHead className="font-bold text-slate-700">Configuração</TableHead>
-              <TableHead className="font-bold text-slate-700 text-center">Keywords</TableHead>
+              <TableHead className="font-bold text-slate-700">E-mail</TableHead>
+              <TableHead className="font-bold text-slate-700">Destinatários</TableHead>
+              <TableHead className="font-bold text-slate-700">Palavras-chave</TableHead>
+              <TableHead className="font-bold text-slate-700">IMAP</TableHead>
+              <TableHead className="font-bold text-slate-700">SMTP</TableHead>
               <TableHead className="font-bold text-slate-700 text-center">Status</TableHead>
-              <TableHead className="w-[120px]"></TableHead>
+              <TableHead className="font-bold text-slate-700">Última execução</TableHead>
+              <TableHead className="w-[80px] text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -142,75 +145,94 @@ function AccountsPage() {
               <TableRow key={config.id} className="group hover:bg-slate-50/50 transition-colors">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-50 rounded-lg">
+                    <div className="p-2 bg-blue-50 rounded-lg shrink-0">
                       <Mail className="h-4 w-4 text-[#0000A0]" />
                     </div>
-                    <div>
-                      <div className="font-bold text-slate-900">{config.email_user}</div>
-                      <div className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
-                        {config.destinations?.length || 0} Destinatários
-                      </div>
+                    <div className="font-bold text-slate-900 truncate max-w-[200px]" title={config.email_user}>
+                      {config.email_user}
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
-                      <ShieldCheck className="h-3 w-3 text-green-500" />
-                      IMAP: {config.imap_host}:{config.imap_port}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
-                      <ExternalLink className="h-3 w-3 text-blue-500" />
-                      SMTP: {config.smtp_host}:{config.smtp_port}
-                    </div>
+                  <div className="flex flex-wrap gap-1 max-w-[150px]">
+                    {config.destinations?.slice(0, 1).map((dest: string) => (
+                      <Badge key={dest} variant="secondary" className="text-[9px] font-medium bg-slate-100 text-slate-600 border-none">
+                        {dest.split('@')[0]}
+                      </Badge>
+                    ))}
+                    {(config.destinations?.length > 1) && (
+                      <Badge variant="outline" className="text-[9px] font-bold border-slate-200">
+                        +{config.destinations.length - 1}
+                      </Badge>
+                    )}
+                    {(!config.destinations || config.destinations.length === 0) && (
+                      <span className="text-slate-400 text-[10px]">Nenhum</span>
+                    )}
                   </div>
                 </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex justify-center flex-wrap gap-1 max-w-[200px] mx-auto">
+                <TableCell>
+                  <div className="flex flex-wrap gap-1 max-w-[150px]">
                     {config.keywords?.slice(0, 2).map((kw: string) => (
-                      <Badge key={kw} variant="outline" className="text-[10px] font-bold px-1.5 py-0 border-slate-200">
+                      <Badge key={kw} variant="outline" className="text-[9px] font-bold px-1.5 border-slate-200 bg-slate-50">
                         {kw}
                       </Badge>
                     ))}
                     {(config.keywords?.length > 2) && (
-                      <Badge variant="outline" className="text-[10px] font-bold px-1.5 py-0 border-slate-200 bg-slate-50">
+                      <Badge variant="outline" className="text-[9px] font-bold border-slate-200">
                         +{config.keywords.length - 2}
                       </Badge>
                     )}
                   </div>
                 </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+                    <ShieldCheck className="h-3 w-3 text-green-500 shrink-0" />
+                    {config.imap_port}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+                    <ExternalLink className="h-3 w-3 text-blue-500 shrink-0" />
+                    {config.smtp_port}
+                  </div>
+                </TableCell>
                 <TableCell className="text-center">
-                  <Badge className="bg-green-100 text-green-700 hover:bg-green-100 shadow-none border-none font-bold text-[10px] uppercase">
+                  <Badge className="bg-green-50 text-green-700 hover:bg-green-50 shadow-none border border-green-100 font-bold text-[9px] uppercase tracking-wider">
                     Ativo
                   </Badge>
                 </TableCell>
                 <TableCell>
+                  <div className="text-[10px] text-slate-400 font-mono">
+                    {config.last_execution ? format(new Date(config.last_execution), "dd/MM HH:mm") : "Nunca"}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-8 w-8 text-slate-400 hover:text-[#0000A0]"
+                      className="h-7 w-7 text-slate-400 hover:text-[#0000A0]"
                       onClick={() => navigate({ to: `/logs/${config.id}` })}
                       title="Ver Logs"
                     >
-                      <History className="h-4 w-4" />
+                      <History className="h-3.5 w-3.5" />
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-[#0000A0]">
-                          <MoreVertical className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-[#0000A0]">
+                          <MoreVertical className="h-3.5 w-3.5" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 p-2 shadow-lg border-slate-200">
+                      <DropdownMenuContent align="end" className="w-56 p-2 shadow-xl border-slate-200 rounded-xl">
                         <DropdownMenuItem 
-                          className="cursor-pointer py-2 rounded-md transition-colors"
+                          className="cursor-pointer py-2 rounded-lg font-semibold"
                           onClick={() => handleEdit(config)}
                         >
-                          <Shield className="mr-2 h-4 w-4 text-slate-500" />
+                          <Shield className="mr-2 h-4 w-4 text-slate-400" />
                           Editar Configuração
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          className="cursor-pointer text-destructive focus:text-destructive py-2 rounded-md transition-colors"
+                          className="cursor-pointer text-destructive focus:text-destructive py-2 rounded-lg font-semibold"
                           onClick={() => {
                             if (confirm(`Remover permanentemente o monitoramento de ${config.email_user}?`)) {
                               deleteMutation.mutate(config.id);

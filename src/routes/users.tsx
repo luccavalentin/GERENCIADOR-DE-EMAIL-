@@ -102,8 +102,8 @@ function UsersPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Gestão de Usuários</h1>
-          <p className="text-slate-500 mt-1">Administre quem tem acesso ao painel Agilliza.</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Usuários do Sistema</h1>
+          <p className="text-slate-500 mt-1">Administre as pessoas que possuem acesso operacional ao painel.</p>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
@@ -163,10 +163,12 @@ function UsersPage() {
           <Table>
             <TableHeader className="bg-slate-50">
               <TableRow>
-                <TableHead className="pl-6">Usuário</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Criado em</TableHead>
-                <TableHead className="text-right pr-6">Ações</TableHead>
+                <TableHead className="pl-6 font-bold text-slate-700">Usuário</TableHead>
+                <TableHead className="font-bold text-slate-700">E-mail</TableHead>
+                <TableHead className="font-bold text-slate-700">Status</TableHead>
+                <TableHead className="font-bold text-slate-700">Último acesso</TableHead>
+                <TableHead className="font-bold text-slate-700">Criado em</TableHead>
+                <TableHead className="text-right pr-6 font-bold text-slate-700">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -174,14 +176,14 @@ function UsersPage() {
                 <TableRow key={profile.id}>
                   <TableCell className="pl-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-[#0000A0]">
-                        <User className="h-5 w-5" />
+                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0000A0] font-bold border border-blue-100 shrink-0 shadow-sm">
+                        {profile.full_name ? profile.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : <User className="h-5 w-5" />}
                       </div>
-                      <div>
-                        <div className="font-bold text-slate-900">{profile.full_name || "Sem nome"}</div>
-                        <div className="text-xs text-slate-500">{profile.email || "--"}</div>
-                      </div>
+                      <div className="font-bold text-slate-900">{profile.full_name || "Sem nome"}</div>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-slate-500 font-medium">
+                    {profile.email || "--"}
                   </TableCell>
                   <TableCell>
                     <Badge className={cn(
@@ -190,7 +192,10 @@ function UsersPage() {
                       {profile.is_active ? "ATIVO" : "INATIVO"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-sm text-slate-500">
+                  <TableCell className="text-sm text-slate-400 font-mono">
+                    {profile.last_sign_in_at ? format(new Date(profile.last_sign_in_at), "dd/MM HH:mm") : "--"}
+                  </TableCell>
+                  <TableCell className="text-sm text-slate-400 font-mono">
                     {profile.created_at ? format(new Date(profile.created_at), "dd/MM/yyyy") : "--"}
                   </TableCell>
                   <TableCell className="text-right pr-6">
@@ -221,8 +226,11 @@ function UsersPage() {
               ))}
               {(!users || users.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12 text-slate-400 italic">
-                    Nenhum usuário encontrado.
+                  <TableCell colSpan={6} className="text-center py-20 text-slate-400">
+                    <div className="flex flex-col items-center gap-2 opacity-50">
+                      <Users className="h-8 w-8" />
+                      <p className="text-xs font-bold uppercase tracking-widest">Nenhum usuário encontrado</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

@@ -175,10 +175,10 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
             <Tabs defaultValue="geral" className="flex-1 overflow-hidden flex flex-col">
               <div className="px-6 border-b">
                 <TabsList className="w-full justify-start bg-transparent h-12 p-0 gap-6">
-                  <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">Geral</TabsTrigger>
-                  <TabsTrigger value="entrada" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">Conta principal</TabsTrigger>
-                  <TabsTrigger value="destinatarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">Destinatários</TabsTrigger>
-                  <TabsTrigger value="regras" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">Regras</TabsTrigger>
+                  <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">CONTA PRINCIPAL</TabsTrigger>
+                  <TabsTrigger value="entrada" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">SERVIDORES</TabsTrigger>
+                  <TabsTrigger value="destinatarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">DESTINATÁRIOS</TabsTrigger>
+                  <TabsTrigger value="regras" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">REGRAS</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -358,9 +358,12 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
 
                   <TabsContent value="regras" className="mt-0 space-y-6">
                     <Card className="shadow-none border-slate-100">
-                      <CardHeader>
-                        <CardTitle className="text-sm font-bold">Palavras-chave de Filtro</CardTitle>
-                        <CardDescription>Termos que identificam e-mails para processamento.</CardDescription>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-bold flex items-center gap-2">
+                          <Tags className="h-4 w-4 text-[#0000A0]" />
+                          Palavras-chave
+                        </CardTitle>
+                        <CardDescription className="text-[11px]">O sistema identifica automaticamente variações de maiúsculas, minúsculas e acentuação.</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="flex gap-2">
@@ -376,9 +379,9 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                         </div>
                         <div className="flex flex-wrap gap-2 min-h-[100px] p-4 bg-slate-50 rounded-lg border border-dashed border-slate-200">
                           {form.watch("keywords").map((kw) => (
-                            <Badge key={kw} className="pl-3 pr-1 py-1 gap-2 bg-[#0000A0] text-white hover:bg-[#0000A0] font-bold">
+                            <Badge key={kw} className="pl-3 pr-1 py-1 gap-2 bg-[#0000A0] text-white hover:bg-[#0000A0] font-bold rounded-md border-none shadow-sm">
                               {kw}
-                              <button type="button" onClick={() => removeKeyword(kw)} className="hover:text-red-200 p-0.5">
+                              <button type="button" onClick={() => removeKeyword(kw)} className="hover:text-red-200 p-0.5 transition-colors">
                                 <X className="h-3 w-3" />
                               </button>
                             </Badge>
