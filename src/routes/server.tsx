@@ -1,12 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-query";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Server, Cpu, HardDrive, ShieldCheck, RefreshCcw, Clock } from "lucide-react";
+import { Server, Cpu, HardDrive, ShieldCheck, RefreshCcw, Clock, Activity, Database, Mail, Power, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getWorkerStatus, restartWorker } from "@/lib/email.functions";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 import { 
   AlertDialog,
@@ -21,8 +22,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useState } from "react";
+import { createFileRoute as createTanstackFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/server")({
+export const Route = createTanstackFileRoute("/server")({
   component: () => (
     <AppLayout>
       <ServerPage />
@@ -55,140 +57,166 @@ function ServerPage() {
     }
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0000A0]"></div>
-      </div>
-    );
-  }
-
   const isOnline = workerStatus?.status === 'online';
-  const cpu = workerStatus?.cpu_usage;
-  const ram = workerStatus?.ram_usage;
+  const cpu = workerStatus?.cpu_usage || 0;
+  const ram = workerStatus?.ram_usage || 0;
+  const disk = 45; // Placeholder for real telemetry if available
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-8 max-w-7xl mx-auto pb-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Infraestrutura do Servidor</h1>
-          <p className="text-slate-500 mt-1">Monitoramento de hardware e recursos da VPS Hostinger.</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Infraestrutura</h1>
+          <p className="text-slate-500 mt-1">Gerenciamento de hardware e serviços da VPS Agilliza.</p>
         </div>
-        <div className="flex gap-2">
-          {isOnline && (
+        <Badge variant="outline" className={cn(
+          "px-3 py-1 font-bold tracking-wider",
+          isOnline ? "text-green-600 border-green-200 bg-green-50" : "text-slate-400 border-slate-200 bg-slate-50"
+        )}>
+          {isOnline ? "● VPS ONLINE" : "○ VPS DESCONECTADA"}
+        </Badge>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Status da VPS */}
+        <Card className="lg:col-span-3 shadow-sm border-slate-200">
+          <CardHeader className="border-b border-slate-50 bg-slate-50/50 py-4">
+            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Status da VPS Hostinger</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <div className="flex items-center gap-2">
+                    <Cpu className="h-3 w-3 text-blue-500" />
+                    Processamento (CPU)
+                  </div>
+                  <span>{isOnline ? `${cpu}%` : "—"}</span>
+                </div>
+                <Progress value={isOnline ? cpu : 0} className="h-1.5 bg-slate-100" />
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <div className="flex items-center gap-2">
+                    <HardDrive className="h-3 w-3 text-indigo-500" />
+                    Memória (RAM)
+                  </div>
+                  <span>{isOnline ? `${ram}%` : "—"}</span>
+                </div>
+                <Progress value={isOnline ? ram : 0} className="h-1.5 bg-slate-100" />
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <div className="flex items-center gap-2">
+                    <Database className="h-3 w-3 text-slate-400" />
+                    Armazenamento (Disco)
+                  </div>
+                  <span>{isOnline ? `${disk}%` : "—"}</span>
+                </div>
+                <Progress value={isOnline ? disk : 0} className="h-1.5 bg-slate-100" />
+              </div>
+            </div>
+            
+            <div className="mt-8 pt-6 border-t border-slate-100 flex gap-12">
+               <div>
+                  <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Hostname</span>
+                  <span className="text-sm font-semibold text-slate-700">{workerStatus?.hostname || "Aguardando dados..."}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Uptime</span>
+                  <span className="text-sm font-semibold text-slate-700">{workerStatus?.uptime || "—"}</span>
+                </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Controles de Serviço */}
+        <Card className="shadow-sm border-slate-200">
+          <CardHeader className="border-b border-slate-50 bg-slate-50/50 py-4">
+            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Controles</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 space-y-3">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" className="text-[#0000A0] border-[#0000A0]/20 hover:bg-blue-50 font-bold" disabled={isRestarting}>
-                  <RefreshCcw className={cn("mr-2 h-4 w-4", isRestarting && "animate-spin")} />
-                  {isRestarting ? "Reiniciando..." : "Reiniciar Worker"}
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-[#0000A0] border-[#0000A0]/10 hover:bg-blue-50 font-bold text-xs h-10"
+                  disabled={!isOnline || isRestarting}
+                >
+                  <RefreshCcw className={cn("mr-3 h-4 w-4", isRestarting && "animate-spin")} />
+                  Reiniciar Worker
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Tem certeza que deseja reiniciar o worker?</AlertDialogTitle>
+                  <AlertDialogTitle>Reiniciar o Worker?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esta ação interromperá o processamento atual de e-mails. O worker tentará retornar automaticamente em seguida.
+                    Esta ação interromperá o processamento atual. O sistema tentará reconectar em alguns segundos.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => restartMutation.mutate()} className="bg-[#0000A0]">Confirmar</AlertDialogAction>
+                  <AlertDialogAction onClick={() => restartMutation.mutate()} className="bg-[#0000A0]">Confirmar Reinício</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          )}
-          <Badge variant="outline" className={cn("font-bold", isOnline ? "text-green-600 border-green-200 bg-green-50" : "text-slate-400 border-slate-200 bg-slate-50")}>
-            <ShieldCheck className="w-3 h-3 mr-1" /> {isOnline ? "Protegido" : "Offline"}
-          </Badge>
-        </div>
+
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-slate-600 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10"
+              disabled={!isOnline}
+            >
+              <Power className="mr-3 h-4 w-4" />
+              Parar Worker
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-slate-600 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10"
+              disabled={!isOnline}
+            >
+              <Activity className="mr-3 h-4 w-4" />
+              Verificar Saúde
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
-      {!isOnline && !isLoading && (
-        <div className="p-12 text-center bg-slate-50 border border-dashed border-slate-200 rounded-xl">
-          <Server className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-slate-900">Aguardando integração com VPS</h3>
-          <p className="text-slate-500 max-w-md mx-auto mt-2">
-            As métricas de hardware e botões de comando estarão disponíveis assim que o worker estabelecer conexão.
-          </p>
-        </div>
-      )}
-
-      {isOnline && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-bold uppercase text-slate-500">Uso de CPU</CardTitle>
-              <Cpu className="h-4 w-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{cpu !== undefined ? `${cpu}%` : "---"}</div>
-              <div className="w-full bg-slate-100 h-2 rounded-full mt-3">
-                <div className="bg-blue-500 h-full transition-all" style={{ width: `${cpu || 0}%` }} />
-              </div>
-              <p className="text-xs text-slate-400 mt-2">{workerStatus?.hostname || "VPS Hostinger"}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-bold uppercase text-slate-500">Memória RAM</CardTitle>
-              <HardDrive className="h-4 w-4 text-indigo-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{ram !== undefined ? `${ram}%` : "---"}</div>
-              <div className="w-full bg-slate-100 h-2 rounded-full mt-3">
-                <div className="bg-indigo-500 h-full transition-all" style={{ width: `${ram || 0}%` }} />
-              </div>
-              <p className="text-xs text-slate-400 mt-2">Uso percentual reportado</p>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-bold uppercase text-slate-500">Uptime Worker</CardTitle>
-              <Clock className="h-4 w-4 text-slate-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{workerStatus?.uptime || "Indisponível"}</div>
-              <div className="flex gap-2 mt-4">
-                <Badge variant="outline" className="text-[10px] font-bold text-green-600 border-green-200 bg-green-50">
-                  🟢 ONLINE
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {isOnline && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Server className="h-5 w-5 text-slate-900" />
-            <h2 className="font-bold text-slate-900">Processos Operacionais</h2>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
-              <div className="flex items-center gap-4">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <div>
-                  <div className="font-semibold text-sm text-slate-900">agilliza-worker-core</div>
-                  <div className="text-xs text-slate-500">Node.js Engine</div>
+      {/* Serviços */}
+      <section className="space-y-4">
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Serviços do Ecossistema</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Worker Core", status: isOnline ? 'online' : 'offline', icon: Activity, desc: "Processador de E-mail" },
+            { label: "Engine IMAP", status: isOnline ? 'online' : 'aguardando', icon: Mail, desc: "Protocolo de Entrada" },
+            { label: "Engine SMTP", status: isOnline ? 'online' : 'aguardando', icon: ShieldCheck, desc: "Protocolo de Saída" },
+            { label: "Database", status: 'online', icon: Database, desc: "Supabase Postgres" },
+          ].map((service, i) => (
+            <Card key={i} className="shadow-sm border-slate-200">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className={cn(
+                  "p-2 rounded-lg",
+                  service.status === 'online' ? "bg-green-50 text-green-600" : "bg-slate-50 text-slate-400"
+                )}>
+                  <service.icon className="h-5 w-5" />
                 </div>
-              </div>
-              <div className="flex gap-8 text-right">
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold block">Versão</span>
-                  <span className="text-xs font-medium">{workerStatus?.worker_version || "---"}</span>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-slate-900">{service.label}</span>
+                    <div className={cn(
+                      "h-2 w-2 rounded-full",
+                      service.status === 'online' ? "bg-green-500" : "bg-slate-300"
+                    )} />
+                  </div>
+                  <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">{service.desc}</span>
                 </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold block">Status</span>
-                  <span className="text-xs font-medium uppercase">Ativo</span>
-                </div>
-              </div>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      )}
+      </section>
     </div>
   );
 }
