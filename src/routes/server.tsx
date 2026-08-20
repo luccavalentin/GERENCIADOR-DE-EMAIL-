@@ -132,7 +132,7 @@ function ServerPage() {
         </Card>
 
         {/* Controles de Serviço */}
-        <Card className="shadow-sm border-slate-200">
+        <Card className="premium-card">
           <CardHeader className="border-b border-slate-50 bg-slate-50/50 py-4">
             <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Controles</CardTitle>
           </CardHeader>
