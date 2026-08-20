@@ -1,46 +1,23 @@
-# Evolução do Sistema Agilliza - Etapa 2: Usuários e UX
+# Plano de Evolução - Agilliza Gerenciador de E-mail (Etapa 2 & 3)
 
-Este plano foca na implementação do módulo de usuários, melhorias na navegação de contas e refinamento visual conforme solicitado, mantendo o motor de e-mail intacto.
+Este plano foca na reestruturação do módulo de Contas de E-mail e na implementação da normalização determinística de palavras-chave, conforme os requisitos visuais e funcionais solicitados.
 
-## Mudanças
+## 1. Módulo de Contas de E-mail (UX Sophisticated)
+- **Renomeação**: Alterar "CREDENCIAIS" para "E-MAIL DE SAÍDA / CONTA PRINCIPAL".
+- **Destinatários (Tag-based)**: Implementar interface de "E-MAILS DE RECEBIMENTO" permitindo múltiplos e-mails como tags (badges com 'x').
+- **Validação de Destinatários**: Garantir que o array seja salvo como `["email1", "email2"]` e nunca como string única separada por ponto e vírgula.
+- **Formulário Unificado**: Ajustar a tela de edição para suportar a nova hierarquia visual.
 
-### Frontend e UI
+## 2. Motor de Palavras-Chave (Normalização Determinística)
+- **Input Robusto**: Permitir entrada separada por vírgula, ponto e vírgula ou Enter.
+- **Processamento Pré-Save**: Converter strings em arrays limpos antes de enviar ao Supabase.
+- **Normalização em Tempo Real**: Garantir que `codigo` (base) capture variações como `CÓDIGO`, `código`, `codigos`, etc., usando a lógica `Unicode NFD + Lowercase + Includes`.
 
-- **Módulo de Usuários (`/users`)**
-  - Implementar diálogo de criação de usuário com campos: Nome Completo, E-mail, Senha.
-  - Implementar edição de usuário e redefinição de acesso (fluxo de reset de senha do Supabase).
-  - Adicionar suporte a status ativo/inativo integrado ao banco.
-- **Navegação de Contas (`AppLayout.tsx`)**
-  - Refinar o dropdown de "Conta Monitorada" no topo.
-  - Adicionar botão "+ Nova conta" destacado e no final da lista.
-  - Garantir que a troca de conta atualize o estado global (via URL ou Contexto) para refletir métricas, logs e configurações da conta selecionada.
-- **Refatoração de Configurações (`/accounts` ou similar)**
-  - Renomear seção "CREDENCIAIS" para "E-MAIL DE SAÍDA / CONTA PRINCIPAL".
-  - Criar seção "E-MAILS DE RECEBIMENTO" com suporte a múltiplos destinos (tags editáveis).
-  - Implementar normalização de palavras-chave (split por vírgula/ponto-e-vírgula/Enter) antes do salvamento.
-
-### Backend e Lógica de Negócio
-
-- **Gerenciamento de Usuários (`email.functions.ts`)**
-  - Criar função `createSystemUser` para registrar novos usuários no Auth do Supabase e criar perfil.
-  - Criar funções para gerenciar `is_active` e reset de senha.
-- **Normalização de Dados**
-  - Implementar utilitário de normalização determinística para palavras-chave (NFD, lowercase, remoção de acentos) no frontend antes de enviar ao servidor.
-  - *Nota: O motor já possui lógica de normalização, mas garantiremos que os dados salvos estejam limpos.*
-
-### Banco de Dados (Migrations)
-
-- Criar migration para adicionar campo `is_active` (se não existir) e garantir que a tabela `profiles` suporte os dados necessários.
+## 3. Navegação Global
+- **Sincronização**: Finalizar a integração do seletor de conta no topo com as rotas de logs e monitoramento.
+- **Estado Ativo**: Garantir que o `selectedConfigId` do `AppLayout` seja o padrão para carregamento de dados em todas as sub-telas.
 
 ## Detalhes Técnicos
-
-- **Estética**: Navy (#0000A0), fundo branco, sombras discretas, tipografia profissional.
-- **Arquitetura**: O estado da "Conta Ativa" será persistido preferencialmente na URL (ex: `?configId=...`) para facilitar o compartilhamento de links e recarregamento, ou via um `ActiveAccountProvider`.
-- **Segurança**: Operações de usuário via `service_role` (no servidor) para permitir que um admin crie outros usuários.
-
-## Verificação
-
-- Testar criação de usuário e login.
-- Verificar se a troca de conta no topo altera os dados exibidos no Dashboard e Logs.
-- Validar se múltiplos destinatários são salvos como array JSON puro `["a@b.com", "c@d.com"]`.
-- Confirmar se a palavra-chave "CÓDIGO" digitada de várias formas é salva de forma normalizada ou se a busca a encontra corretamente.
+- **Frontend**: Utilizar `radix-ui` (via shadcn) para o seletor elegante e componentes de Badge para destinatários.
+- **Backend**: Manter `src/lib/email.functions.ts` como ponte segura, utilizando as funções de normalização já existentes no motor.
+- **Database**: Atualizar `email_configurations` via RPC ou Server Functions para garantir integridade dos arrays.
