@@ -511,6 +511,13 @@ export const getLogs = createServerFn({ method: "GET" })
 
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    if (data.clearView && data.configId) {
+      // Mark logs as "read" or similar for this user session if we had that column
+      // For now, we'll just implement the filter logic and return a special flag if needed
+      // Actually, Req #12 says "Isso NÃO deve apagar o banco", so it's just a UI state
+    }
+
     let query = supabaseAdmin
       .from("email_logs")
       .select("*", { count: "exact" });
@@ -528,6 +535,7 @@ export const getLogs = createServerFn({ method: "GET" })
 
     if (error) throw error;
     return { logs: logs as any[], count };
+
   });
 
 export const getDailyStats = createServerFn({ method: "GET" })
