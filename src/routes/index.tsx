@@ -168,25 +168,20 @@ function Dashboard() {
         smtp_port: formData.smtp_port,
         smtp_secure: formData.smtp_secure,
         email_user: formData.email_user,
-        email_password: formData.email_password,
         destinations: formData.destinations.split(",").map(e => e.trim()),
         keywords: formData.keywords.split(",").map(e => e.trim()),
         provider: "Custom"
       };
 
-      if (editingConfig) {
-        const { error } = await supabase
-          .from("email_configurations")
-          .update(configData)
-          .eq("id", editingConfig.id);
-        if (error) throw error;
-        toast.success("Configuração atualizada com sucesso!");
-      } else {
-        const { error } = await supabase.from("email_configurations").insert(configData);
-        if (error) throw error;
-        toast.success("Configuração criada com sucesso!");
-      }
+      await runSaveConfig({
+        data: {
+          configId: editingConfig?.id,
+          configData,
+          emailPassword: formData.email_password,
+        }
+      });
 
+      toast.success(editingConfig ? "Configuração atualizada com sucesso!" : "Configuração criada com sucesso!");
       setIsModalOpen(false);
       setEditingConfig(null);
       setFormData(initialFormData);
