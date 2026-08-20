@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-query";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Server, Cpu, HardDrive, ShieldCheck, RefreshCcw, Clock, Activity, Database, Mail, Power, AlertCircle } from "lucide-react";
