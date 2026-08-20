@@ -218,17 +218,26 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="p-6 border-t border-white/10">
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-blue-100/70 hover:text-white hover:bg-white/5 font-medium"
+              className={cn(
+                "w-full text-blue-100/70 hover:text-white hover:bg-white/5 font-medium",
+                isCollapsed ? "justify-center px-0" : "justify-start"
+              )}
               onClick={handleSignOut}
+              title={isCollapsed ? "Sair da conta" : undefined}
             >
-              <LogOut className="mr-3 h-5 w-5" />
-              Sair da conta
+              <LogOut className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
+              {!isCollapsed && <span>Sair da conta</span>}
             </Button>
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 pl-64 flex flex-col">
+        <main 
+          className={cn(
+            "flex-1 flex flex-col transition-all duration-300 ease-in-out",
+            isCollapsed ? "pl-20" : "pl-64"
+          )}
+        >
           {/* Top Header */}
           <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40 shadow-sm">
             <div className="flex items-center gap-6">
