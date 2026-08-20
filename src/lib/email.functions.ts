@@ -535,10 +535,10 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
         clearTimeout(timeout);
       }
 
-      result.time = (Date.now() - startTime) / 1000;
+      result.time = Math.round(Date.now() - startTime);
       return { success: true, result };
     } catch (error: any) {
-      result.time = (Date.now() - startTime) / 1000;
+      result.time = Math.round(Date.now() - startTime);
       return { success: false, error: error.message, result };
     }
   });
