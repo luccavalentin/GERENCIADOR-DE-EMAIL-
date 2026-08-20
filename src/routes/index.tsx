@@ -60,6 +60,7 @@ function Dashboard() {
   const [editingConfig, setEditingConfig] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
   const runTestConnection = useServerFn(testConnection);
+  const runSaveConfig = useServerFn(saveEmailConfiguration);
 
   const initialFormData = {
     imap_host: "imap.uhserver.com",
