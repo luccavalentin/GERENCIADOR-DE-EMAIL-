@@ -200,11 +200,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-3 px-4 py-3 rounded-lg text-[13px] font-bold uppercase tracking-wider transition-all duration-200",
                     isCollapsed && "justify-center px-0",
                     isActive
                       ? "bg-white/10 text-white shadow-sm ring-1 ring-white/20"
-                      : "text-blue-100/70 hover:bg-white/5 hover:text-white"
+                      : "text-blue-100/60 hover:bg-white/5 hover:text-white"
                   )}
                   title={isCollapsed ? item.label : undefined}
                 >
