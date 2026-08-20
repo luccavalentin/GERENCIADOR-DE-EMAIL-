@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getLogs } from "@/lib/email.functions";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { 
@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/logs/$configId")({
   component: () => (
@@ -153,7 +155,7 @@ function LogsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {logs.map((log: any) => (
+              {visibleLogs.map((log: any) => (
                 <TableRow key={log.id} className="hover:bg-slate-50/50 group transition-colors">
                   <TableCell className="text-slate-500 text-[10px] font-mono whitespace-nowrap">
                     [{format(new Date(log.created_at), "dd/MM HH:mm:ss")}]
@@ -188,7 +190,7 @@ function LogsPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {logs.length === 0 && (
+              {visibleLogs.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="h-48 text-center text-slate-400">
                     <div className="flex flex-col items-center justify-center gap-2">
