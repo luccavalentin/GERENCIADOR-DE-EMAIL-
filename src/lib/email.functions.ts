@@ -131,12 +131,55 @@ export const getActiveConfigs = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("email_configurations")
-      .select("*")
-      .eq("is_active", true);
+      .select("*");
 
     if (error) throw error;
     return data;
   });
+
+export const getProfiles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("profiles" as any)
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data;
+  });
+
+export const toggleProfileStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ id: z.string(), is_active: z.boolean() }).parse(data))
+
+  .handler(async ({ data: { id, is_active } }) => {
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("profiles" as any)
+      .update({ is_active } as any)
+      .eq("id", id);
+    if (error) throw error;
+    return { success: true };
+  });
+
+
+export const deleteProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .handler(async ({ data: { id } }) => {
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // First delete from auth.users (cascades to profiles)
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
+    if (authError) throw authError;
+
+    return { success: true };
+  });
+
 
 export const processEmailsForConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -403,3 +446,20 @@ export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
       return { success: false, error: error.message, result };
     }
   });
+
+export const getLogs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
+  .handler(async ({ data: { configId } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("email_logs")
+      .select("*")
+      .eq("config_id", configId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    
+    if (error) throw error;
+    return data;
+  });
+
