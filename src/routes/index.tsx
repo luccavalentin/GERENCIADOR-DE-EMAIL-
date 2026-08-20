@@ -249,7 +249,7 @@ function Dashboard() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email_password">Senha / App Password</Label>
-                        <Input id="email_password" type="password" placeholder="••••••••" value={formData.email_password} onChange={e => setFormData({...formData, email_password: e.target.value})} required />
+                        <Input id="email_password" type="password" placeholder="••••••••" value={formData.email_password} onChange={e => setFormData({...formData, email_password: e.target.value})} required={!formData.allow_invalid} />
                       </div>
                     </div>
                   </div>
