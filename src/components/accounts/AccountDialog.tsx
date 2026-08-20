@@ -235,7 +235,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                       <Card className="shadow-none border-slate-100">
                         <CardHeader className="pb-4">
                           <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
-                            <History className="h-4 w-4" />
+                            <HistoryIcon className="h-4 w-4" />
                             IMAP (Entrada)
                           </CardTitle>
                         </CardHeader>
