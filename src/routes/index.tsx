@@ -620,8 +620,9 @@ function Dashboard() {
                 </div>
                 </div>
               )}
-
+            </div>
           )}
+
 
           <DialogFooter>
             <Button onClick={() => setIsStatsOpen(false)} className="w-full">Fechar</Button>
