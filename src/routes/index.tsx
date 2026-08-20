@@ -7,6 +7,7 @@ import {
   Server,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -52,8 +53,4 @@ function DashboardPage() {
       </div>
     </div>
   );
-}
-
-function cn(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
 }
