@@ -33,7 +33,15 @@ function AuthPage() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            }
+          }
+        });
         if (error) throw error;
         toast.success("Verifique seu e-mail para confirmar o cadastro!");
       } else {
