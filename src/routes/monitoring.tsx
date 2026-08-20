@@ -34,14 +34,35 @@ function MonitoringPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 shadow-sm border-slate-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b bg-slate-50/30">
-            <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-500">Fluxo de Processamento</CardTitle>
-            <BarChart3 className="h-4 w-4 text-slate-400" />
+        <Card className="lg:col-span-2 shadow-sm border-slate-200 bg-[#000033] text-white overflow-hidden relative group">
+          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[linear-gradient(rgba(0,0,160,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,160,0.2)_1px,transparent_1px)] bg-[size:20px_20px]" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-white/10 bg-white/5 backdrop-blur-sm relative z-10">
+            <CardTitle className="text-sm font-bold uppercase tracking-widest text-[#4D4DFF]">
+              Console Agilliza / Monitoramento Matricial
+            </CardTitle>
+            <Activity className="h-4 w-4 text-[#4D4DFF] animate-pulse" />
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="h-[300px] flex items-center justify-center text-slate-400 italic">
-              Gráfico de volumetria em tempo real (Emails monitorados vs Encaminhados)
+          <CardContent className="p-4 relative z-10 font-mono text-xs leading-relaxed h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20">
+            <div className="space-y-1">
+              <div className="text-white/40 mb-2 border-b border-white/10 pb-1">
+                [SISTEMA AGILLIZA INICIALIZADO - AGUARDANDO FLUXO]
+              </div>
+              <div className="text-green-400">
+                <span className="text-white/30 mr-2">[{new Date().toLocaleTimeString()}]</span>
+                Verificando integridade dos canais...
+              </div>
+              <div className="text-green-400">
+                <span className="text-white/30 mr-2">[{new Date().toLocaleTimeString()}]</span>
+                Monitor ativo. Escutando eventos IMAP/SMTP.
+              </div>
+              <div className="text-[#4D4DFF] animate-pulse mt-4">
+                &gt; Próximo ciclo de varredura agendado...
+              </div>
+              
+              {/* Estilo Matrix / Terminal */}
+              <div className="mt-8 text-white/20 italic">
+                Aguardando nova execução para renderização de logs amigáveis...
+              </div>
             </div>
           </CardContent>
         </Card>
