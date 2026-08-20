@@ -111,7 +111,7 @@ function DashboardPage() {
             { label: "IMAP", status: isOnline ? 'operacional' : 'aguardando', icon: Mail },
             { label: "SMTP", status: isOnline ? 'operacional' : 'aguardando', icon: ShieldCheck },
             { label: "Banco de Dados", status: 'operacional', icon: Database },
-            { label: "VPS Hostinger", status: isOnline ? 'operacional' : 'falha', icon: Server },
+            { label: "Infraestrutura Hostinger", status: isOnline ? 'operacional' : 'falha', icon: Server },
           ].map((item, i) => (
             <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 group hover:border-[#0000A0] transition-all">
               <div className={cn(
