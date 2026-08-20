@@ -380,7 +380,7 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
           pass: creds.password,
         },
         logger: false,
-        connectTimeout: 10000,
+        connectionTimeout: 10000,
       });
 
       try {
