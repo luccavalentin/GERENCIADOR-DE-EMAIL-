@@ -41,29 +41,36 @@ export async function processEmailsForConfigLogic(
   };
 
   // Global Lock Attempt
-  const { data: lockId, error: lockError } = await supabaseAdmin.rpc('acquire_email_config_lock', {
-    p_config_id: configId,
-    p_lock_timeout: '2 minutes'
-  });
+  let lockId: string | null = null;
+  try {
+    const { data: acquiredLockId, error: lockError } = await supabaseAdmin.rpc('acquire_email_config_lock', {
+      p_config_id: configId,
+      p_lock_timeout: '5 minutes' // Aumentado para 5 minutos para processos longos
+    });
 
-  if (lockError || !lockId) {
-    const { data: currentConfig } = await supabaseAdmin
-      .from("email_configurations")
-      .select("processing_lock_id, processing_lock_until")
-      .eq("id", configId)
-      .single();
+    if (lockError || !acquiredLockId) {
+      const { data: currentConfig } = await supabaseAdmin
+        .from("email_configurations")
+        .select("processing_lock_id, processing_lock_until")
+        .eq("id", configId)
+        .single();
 
-    const isLocked = currentConfig?.processing_lock_id && 
-                     currentConfig.processing_lock_until && 
-                     new Date(currentConfig.processing_lock_until) > new Date();
+      const isLocked = currentConfig?.processing_lock_id && 
+                       currentConfig.processing_lock_until && 
+                       new Date(currentConfig.processing_lock_until) > new Date();
 
-    return { 
-      success: false, 
-      error: isLocked ? "Processamento: Bloqueado por outra execução" : "Locked or error acquiring lock",
-      isLocked: !!isLocked,
-      stats 
-    };
+      return { 
+        success: false, 
+        error: isLocked ? "Processamento: Bloqueado por outra execução ativa" : "Erro ao adquirir lock de processamento",
+        isLocked: !!isLocked,
+        stats 
+      };
+    }
+    lockId = acquiredLockId;
+  } catch (err: any) {
+    return { success: false, error: `Falha na infraestrutura de lock: ${err.message}`, stats };
   }
+
 
   const updateHeartbeat = async (status: string, errorMsg?: string) => {
     await supabaseAdmin.from("email_configurations").update({
