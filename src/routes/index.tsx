@@ -6,7 +6,14 @@ import {
   Activity, 
   History, 
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Server,
+  Database,
+  ShieldCheck,
+  ArrowRight,
+  TrendingUp,
+  XCircle,
+  Copy
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
@@ -22,6 +29,8 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -67,111 +76,181 @@ function DashboardPage() {
   const isOnline = workerStatus?.status === 'online';
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Welcome Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Painel Operacional</h1>
-          <p className="text-slate-500 mt-1">Visão geral da infraestrutura e processamento Agilliza.</p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Painel Operacional</h1>
+          <p className="text-slate-500 mt-1 font-medium">Monitoramento e processamento de e-mails em tempo real.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex flex-col items-end mr-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Global</span>
+            <span className={cn("text-xs font-bold", isOnline ? "text-green-600" : "text-red-600")}>
+              {isOnline ? "Sistema Operacional" : "Atenção Requerida"}
+            </span>
+          </div>
           <div className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold uppercase",
-            isOnline ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"
+            "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
+            isOnline ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
           )}>
-            {isOnline ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
-            {workerStatus?.message || "Aguardando dados..."}
+            {isOnline ? <CheckCircle2 className="h-6 w-6" /> : <AlertCircle className="h-6 w-6" />}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Saúde do Sistema Section */}
+      <section className="space-y-4">
+        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde do Sistema</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {[
+            { label: "Worker", status: workerStatus?.status === 'online' ? 'operacional' : 'falha', icon: Activity },
+            { label: "IMAP", status: isOnline ? 'operacional' : 'aguardando', icon: Mail },
+            { label: "SMTP", status: isOnline ? 'operacional' : 'aguardando', icon: ShieldCheck },
+            { label: "Banco de Dados", status: 'operacional', icon: Database },
+            { label: "VPS Hostinger", status: isOnline ? 'operacional' : 'falha', icon: Server },
+          ].map((item, i) => (
+            <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 group hover:border-[#0000A0] transition-all">
+              <div className={cn(
+                "p-2 rounded-lg",
+                item.status === 'operacional' ? "bg-green-50 text-green-600" : 
+                item.status === 'falha' ? "bg-red-50 text-red-600" : "bg-slate-50 text-slate-400"
+              )}>
+                <item.icon className="h-4 w-4" />
+              </div>
+              <div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</div>
+                <div className={cn(
+                  "text-xs font-bold capitalize",
+                  item.status === 'operacional' ? "text-slate-900" : 
+                  item.status === 'falha' ? "text-red-600" : "text-slate-400"
+                )}>
+                  {item.status}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Métricas Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {[
           { 
-            label: "Mensagens Hoje", 
-            value: stats ? stats.found : "...", 
+            label: "Processados hoje", 
+            value: stats ? stats.found : "—", 
             icon: Mail, 
             color: "text-blue-600", 
-            bg: "bg-blue-50" 
+            bg: "bg-blue-50/50" 
           },
           { 
-            label: "Palavras-Chave", 
-            value: stats ? stats.keywords : "...", 
-            icon: Activity, 
+            label: "Encaminhados", 
+            value: stats ? stats.forwarded : "—", 
+            icon: TrendingUp, 
             color: "text-green-600", 
-            bg: "bg-green-50" 
+            bg: "bg-green-50/50" 
           },
           { 
-            label: "Encaminhadas", 
-            value: stats ? stats.forwarded : "...", 
-            icon: History, 
-            color: "text-[#0000A0]", 
-            bg: "bg-slate-50" 
+            label: "Ignorados", 
+            value: stats ? (Number(stats.found) - Number(stats.forwarded) - Number(stats.errors)) : "—", 
+            icon: XCircle, 
+            color: "text-slate-400", 
+            bg: "bg-slate-50/50" 
+          },
+          { 
+            label: "Duplicados", 
+            value: "0", 
+            icon: Copy, 
+            color: "text-amber-600", 
+            bg: "bg-amber-50/50" 
           },
           { 
             label: "Erros", 
-            value: stats ? stats.errors : "...", 
+            value: stats ? stats.errors : "—", 
             icon: AlertCircle, 
             color: "text-red-600", 
-            bg: "bg-red-50" 
+            bg: "bg-red-50/50" 
           },
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-[#0000A0] transition-all">
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</p>
-              <h3 className="text-xl font-bold text-slate-900 mt-1">{stat.value}</h3>
-            </div>
-            <div className={cn("p-3 rounded-lg transition-colors", stat.bg, stat.color)}>
-              <stat.icon className="h-6 w-6" />
-            </div>
-          </div>
+          <Card key={i} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden">
+            <CardContent className="p-6">
+              <div className={cn("p-2 w-fit rounded-lg mb-4 transition-colors", stat.bg, stat.color)}>
+                <stat.icon className="h-5 w-5" />
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+              <h3 className="text-3xl font-bold text-slate-900 mt-2 tracking-tight">
+                {stat.value === "—" ? <span className="text-slate-200">—</span> : stat.value}
+              </h3>
+            </CardContent>
+          </Card>
         ))}
       </div>
       
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-bold text-slate-900">Últimos Encaminhamentos</h3>
-          <Button variant="ghost" size="sm" className="text-[#0000A0] font-bold" asChild>
-            <a href="/logs">Ver tudo</a>
+      {/* Atividade Recente Table */}
+      <Card className="shadow-sm border-slate-200 overflow-hidden">
+        <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between bg-slate-50/30">
+          <div>
+            <CardTitle className="text-lg font-bold text-slate-900">Atividade Recente</CardTitle>
+            <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos reais do sistema.</p>
+          </div>
+          <Button variant="outline" size="sm" className="text-[#0000A0] border-[#0000A0]/20 font-bold hover:bg-blue-50" asChild>
+            <a href="/logs" className="flex items-center gap-2">
+              Ver Histórico Completo
+              <ArrowRight className="h-3 w-3" />
+            </a>
           </Button>
+        </CardHeader>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-slate-50/50">
+              <TableRow className="hover:bg-transparent border-slate-100">
+                <TableHead className="w-[120px] font-bold text-slate-500 pl-6">Horário</TableHead>
+                <TableHead className="font-bold text-slate-500">Evento / Descrição</TableHead>
+                <TableHead className="w-[120px] text-right font-bold text-slate-500 pr-6">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentLogs?.logs?.length ? recentLogs.logs.map((log: any) => (
+                <TableRow key={log.id} className="group hover:bg-slate-50/50 transition-colors border-slate-100">
+                  <TableCell className="text-xs text-slate-400 font-mono pl-6">
+                    {log.created_at ? format(new Date(log.created_at), "HH:mm:ss") : "--:--:--"}
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <div className="text-sm font-semibold text-slate-900 leading-none mb-1">
+                      {log.message.split(' - ')[0] || "Processamento de E-mail"}
+                    </div>
+                    <div className="text-xs text-slate-500 truncate max-w-[600px]">
+                      {log.message.includes(' - ') ? log.message.split(' - ').slice(1).join(' - ') : log.message}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right pr-6">
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "text-[10px] font-bold px-2 py-0.5 uppercase tracking-tighter rounded-md border-none",
+                        log.level === 'error' ? "bg-red-50 text-red-600" : 
+                        log.level === 'success' ? "bg-green-50 text-green-600" : "bg-blue-50 text-blue-600"
+                      )}
+                    >
+                      {log.level || 'info'}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-20 text-slate-400">
+                    <div className="flex flex-col items-center gap-2 opacity-50">
+                      <History className="h-8 w-8" />
+                      <p className="text-xs font-bold uppercase tracking-widest">Aguardando atividade real...</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
-        <Table>
-          <TableHeader className="bg-slate-50">
-            <TableRow>
-              <TableHead>Horário</TableHead>
-              <TableHead>Assunto / Mensagem</TableHead>
-              <TableHead>Nível</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentLogs?.logs?.length ? recentLogs.logs.map((log: any) => (
-              <TableRow key={log.id}>
-                <TableCell className="text-xs text-slate-500 font-mono">
-                  {log.created_at ? format(new Date(log.created_at), "HH:mm:ss") : "-"}
-                </TableCell>
-                <TableCell className="text-sm truncate max-w-[500px]">{log.message}</TableCell>
-                <TableCell>
-                  <Badge 
-                    variant="secondary" 
-                    className={cn(
-                      "text-[10px] capitalize",
-                      log.level === 'error' ? "bg-red-50 text-red-700" : 
-                      log.level === 'success' ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"
-                    )}
-                  >
-                    {log.level || 'info'}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            )) : (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center py-8 text-slate-400 text-xs italic">
-                  {recentLogs ? "Nenhuma atividade recente encontrada." : "Carregando atividade..."}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      </Card>
     </div>
+
   );
 }
