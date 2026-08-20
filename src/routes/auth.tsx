@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import logoPrimary from "@/assets/logo-primary.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -50,7 +51,8 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#fcfbf8] p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
+        <CardHeader className="flex flex-col items-center">
+          <img src={logoPrimary.url} alt="Agilliza" className="mb-4 h-16 object-contain" />
           <CardTitle>{isSignUp ? "Criar Conta" : "Entrar"}</CardTitle>
           <CardDescription>
             {isSignUp

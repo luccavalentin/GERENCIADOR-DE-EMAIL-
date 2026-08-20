@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { testConnection } from "@/lib/email.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Settings as SettingsIcon, Play, Square, History, Mail, LogOut, Loader2 } from "lucide-react";
+import logoPrimary from "@/assets/logo-primary.png.asset.json";
 import {
   Dialog,
   DialogContent,
@@ -159,7 +160,7 @@ function Dashboard() {
   if (!session) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#fcfbf8] p-4 text-center">
-        <Mail className="mb-4 h-16 w-16 text-blue-600" />
+        <img src={logoPrimary.url} alt="Agilliza Logo" className="mb-6 h-24 object-contain" />
         <h1 className="mb-4 text-4xl font-bold text-gray-900">
           recrie tudo no supabse lembre-se que o sistema é multitenanci
         </h1>
@@ -179,8 +180,13 @@ function Dashboard() {
       <div className="mx-auto max-w-6xl">
         <header className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gerenciador de E-mail</h1>
-            <p className="text-gray-600">Olá, {session.user.email}</p>
+            <div className="flex items-center gap-4">
+              <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain" />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Gerenciador de E-mail</h1>
+                <p className="text-gray-600">Olá, {session.user.email}</p>
+              </div>
+            </div>
           </div>
           <div className="flex gap-4">
             <Button variant="outline" onClick={() => supabase.auth.signOut()} className="gap-2">
