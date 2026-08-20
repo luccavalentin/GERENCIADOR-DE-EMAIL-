@@ -10,7 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as MonitoringRouteImport } from './routes/monitoring'
+import { Route as ServerRouteImport } from './routes/server'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as UsersRouteImport } from './routes/users'
 import { Route as LogsConfigIdRouteImport } from './routes/logs.$configId'
 import { Route as ApiPublicCronMonitorRouteImport } from './routes/api/public/cron/monitor'
 
@@ -19,9 +24,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountsRoute = AccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonitoringRoute = MonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServerRoute = ServerRouteImport.update({
+  id: '/server',
+  path: '/server',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LogsConfigIdRoute = LogsConfigIdRouteImport.update({
@@ -37,35 +67,82 @@ const ApiPublicCronMonitorRoute = ApiPublicCronMonitorRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
   '/auth': typeof AuthRoute
+  '/monitoring': typeof MonitoringRoute
+  '/server': typeof ServerRoute
+  '/settings': typeof SettingsRoute
+  '/users': typeof UsersRoute
   '/logs/$configId': typeof LogsConfigIdRoute
   '/api/public/cron/monitor': typeof ApiPublicCronMonitorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
   '/auth': typeof AuthRoute
+  '/monitoring': typeof MonitoringRoute
+  '/server': typeof ServerRoute
+  '/settings': typeof SettingsRoute
+  '/users': typeof UsersRoute
   '/logs/$configId': typeof LogsConfigIdRoute
   '/api/public/cron/monitor': typeof ApiPublicCronMonitorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
   '/auth': typeof AuthRoute
+  '/monitoring': typeof MonitoringRoute
+  '/server': typeof ServerRoute
+  '/settings': typeof SettingsRoute
+  '/users': typeof UsersRoute
   '/logs/$configId': typeof LogsConfigIdRoute
   '/api/public/cron/monitor': typeof ApiPublicCronMonitorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/logs/$configId' | '/api/public/cron/monitor'
+  fullPaths:
+    | '/'
+    | '/accounts'
+    | '/auth'
+    | '/monitoring'
+    | '/server'
+    | '/settings'
+    | '/users'
+    | '/logs/$configId'
+    | '/api/public/cron/monitor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/logs/$configId' | '/api/public/cron/monitor'
+  to:
+    | '/'
+    | '/accounts'
+    | '/auth'
+    | '/monitoring'
+    | '/server'
+    | '/settings'
+    | '/users'
+    | '/logs/$configId'
+    | '/api/public/cron/monitor'
   id:
-    '__root__' | '/' | '/auth' | '/logs/$configId' | '/api/public/cron/monitor'
+    | '__root__'
+    | '/'
+    | '/accounts'
+    | '/auth'
+    | '/monitoring'
+    | '/server'
+    | '/settings'
+    | '/users'
+    | '/logs/$configId'
+    | '/api/public/cron/monitor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountsRoute: typeof AccountsRoute
   AuthRoute: typeof AuthRoute
+  MonitoringRoute: typeof MonitoringRoute
+  ServerRoute: typeof ServerRoute
+  SettingsRoute: typeof SettingsRoute
+  UsersRoute: typeof UsersRoute
   LogsConfigIdRoute: typeof LogsConfigIdRoute
   ApiPublicCronMonitorRoute: typeof ApiPublicCronMonitorRoute
 }
@@ -79,11 +156,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accounts': {
+      id: '/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monitoring': {
+      id: '/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof MonitoringRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/server': {
+      id: '/server'
+      path: '/server'
+      fullPath: '/server'
+      preLoaderRoute: typeof ServerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/logs/$configId': {
@@ -105,7 +217,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountsRoute: AccountsRoute,
   AuthRoute: AuthRoute,
+  MonitoringRoute: MonitoringRoute,
+  ServerRoute: ServerRoute,
+  SettingsRoute: SettingsRoute,
+  UsersRoute: UsersRoute,
   LogsConfigIdRoute: LogsConfigIdRoute,
   ApiPublicCronMonitorRoute: ApiPublicCronMonitorRoute,
 }
