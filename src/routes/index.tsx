@@ -423,7 +423,7 @@ function Dashboard() {
                       </div>
                     </div>
                     
-                    <div className="flex gap-2 pt-4">
+                    <div className="flex gap-2 pt-4 flex-wrap">
                       <Button 
                         variant={config.is_active ? "destructive" : "default"}
                         className="flex-1 gap-2 h-9 text-xs"
@@ -433,6 +433,19 @@ function Dashboard() {
                           <><Square className="h-3.5 w-3.5 fill-current" /> Parar</>
                         ) : (
                           <><Play className="h-3.5 w-3.5 fill-current" /> Iniciar</>
+                        )}
+                      </Button>
+                      
+                      <Button 
+                        variant="secondary"
+                        className="flex-1 gap-2 h-9 text-xs"
+                        onClick={() => handleManualProcess(config.id)}
+                        disabled={isProcessing === config.id}
+                      >
+                        {isProcessing === config.id ? (
+                          <><Loader2 className="h-3.5 w-3.5 animate-spin" /> ...</>
+                        ) : (
+                          <><Activity className="h-3.5 w-3.5" /> Processar agora</>
                         )}
                       </Button>
                       <Button variant="outline" size="icon" className="h-9 w-9" asChild title="Logs">
