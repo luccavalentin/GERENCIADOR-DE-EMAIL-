@@ -10,10 +10,15 @@ import {
   Settings, 
   LogOut,
   ChevronDown,
-  Plus
+  Plus,
+  RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getWorkerStatus, restartWorker } from "@/lib/email.functions";
+import { toast } from "sonner";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
