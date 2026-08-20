@@ -168,9 +168,28 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <ActiveAccountContext.Provider value={{ selectedConfigId, setSelectedConfigId: handleAccountChange, configs, refreshConfigs: fetchConfigs }}>
       <div className="flex min-h-screen bg-[#f8fafc]">
         {/* Sidebar */}
-        <aside className="w-64 border-r bg-[#000033] flex flex-col fixed inset-y-0 shadow-xl z-50">
-          <div className="p-8 mb-4 flex items-center justify-center border-b border-white/5 bg-white/[0.02]">
-            <img src={logoPrimary.url} alt="Agilliza" className="h-9 object-contain brightness-0 invert opacity-90" />
+        <aside 
+          className={cn(
+            "border-r bg-[#000033] flex flex-col fixed inset-y-0 shadow-xl z-50 transition-all duration-300 ease-in-out",
+            isCollapsed ? "w-20" : "w-64"
+          )}
+        >
+          <div className={cn(
+            "p-8 mb-4 flex items-center justify-center border-b border-white/5 bg-white/[0.02] relative",
+            isCollapsed && "p-4"
+          )}>
+            {!isCollapsed ? (
+              <img src={logoPrimary.url} alt="Agilliza" className="h-9 object-contain brightness-0 invert opacity-90 transition-all" />
+            ) : (
+              <div className="h-9 w-9 bg-white/10 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
+            )}
+            
+            <button 
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="absolute -right-3 top-10 h-6 w-6 rounded-full bg-[#0000A0] text-white flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform z-50"
+            >
+              {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+            </button>
           </div>
           
           <nav className="flex-1 px-4 space-y-1">
