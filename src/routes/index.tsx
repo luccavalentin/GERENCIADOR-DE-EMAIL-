@@ -614,14 +614,15 @@ function Dashboard() {
                   <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Duplicadas</span>
                   <span className="text-xl font-bold text-purple-600">{processStats.duplicates}</span>
                 </div>
-                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Erros</span>
-                  <span className="text-xl font-bold text-red-600">{processStats.errors}</span>
-                </div>
+                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Erros</span>
+                    <span className="text-xl font-bold text-red-600">{processStats.errors}</span>
+                  </div>
                 </div>
               )}
             </div>
           )}
+
 
 
           <DialogFooter>
