@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-function normalizeText(text: string): string {
+function normalizeTextInternal(text: string): string {
   return text
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -22,6 +22,9 @@ const connectionSchema = z.object({
 export const testConnection = createServerFn({ method: "POST" })
   .inputValidator((data) => connectionSchema.parse(data))
   .handler(async ({ data }) => {
+    const { ImapFlow } = await import("imapflow");
+    const nodemailer = (await import("nodemailer")).default;
+
     const imap = new ImapFlow({
       host: data.imap_host,
       port: data.imap_port,
@@ -125,14 +128,11 @@ export const getActiveConfigs = createServerFn({ method: "GET" })
     return data;
   });
 
-function normalizeText(text: string): string {
-  return sharedNormalizeText(text);
-}
-
 export const processEmailsForConfig = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { processEmailsForConfigLogic } = await import("./email-logic/processor.server");
     return processEmailsForConfigLogic(configId, supabaseAdmin);
   });
 
@@ -140,6 +140,12 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { ImapFlow } = await import("imapflow");
+    const dns = await import("dns");
+    const net = await import("net");
+    const tls = await import("tls");
+    const { promisify } = await import("util");
+    
     const startTime = Date.now();
     
     const diagResults: any = {
@@ -241,7 +247,7 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
               });
 
               // TEST 5: GREETING
-              socket.on("data", (data) => {
+              socket.on("data", (data: any) => {
                 diagResults.greeting = { status: "received", data: data.toString() };
                 socket.end();
               });
@@ -320,6 +326,7 @@ export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const nodemailer = (await import("nodemailer")).default;
     const startTime = Date.now();
     const result = {
       dns: "pending",
