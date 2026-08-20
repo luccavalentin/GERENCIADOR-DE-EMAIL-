@@ -4,6 +4,10 @@ import { ImapFlow } from "imapflow";
 import nodemailer from "nodemailer";
 import { simpleParser } from "mailparser";
 import { convert } from "html-to-text";
+import * as dns from "dns";
+import * as net from "net";
+import * as tls from "tls";
+import { promisify } from "util";
 
 const connectionSchema = z.object({
   imap_host: z.string(),
@@ -423,15 +427,45 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const startTime = Date.now();
-    const result = {
-      dns: "pending",
-      tcp: "pending",
-      tls: "pending",
-      greeting: "pending",
-      auth: "pending",
-      inbox: "pending",
-      time: 0,
-      error: null as any
+    
+    const diagResults: any = {
+      dns: { status: "pending", data: null },
+      tcp_993: { status: "pending", data: null },
+      tcp_993_ipv4: { status: "pending", data: null },
+      tls_993: { status: "pending", data: null },
+      greeting: { status: "pending", data: null },
+      tcp_465: { status: "pending", data: null },
+      imap_flow: { status: "pending", data: null },
+      conclusion: ""
+    };
+
+    // Helper for TCP test
+    const testTcp = (host: string, port: number, family: number = 0): Promise<any> => {
+      return new Promise((resolve) => {
+        const start = Date.now();
+        const socket = net.createConnection({ host, port, family }, () => {
+          const duration = Date.now() - start;
+          const info = {
+            status: "CONECTOU",
+            duration,
+            remoteAddress: socket.remoteAddress,
+            remoteFamily: socket.remoteFamily,
+            remotePort: socket.remotePort
+          };
+          socket.end();
+          resolve(info);
+        });
+
+        socket.setTimeout(10000);
+        socket.on("timeout", () => {
+          socket.destroy();
+          resolve({ status: "TIMEOUT", duration: Date.now() - start, code: "ETIMEDOUT" });
+        });
+
+        socket.on("error", (e: any) => {
+          resolve({ status: "ERROR", duration: Date.now() - start, code: e.code, message: e.message });
+        });
+      });
     };
 
     try {
@@ -449,11 +483,73 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
 
       if (!config || !creds?.password) throw new Error("Configuração ou credenciais não encontradas");
 
-      // External rigid timeout (20s)
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20000);
+      const imapHost = config.imap_host;
+      const smtpHost = config.smtp_host;
 
-      const imap = new ImapFlow({
+      // TEST 1: DNS
+      try {
+        const lookup = promisify(dns.lookup);
+        const addresses = await lookup(imapHost, { all: true });
+        diagResults.dns = { status: "ok", data: addresses };
+      } catch (e: any) {
+        diagResults.dns = { status: "error", error: e.message };
+      }
+
+      // TEST 2: TCP 993
+      diagResults.tcp_993 = await testTcp(imapHost, 993);
+
+      // TEST 3: TCP IPv4 993
+      diagResults.tcp_993_ipv4 = await testTcp(imapHost, 993, 4);
+
+      // TEST 7: SMTP 465 (Comparative)
+      diagResults.tcp_465 = await testTcp(smtpHost, 465);
+
+      // TEST 4 & 5: TLS and Greeting
+      if (diagResults.tcp_993.status === "CONECTOU") {
+        try {
+          diagResults.tls_993 = await new Promise((resolve) => {
+            const start = Date.now();
+            const socket = tls.connect({
+              host: imapHost,
+              port: 993,
+              servername: imapHost,
+              timeout: 10000
+            }, () => {
+              const duration = Date.now() - start;
+              const cert = socket.getPeerCertificate();
+              resolve({
+                status: "ESTABELECIDO",
+                duration,
+                protocol: socket.getProtocol(),
+                authorized: socket.authorized,
+                authorizationError: socket.authorizationError,
+                cert_valid: !!cert && Object.keys(cert).length > 0
+              });
+
+              // TEST 5: GREETING
+              socket.on("data", (data) => {
+                diagResults.greeting = { status: "received", data: data.toString() };
+                socket.end();
+              });
+            });
+
+            socket.on("error", (e: any) => {
+              resolve({ status: "error", message: e.message });
+            });
+            
+            socket.on("timeout", () => {
+              socket.destroy();
+              resolve({ status: "timeout" });
+            });
+          });
+        } catch (e: any) {
+          diagResults.tls_993 = { status: "error", message: e.message };
+        }
+      }
+
+      // TEST 6: ImapFlow (only if basics work)
+      if (diagResults.tcp_993.status === "CONECTOU" && diagResults.tls_993?.status === "ESTABELECIDO") {
+        const imap = new ImapFlow({
           host: config.imap_host,
           port: config.imap_port,
           secure: config.imap_secure,
@@ -465,81 +561,44 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
           connectionTimeout: 10000,
           greetingTimeout: 10000,
           socketTimeout: 15000,
-      });
+        });
 
-      imap.on('error', (err) => {
-        console.error(`[IMAP FLOW ERROR]`, err);
-      });
-
-      try {
-        result.dns = "ok";
-        
-        // Race between the entire operation and the 20s timeout
-        await Promise.race([
-          (async () => {
-            await imap.connect();
-            result.tcp = "ok";
-            result.tls = "ok";
-            result.greeting = "ok";
-            result.auth = "ok";
-            
-            const lock = await imap.getMailboxLock("INBOX");
-            try {
-              result.inbox = "ok";
-            } finally {
-              lock.release();
-            }
-            await imap.logout();
-          })(),
-          new Promise((_, reject) => {
-            controller.signal.addEventListener('abort', () => {
-              reject(new Error("Timeout de conexão IMAP após 20 segundos"));
-            });
-          })
-        ]);
-      } catch (err: any) {
-        clearTimeout(timeout);
-        
-        if (err.message === "Timeout de conexão IMAP após 20 segundos") {
-          result.tcp = "TIMEOUT";
-          result.auth = "Não testada";
-          result.inbox = "Não testada";
-        }
-        
-        result.error = {
-          message: err.message,
-          code: err.code,
-          errno: err.errno,
-          syscall: err.syscall,
-          response: err.response,
-          command: err.command,
-          stack: err.stack
-        };
-
-        // Strict stage mapping for non-timeout errors
-        if (err.message !== "Timeout de conexão IMAP após 20 segundos") {
-          if (result.tcp === "pending") result.tcp = "error";
-          else if (result.tls === "pending") result.tls = "error";
-          else if (result.greeting === "pending") result.greeting = "error";
-          else if (result.auth === "pending") result.auth = "error";
-          else if (result.inbox === "pending") result.inbox = "error";
-        }
-
-        // Ensure logout to clean up resources if possible
         try {
+          await imap.connect();
+          diagResults.imap_flow = { status: "ok" };
           await imap.logout();
-        } catch (e) {}
-        
-        throw err;
-      } finally {
-        clearTimeout(timeout);
+        } catch (e: any) {
+          diagResults.imap_flow = { status: "error", message: e.message, code: e.code };
+        }
       }
 
-      result.time = Math.round(Date.now() - startTime);
-      return { success: true, result };
+      // Conclusion
+      if (diagResults.tcp_993.status === "TIMEOUT" && diagResults.tcp_465.status === "TIMEOUT") {
+        diagResults.conclusion = "O runtime Lovable não consegue alcançar o UHServer em ambas as portas (Bloqueio de infraestrutura).";
+      } else if (diagResults.tcp_993.status === "TIMEOUT") {
+        diagResults.conclusion = "O runtime Lovable não consegue alcançar imap.uhserver.com:993 ou o servidor UHServer está bloqueando essa origem.";
+      } else if (diagResults.imap_flow?.status === "error") {
+        diagResults.conclusion = "Conectividade básica OK, mas falha no ImapFlow (Possível problema de biblioteca ou configuração específica).";
+      } else {
+        diagResults.conclusion = "Conectividade básica OK.";
+      }
+
+      return { 
+        success: true, 
+        result: {
+          ...diagResults,
+          time: Math.round(Date.now() - startTime)
+        }
+      };
     } catch (error: any) {
-      result.time = Math.round(Date.now() - startTime);
-      return { success: false, error: error.message, result };
+      return { 
+        success: false, 
+        error: error.message,
+        result: {
+          ...diagResults,
+          time: Math.round(Date.now() - startTime)
+        }
+      };
     }
   });
 
