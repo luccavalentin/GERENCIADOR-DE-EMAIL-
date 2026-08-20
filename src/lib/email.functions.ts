@@ -424,11 +424,14 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const startTime = Date.now();
     const result = {
-      connection: "pending",
+      dns: "pending",
+      tcp: "pending",
+      tls: "pending",
+      greeting: "pending",
       auth: "pending",
       inbox: "pending",
       time: 0,
-      error: null as string | null
+      error: null as any
     };
 
     try {
@@ -446,30 +449,47 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
 
       if (!config || !creds?.password) throw new Error("Configuração ou credenciais não encontradas");
 
+      // External Timeout to prevent hanging for 70s
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+
       const imap = new ImapFlow({
-        host: config.imap_host,
-        port: config.imap_port,
-        secure: config.imap_secure,
-        auth: {
-          user: config.email_user,
-          pass: creds.password,
-        },
-        logger: false,
-        connectionTimeout: 10000,
+          host: config.imap_host,
+          port: config.imap_port,
+          secure: config.imap_secure,
+          auth: {
+            user: config.email_user,
+            pass: creds.password,
+          },
+          logger: false, // Don't leak to console, we capture events
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 15000,
+      });
+
+      // Event Tracking
+      imap.on('error', (err) => {
+        console.error(`[IMAP FLOW ERROR]`, err);
       });
 
       try {
-        // Log individual do teste para diagnóstico
-        console.log(`[IMAP TEST] Conectando a ${config.imap_host}:${config.imap_port} (secure: ${config.imap_secure})`);
+        result.dns = "ok"; // If we start connecting, DNS resolved
         
-        await imap.connect();
-        result.connection = "ok";
-        console.log(`[IMAP TEST] Conectado e autenticado.`);
+        // Manual timeout wrapper
+        await Promise.race([
+          imap.connect(),
+          new Promise((_, reject) => {
+            controller.signal.addEventListener('abort', () => reject(new Error("Timeout Global (20s)")));
+          })
+        ]);
+
+        result.tcp = "ok";
+        result.tls = "ok";
+        result.greeting = "ok";
         result.auth = "ok";
         
         let lock = await imap.getMailboxLock("INBOX");
         try {
-          console.log(`[IMAP TEST] INBOX acessada com sucesso.`);
           result.inbox = "ok";
         } finally {
           lock.release();
@@ -477,19 +497,32 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
         
         await imap.logout();
       } catch (err: any) {
-        console.error(`[IMAP TEST ERROR]`, {
+        clearTimeout(timeout);
+        const detailedError = {
           message: err.message,
           code: err.code,
+          errno: err.errno,
+          syscall: err.syscall,
+          address: err.address,
+          port: err.port,
+          command: err.command,
           response: err.response,
-          stage: result.connection === "pending" ? "connection" : (result.auth === "pending" ? "auth" : "inbox")
-        });
+          responseCode: err.responseCode,
+          stack: err.stack
+        };
+        result.error = detailedError;
         
-        if (result.connection === "pending") result.connection = "error";
+        // Determine stage
+        if (result.tcp === "pending") result.tcp = "error";
+        else if (result.tls === "pending") result.tls = "error";
+        else if (result.greeting === "pending") result.greeting = "error";
         else if (result.auth === "pending") result.auth = "error";
         else if (result.inbox === "pending") result.inbox = "error";
+        
         throw err;
       }
 
+      clearTimeout(timeout);
       result.time = Date.now() - startTime;
       return { success: true, result };
     } catch (error: any) {
@@ -504,10 +537,12 @@ export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const startTime = Date.now();
     const result = {
-      connection: "pending",
+      dns: "pending",
+      tcp: "pending",
+      tls: "pending",
       auth: "pending",
       time: 0,
-      error: null as string | null
+      error: null as any
     };
 
     try {
@@ -534,16 +569,25 @@ export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
           pass: creds.password,
         },
         connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
       });
 
       try {
+        result.dns = "ok";
         await transporter.verify();
-        result.connection = "ok";
+        result.tcp = "ok";
+        result.tls = "ok";
         result.auth = "ok";
       } catch (err: any) {
-        // Nodemailer verify() usually fails at connection or auth
-        result.connection = "error";
-        result.auth = "error";
+        result.error = {
+          message: err.message,
+          code: err.code,
+          stack: err.stack
+        };
+        if (result.tcp === "pending") result.tcp = "error";
+        else if (result.tls === "pending") result.tls = "error";
+        else if (result.auth === "pending") result.auth = "error";
         throw err;
       }
 
