@@ -202,7 +202,7 @@ function MonitoringPage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm border-slate-200">
+          <Card className="premium-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-bold uppercase text-slate-400">Métricas Reais</CardTitle>
             </CardHeader>
