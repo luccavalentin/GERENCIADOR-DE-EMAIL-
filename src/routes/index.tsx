@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,12 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw redirect({ to: "/auth" });
+    }
+  },
   component: Dashboard,
   head: () => ({
     title: "Dashboard | Sistema Gerenciador de Email",
@@ -158,21 +164,7 @@ function Dashboard() {
   };
 
   if (!session) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#fcfbf8] p-4 text-center">
-        <img src={logoPrimary.url} alt="Agilliza Logo" className="mb-6 h-24 object-contain" />
-        <h1 className="mb-4 text-4xl font-bold text-gray-900">
-          recrie tudo no supabse lembre-se que o sistema é multitenanci
-        </h1>
-
-        <p className="mb-8 text-lg text-gray-600">
-          Gerencie e encaminhe seus e-mails automaticamente.
-        </p>
-        <Button asChild size="lg">
-          <a href="/auth">Começar Agora</a>
-        </Button>
-      </div>
-    );
+    return null;
   }
 
   return (
