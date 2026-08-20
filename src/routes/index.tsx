@@ -176,7 +176,7 @@ function DashboardPage() {
         17. BOTÃO "PROCESSAR AGORA"
         Continuar oferecendo:
         Processar agora
-        Porém deve acionar o worker da VPS, não criar processamento paralelo na Lovable.
+        Porém deve acionar o worker da VPS, não criar processamento paralelo localmente.
         Não reativar cron antigo.
         O worker permanente continua sendo a única autoridade de processamento.
 
@@ -184,7 +184,7 @@ function DashboardPage() {
         Manter:
         Testar IMAP
         Testar SMTP
-        Mas agora o teste deve acontecer a partir da infraestrutura da VPS, porque já comprovamos que o runtime da Lovable pode apresentar problemas de socket.
+        Mas agora o teste deve acontecer a partir da infraestrutura da VPS, porque já comprovamos que o ambiente de execução pode apresentar problemas de socket.
         Exibir resultado por etapas:
         IMAP DNS; TCP; TLS; autenticação; INBOX.
         SMTP DNS; TCP; TLS; autenticação.

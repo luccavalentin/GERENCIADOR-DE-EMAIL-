@@ -349,9 +349,9 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
 
       // Conclusion
       if (diagResults.tcp_993.status === "TIMEOUT" && diagResults.tcp_465.status === "TIMEOUT") {
-        diagResults.conclusion = "O runtime Lovable não consegue alcançar o UHServer em ambas as portas (Bloqueio de infraestrutura).";
+        diagResults.conclusion = "O servidor não consegue alcançar o UHServer em ambas as portas (Bloqueio de infraestrutura).";
       } else if (diagResults.tcp_993.status === "TIMEOUT") {
-        diagResults.conclusion = "O runtime Lovable não consegue alcançar imap.uhserver.com:993 ou o servidor UHServer está bloqueando essa origem.";
+        diagResults.conclusion = "O servidor não consegue alcançar imap.uhserver.com:993 ou o servidor UHServer está bloqueando essa origem.";
       } else if (diagResults.imap_flow?.status === "error") {
         diagResults.conclusion = "Conectividade básica OK, mas falha no ImapFlow (Possível problema de biblioteca ou configuração específica).";
       } else {
