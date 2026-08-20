@@ -134,6 +134,18 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
+    const stats = {
+      imapConnected: false,
+      found: 0,
+      analyzed: 0,
+      withCode: 0,
+      forwarded: 0,
+      ignored: 0,
+      duplicates: 0,
+      errors: 0,
+      details: [] as string[]
+    };
+
     // Global Lock Attempt
     const { data: lockId, error: lockError } = await supabaseAdmin.rpc('acquire_email_config_lock', {
       p_config_id: configId,
@@ -141,7 +153,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
     });
 
     if (lockError || !lockId) {
-      return { success: false, error: "Locked or error acquiring lock" };
+      return { success: false, error: "Locked or error acquiring lock", stats };
     }
 
     const updateHeartbeat = async (status: string, errorMsg?: string) => {
@@ -192,6 +204,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       });
 
       await imap.connect();
+      stats.imapConnected = true;
       await log("Conectado ao IMAP. Verificando novos e-mails...");
 
       let mailboxLock = await imap.getMailboxLock("INBOX");
@@ -200,6 +213,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
         const fetchQuery = { envelope: true, source: true, uid: true, flags: true };
 
         for await (let message of imap.fetch(fetchOptions, fetchQuery)) {
+          stats.found++;
           if (!message.envelope || !message.source || !message.uid) continue;
 
           const imapUid = Number(message.uid);
@@ -212,7 +226,12 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
             p_imap_uid: imapUid
           });
 
-          if (reserveError || !reserved) continue;
+          if (reserveError || !reserved) {
+            stats.duplicates++;
+            continue;
+          }
+
+          stats.analyzed++;
 
           try {
             const parsed = await simpleParser(message.source);
@@ -248,6 +267,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
             });
 
             if (hasKeyword) {
+              stats.withCode++;
               await log(`Palavra-chave detectada no e-mail de ${from}: "${subject}"`);
               
               const transporter = nodemailer.createTransport({
@@ -289,11 +309,14 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
               }).eq("config_id", configId).eq("imap_uid", imapUid);
 
               await imap.messageFlagsAdd(message.uid, ['\\Seen'], { uid: true });
+              stats.forwarded++;
               await log(`E-mail encaminhado com sucesso para ${config.destinations.join(", ")}`, "success");
             } else {
+              stats.ignored++;
               await supabaseAdmin.from("email_processing_state").update({ status: 'ignored' }).eq("config_id", configId).eq("imap_uid", imapUid);
             }
           } catch (msgError: any) {
+            stats.errors++;
             await log(`Erro no processamento individual (UID ${message.uid}): ${msgError.message}`, "error");
             await supabaseAdmin.from("email_processing_state").update({ 
               status: 'error',
@@ -307,10 +330,10 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
 
       await imap.logout();
       await updateHeartbeat('success');
-      return { success: true };
+      return { success: true, stats };
     } catch (error: any) {
       await updateHeartbeat('error', error.message);
-      return { success: false, error: error.message };
+      return { success: false, error: error.message, stats };
     } finally {
       // Global Lock Release
       await supabaseAdmin.rpc('release_email_config_lock', {

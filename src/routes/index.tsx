@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { testConnection, saveEmailConfiguration } from "@/lib/email.functions";
+import { testConnection, saveEmailConfiguration, processEmailsForConfig } from "@/lib/email.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Settings as SettingsIcon, Play, Square, History, Mail, LogOut, Loader2, Activity, ShieldCheck, AlertCircle } from "lucide-react";
 import logoPrimary from "@/assets/logo-primary.png.asset.json";
@@ -61,6 +61,10 @@ function Dashboard() {
   const [isTesting, setIsTesting] = useState(false);
   const runTestConnection = useServerFn(testConnection);
   const runSaveConfig = useServerFn(saveEmailConfiguration);
+  const runProcessNow = useServerFn(processEmailsForConfig);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+  const [processStats, setProcessStats] = useState<any>(null);
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
 
   const initialFormData = {
     imap_host: "imap.uhserver.com",
@@ -190,6 +194,29 @@ function Dashboard() {
       toast.error(error.message || "Erro ao salvar configuração");
     } finally {
       setIsTesting(false);
+    }
+  };
+  
+  const handleManualProcess = async (configId: string) => {
+    setIsProcessing(configId);
+    try {
+      const result = await runProcessNow({ data: { configId } });
+      if (result.success) {
+        setProcessStats(result.stats);
+        setIsStatsOpen(true);
+        toast.success("Processamento concluído!");
+        fetchConfigs();
+      } else {
+        toast.error(`Erro: ${result.error}`);
+        if (result.stats) {
+          setProcessStats(result.stats);
+          setIsStatsOpen(true);
+        }
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao processar e-mails");
+    } finally {
+      setIsProcessing(null);
     }
   };
 
@@ -396,7 +423,7 @@ function Dashboard() {
                       </div>
                     </div>
                     
-                    <div className="flex gap-2 pt-4">
+                    <div className="flex gap-2 pt-4 flex-wrap">
                       <Button 
                         variant={config.is_active ? "destructive" : "default"}
                         className="flex-1 gap-2 h-9 text-xs"
@@ -406,6 +433,19 @@ function Dashboard() {
                           <><Square className="h-3.5 w-3.5 fill-current" /> Parar</>
                         ) : (
                           <><Play className="h-3.5 w-3.5 fill-current" /> Iniciar</>
+                        )}
+                      </Button>
+                      
+                      <Button 
+                        variant="secondary"
+                        className="flex-1 gap-2 h-9 text-xs"
+                        onClick={() => handleManualProcess(config.id)}
+                        disabled={isProcessing === config.id}
+                      >
+                        {isProcessing === config.id ? (
+                          <><Loader2 className="h-3.5 w-3.5 animate-spin" /> ...</>
+                        ) : (
+                          <><Activity className="h-3.5 w-3.5" /> Processar agora</>
                         )}
                       </Button>
                       <Button variant="outline" size="icon" className="h-9 w-9" asChild title="Logs">
@@ -424,6 +464,66 @@ function Dashboard() {
           </div>
         )}
       </div>
+
+      <Dialog open={isStatsOpen} onOpenChange={setIsStatsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-green-600" />
+              Resumo do Processamento
+            </DialogTitle>
+            <DialogDescription>
+              Resultados da execução manual do monitor.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {processStats && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Status IMAP</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${processStats.imapConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+                    <span className="text-sm font-semibold">{processStats.imapConnected ? 'Conectado' : 'Falha'}</span>
+                  </div>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Encontradas</span>
+                  <span className="text-xl font-bold text-gray-900">{processStats.found}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Analisadas</span>
+                  <span className="text-xl font-bold text-blue-600">{processStats.analyzed}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Com Código</span>
+                  <span className="text-xl font-bold text-orange-600">{processStats.withCode}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Encaminhadas</span>
+                  <span className="text-xl font-bold text-green-600">{processStats.forwarded}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Ignoradas</span>
+                  <span className="text-xl font-bold text-gray-500">{processStats.ignored}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Duplicadas</span>
+                  <span className="text-xl font-bold text-purple-600">{processStats.duplicates}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Erros</span>
+                  <span className="text-xl font-bold text-red-600">{processStats.errors}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setIsStatsOpen(false)} className="w-full">Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
