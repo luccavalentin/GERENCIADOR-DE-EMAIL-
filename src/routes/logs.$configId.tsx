@@ -110,7 +110,7 @@ function LogsPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {logs?.length === 0 && (
+              {logs?.logs?.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="h-48 text-center text-slate-400">
                     <div className="flex flex-col items-center justify-center gap-2">
