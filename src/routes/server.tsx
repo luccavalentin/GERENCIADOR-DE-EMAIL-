@@ -193,7 +193,7 @@ function ServerPage() {
             { label: "Engine SMTP", status: isOnline ? 'online' : 'aguardando', icon: ShieldCheck, desc: "Protocolo de Saída" },
             { label: "Banco de Dados", status: 'online', icon: Database, desc: "Serviço de Dados" },
           ].map((service, i) => (
-            <Card key={i} className="shadow-sm border-slate-200">
+            <Card key={i} className="premium-card">
               <CardContent className="p-4 flex items-center gap-4">
                 <div className={cn(
                   "p-2 rounded-lg",
