@@ -86,7 +86,25 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [session, setSession] = React.useState<any>(null);
   const [configs, setConfigs] = React.useState<EmailConfig[]>([]);
   const [selectedConfigId, setSelectedConfigId] = React.useState<string | null>(null);
-  const [systemStatus, setSystemStatus] = React.useState<"online" | "warning" | "offline">("online");
+  
+  const { data: workerStatus } = useQuery({
+    queryKey: ['workerStatus'],
+    queryFn: () => getWorkerStatus({}),
+    refetchInterval: 10000
+  });
+
+  const queryClient = useQueryClient();
+  const restartMutation = useMutation({
+    mutationFn: () => restartWorker({}),
+    onSuccess: () => {
+      toast.success("Comando de reinício enviado ao worker");
+      queryClient.invalidateQueries({ queryKey: ['workerStatus'] });
+    },
+    onError: () => {
+      toast.error("Falha ao enviar comando de reinício");
+    }
+  });
+
 
   const fetchConfigs = React.useCallback(async () => {
     const { data } = await supabase
