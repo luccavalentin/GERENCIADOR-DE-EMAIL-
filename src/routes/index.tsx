@@ -192,25 +192,28 @@ function Dashboard() {
         provider: "Custom"
       };
 
-      await runSaveConfig({
+      const result = await runSaveConfig({
         data: {
           configId: editingConfig?.id,
-          configData,
+          configData: configData as any,
           emailPassword: formData.email_password,
         }
       });
 
-      toast.success(editingConfig ? "Configuração atualizada com sucesso!" : "Configuração criada com sucesso!");
-      setIsModalOpen(false);
-      setEditingConfig(null);
-      setFormData(initialFormData);
-      fetchConfigs();
+      if (result.success) {
+        toast.success(editingConfig ? "Configuração atualizada com sucesso!" : "Configuração criada com sucesso!");
+        setIsModalOpen(false);
+        setEditingConfig(null);
+        setFormData(initialFormData);
+        fetchConfigs();
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao salvar configuração");
     } finally {
       setIsTesting(false);
     }
   };
+
   
   const handleManualProcess = async (configId: string) => {
     setIsProcessing(configId);
