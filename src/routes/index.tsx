@@ -16,12 +16,16 @@ export const Route = createFileRoute("/")({
       throw redirect({ to: "/auth" });
     }
   },
-  component: () => (
+  component: DashboardPageWithLayout,
+});
+
+function DashboardPageWithLayout() {
+  return (
     <AppLayout>
       <DashboardPage />
     </AppLayout>
-  ),
-});
+  );
+}
 
 function DashboardPage() {
   return (
