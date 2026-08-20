@@ -261,15 +261,17 @@ export async function processEmailsForConfigLogic(
               text: `E-mail encaminhado automaticamente.\n\nDe: ${from}\nAssunto: ${subject}\n\n[Email original anexado como rfc822]`,
               attachments: [
                 {
-                  filename: 'email-original.eml',
-                  content: message.source,
+                  filename: `${normalizeText(subject.substring(0, 30)) || 'email-original'}.eml`,
+                  content: message.source as Buffer,
                   contentType: 'message/rfc822'
                 }
               ],
               headers: {
-                'X-Email-Monitor': 'processed'
+                'X-Email-Monitor': 'processed',
+                'X-Original-Message-ID': parsed.messageId || ''
               }
             });
+
 
             await supabaseAdmin.from("forwarded_emails").insert({
               config_id: configId,
