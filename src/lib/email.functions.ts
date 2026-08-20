@@ -219,9 +219,21 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
           pass: creds.password,
         },
         logger: false,
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
       });
 
-      await imap.connect();
+      imap.on('error', (err) => {
+        console.error(`[IMAP Global Error] Config ${configId}:`, err);
+      });
+
+      await log("Tentando conexão IMAP...");
+      try {
+        await imap.connect();
+      } catch (connErr: any) {
+        throw new Error(`IMAP Connection Failure: ${connErr.message}`);
+      }
+      
       stats.imapConnected = true;
       await log("Conectado ao IMAP. Verificando novos e-mails...");
 

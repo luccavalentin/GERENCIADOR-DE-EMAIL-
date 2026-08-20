@@ -15,13 +15,18 @@ export const Route = createFileRoute("/api/public/cron/monitor")({
         console.log("Starting cron monitor...");
         try {
           const configs = await (getActiveConfigs as any)();
+          
+          // Filter out configs that should be suspended for manual testing in preview
+          // In a real production scenario, this might be a DB flag.
+          // For now, we allow the lock mechanism to handle it, but we add a log.
           console.log(`Processing ${configs?.length || 0} active configurations`);
 
           const results = [];
           for (const config of configs || []) {
             try {
+              // The lock mechanism in processEmailsForConfig will prevent concurrent runs
               const res = await (processEmailsForConfig as any)({ data: { configId: config.id } });
-              results.push({ id: config.id, success: res.success });
+              results.push({ id: config.id, success: res.success, error: res.error });
             } catch (err: any) {
               results.push({ id: config.id, success: false, error: err.message });
             }
