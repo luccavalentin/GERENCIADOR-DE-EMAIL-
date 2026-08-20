@@ -61,7 +61,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-4 font-sans">
       <Card className="w-full max-w-md premium-card overflow-hidden">
         <CardHeader className="flex flex-col items-center pt-10 pb-6 bg-slate-50/50 border-b border-slate-100">
-          <img src={logoPrimary.url} alt="Agilliza" className="mb-6 h-16 object-contain transition-transform hover:scale-105" />
+          <img src="/logo-original.png" alt="Agilliza" className="mb-6 h-16 object-contain transition-transform hover:scale-105" />
           <CardTitle className="text-2xl font-bold text-slate-900">{isSignUp ? "Criar Conta" : "Painel Agilliza"}</CardTitle>
           <CardDescription className="text-center px-6 pt-2 text-slate-500 font-medium">
             {isSignUp

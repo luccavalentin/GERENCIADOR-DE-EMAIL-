@@ -83,8 +83,8 @@ function DashboardPage() {
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Painel Operacional</h1>
-          <p className="text-slate-500 mt-1 font-medium">Saúde da infraestrutura e timeline operacional Agilliza.</p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Painel de Monitoramento</h1>
+          <p className="text-slate-500 mt-1 font-medium">Infraestrutura e timeline operacional de e-mails.</p>
         </div>
         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex flex-col items-end mr-2">
@@ -104,7 +104,7 @@ function DashboardPage() {
 
       {/* Saúde do Sistema Section */}
       <section className="space-y-4">
-        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde do Sistema</h2>
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde da Infraestrutura</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { label: "Worker", status: workerStatus?.status === 'online' ? 'operacional' : 'falha', icon: Activity },
@@ -220,7 +220,7 @@ function DashboardPage() {
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="text-sm font-semibold text-slate-900 leading-none mb-1">
-                      {log.message.split(' - ')[0] || "Processamento de E-mail"}
+                      {log.message.split(' - ')[0] || "Processamento"}
                     </div>
                     <div className="text-xs text-slate-500 truncate max-w-[600px]">
                       {log.message.includes(' - ') ? log.message.split(' - ').slice(1).join(' - ') : log.message}
@@ -244,7 +244,7 @@ function DashboardPage() {
                   <TableCell colSpan={3} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2 opacity-50">
                       <History className="h-8 w-8" />
-                      <p className="text-xs font-bold uppercase tracking-widest">Aguardando atividade real...</p>
+                      <p className="text-xs font-bold uppercase tracking-widest">Aguardando dados...</p>
                     </div>
                   </TableCell>
                 </TableRow>
