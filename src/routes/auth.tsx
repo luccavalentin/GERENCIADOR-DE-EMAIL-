@@ -63,10 +63,10 @@ function AuthPage() {
         <CardHeader className="flex flex-col items-center">
           <img src={logoPrimary.url} alt="Agilliza" className="mb-4 h-16 object-contain" />
           <CardTitle>{isSignUp ? "Criar Conta" : "Entrar"}</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-center pt-2">
             {isSignUp
-              ? "Cadastre-se para começar a gerenciar seus e-mails."
-              : "Entre com suas credenciais para acessar o sistema."}
+              ? "Faça seu cadastro para começar a gerenciar seus e-mails."
+              : "Entre com suas credenciais para acessar o painel operacional Agilliza."}
           </CardDescription>
         </CardHeader>
         <CardContent>
