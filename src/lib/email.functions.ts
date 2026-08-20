@@ -402,9 +402,14 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       return { success: true, stats };
     } catch (error: any) {
       const errorMsg = error.message || "Unknown error during processing";
+      // Check if it's already locked to provide a better message
+      const isLocked = errorMsg === "Processamento: Bloqueado por outra execução" || 
+                       errorMsg.includes("Locked or error acquiring lock");
+      
       await updateHeartbeat('error', errorMsg);
-      return { success: false, error: errorMsg, stats };
+      return { success: false, error: errorMsg, isLocked, stats };
     } finally {
+
       // Global Lock Release
       await supabaseAdmin.rpc('release_email_config_lock', {
         p_config_id: configId,

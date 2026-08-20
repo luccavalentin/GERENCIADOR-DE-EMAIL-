@@ -282,7 +282,7 @@ function Dashboard() {
             <div className="flex items-center gap-3 md:gap-4">
               <img src={logoPrimary.url} alt="Agilliza" className="h-8 md:h-10 object-contain" />
               <div>
-                <h1 className="text-xl md:text-3xl font-bold text-gray-900">Painel de Monitoramento</h1>
+                <h1 className="text-xl md:text-3xl font-bold text-gray-900">SISTEMA PRONTO PARA TESTE REAL</h1>
                 <p className="text-sm md:text-base text-gray-600">Olá, {session.user.email}</p>
               </div>
             </div>
