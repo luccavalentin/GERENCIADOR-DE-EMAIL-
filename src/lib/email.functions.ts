@@ -134,6 +134,18 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
+    const stats = {
+      imapConnected: false,
+      found: 0,
+      analyzed: 0,
+      withCode: 0,
+      forwarded: 0,
+      ignored: 0,
+      duplicates: 0,
+      errors: 0,
+      details: [] as string[]
+    };
+
     // Global Lock Attempt
     const { data: lockId, error: lockError } = await supabaseAdmin.rpc('acquire_email_config_lock', {
       p_config_id: configId,
@@ -141,7 +153,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
     });
 
     if (lockError || !lockId) {
-      return { success: false, error: "Locked or error acquiring lock" };
+      return { success: false, error: "Locked or error acquiring lock", stats };
     }
 
     const updateHeartbeat = async (status: string, errorMsg?: string) => {
