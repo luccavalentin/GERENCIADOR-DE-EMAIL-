@@ -511,20 +511,33 @@ export const getLogs = createServerFn({ method: "GET" })
     clearView: z.boolean().optional(),
   }).parse(data))
 
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
-    if (data.clearView && data.configId) {
-      // Mark logs as "read" or similar for this user session if we had that column
-      // For now, we'll just implement the filter logic and return a special flag if needed
-      // Actually, Req #12 says "Isso NÃO deve apagar o banco", so it's just a UI state
-    }
+    // First, get all config IDs for this user
+    const { data: userConfigs } = await supabaseAdmin
+      .from("email_configurations")
+      .select("id")
+      .eq("user_id", context.userId);
+    
+    const configIds = userConfigs?.map(c => c.id) || [];
 
     let query = supabaseAdmin
       .from("email_logs")
       .select("*", { count: "exact" });
 
-    if (data.configId) query = query.eq("config_id", data.configId);
+    // Filter by user's configs
+    if (data.configId) {
+      // Ensure the requested configId belongs to the user
+      if (!configIds.includes(data.configId)) {
+        throw new Error("Unauthorized: Config not found");
+      }
+      query = query.eq("config_id", data.configId);
+    } else {
+      // Return logs for all user's configs
+      query = query.in("config_id", configIds);
+    }
+
     if (data.level && data.level !== 'all') query = query.eq("level", data.level);
     if (data.executionId) query = query.eq("execution_id" as any, data.executionId);
     if (data.startDate) query = query.gte("created_at", data.startDate);
@@ -537,7 +550,6 @@ export const getLogs = createServerFn({ method: "GET" })
 
     if (error) throw error;
     return { logs: logs as any[], count };
-
   });
 
 export const getDailyStats = createServerFn({ method: "GET" })
