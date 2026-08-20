@@ -59,7 +59,7 @@ function ServerPage() {
   const isOnline = workerStatus?.status === 'online';
   const cpu = workerStatus?.cpu_usage || 0;
   const ram = workerStatus?.ram_usage || 0;
-  const disk = 45; // Placeholder for real telemetry if available
+  const disk = workerStatus?.disk_usage; // Use real telemetry if available
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10">
@@ -112,9 +112,9 @@ function ServerPage() {
                     <Database className="h-3 w-3 text-slate-400" />
                     Armazenamento (Disco)
                   </div>
-                  <span>{isOnline ? `${disk}%` : "—"}</span>
+                  <span>{isOnline && disk !== undefined ? `${disk}%` : "Não disponível"}</span>
                 </div>
-                <Progress value={isOnline ? disk : 0} className="h-1.5 bg-slate-100" />
+                <Progress value={isOnline && disk !== undefined ? disk : 0} className="h-1.5 bg-slate-100" />
               </div>
             </div>
             
@@ -125,7 +125,7 @@ function ServerPage() {
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Uptime</span>
-                  <span className="text-sm font-semibold text-slate-700">{workerStatus?.uptime || "—"}</span>
+                  <span className="text-sm font-semibold text-slate-700">{workerStatus?.uptime || "Aguardando dados..."}</span>
                 </div>
             </div>
           </CardContent>
