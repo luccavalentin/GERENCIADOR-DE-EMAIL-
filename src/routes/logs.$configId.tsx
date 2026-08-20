@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Search, Filter, History } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -79,27 +80,32 @@ function LogsPage() {
           </TableHeader>
           <TableBody>
             {logs?.map((log: any) => (
-              <TableRow key={log.id} className="hover:bg-slate-50/50">
-                <TableCell className="text-slate-500 text-xs whitespace-nowrap">
-                  {format(new Date(log.created_at), "dd/MM HH:mm:ss", { locale: ptBR })}
+              <TableRow key={log.id} className="hover:bg-slate-50/50 group">
+                <TableCell className="text-slate-500 text-[10px] font-mono whitespace-nowrap">
+                  [{format(new Date(log.created_at), "HH:mm:ss")}]
                 </TableCell>
                 <TableCell>
                   <Badge 
                     variant="outline" 
-                    className={
+                    className={cn(
+                      "text-[10px] font-bold px-1.5 py-0",
                       log.level === 'error' ? "text-red-600 border-red-200 bg-red-50" : 
-                      log.level === 'warn' ? "text-amber-600 border-amber-200 bg-amber-50" :
-                      "text-blue-600 border-blue-200 bg-blue-50"
-                    }
+                      log.level === 'success' ? "text-green-600 border-green-200 bg-green-50" :
+                      "text-[#0000A0] border-blue-100 bg-blue-50"
+                    )}
                   >
                     {log.level.toUpperCase()}
                   </Badge>
                 </TableCell>
-                <TableCell className="max-w-md font-medium text-slate-900 truncate">
+                <TableCell className={cn(
+                  "max-w-md font-medium text-xs",
+                  log.level === 'error' ? "text-red-700" : 
+                  log.level === 'success' ? "text-green-700" : "text-slate-700"
+                )}>
                   {log.message}
                 </TableCell>
-                <TableCell className="text-slate-400 text-xs italic truncate">
-                  {JSON.stringify(log.details || {})}
+                <TableCell className="text-slate-400 text-[10px] font-mono italic">
+                  {log.details?.executionId ? `ID: ${log.details.executionId.substring(0, 8)}...` : '-'}
                 </TableCell>
               </TableRow>
             ))}
