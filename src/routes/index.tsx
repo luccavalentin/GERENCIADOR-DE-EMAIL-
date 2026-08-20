@@ -364,16 +364,29 @@ function Dashboard() {
                       </CardTitle>
                       <CardDescription>{config.imap_host}</CardDescription>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`h-2.5 w-2.5 rounded-full ${config.is_active ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse' : 'bg-gray-300'}`} />
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                        {config.is_active ? 'Ativo' : 'Inativo'}
-                      </span>
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`h-2.5 w-2.5 rounded-full ${config.is_active ? (config.status === 'success' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse' : 'bg-yellow-500') : 'bg-gray-300'}`} />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                          {config.is_active ? (config.status === 'success' ? 'Online' : config.status === 'error' ? 'Erro' : 'Ativo') : 'Inativo'}
+                        </span>
+                      </div>
+                      {config.last_check_at && (
+                        <span className="text-[9px] text-gray-400">
+                          Lido: {new Date(config.last_check_at).toLocaleTimeString()}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
+                    {config.status === 'error' && config.last_error && (
+                      <div className="p-2 bg-red-50 border border-red-100 rounded flex items-start gap-2 mb-2">
+                        <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0 mt-0.5" />
+                        <span className="text-[10px] text-red-600 line-clamp-2">{config.last_error}</span>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="p-2 bg-gray-50 rounded">
                         <span className="block text-gray-400 mb-1 uppercase text-[9px] font-bold">Monitorando</span>
