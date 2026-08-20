@@ -14,8 +14,8 @@ WORKDIR /app/worker
 COPY worker/package*.json ./
 RUN npm install
 COPY worker/ ./
-# O worker depende da lógica compartilhada
-COPY src/lib/email-logic/ ../src/lib/email-logic/
+# O worker é autocontido agora
+COPY worker/ ./
 RUN npm run build
 
 # --- Stage 3: Base for Production (Shared Utilities) ---
