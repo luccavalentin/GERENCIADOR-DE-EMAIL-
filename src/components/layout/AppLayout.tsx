@@ -329,6 +329,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
+          
+          <div className="h-px bg-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]" />
 
           {/* Page Body */}
           <div className="p-8 max-w-[1600px] w-full mx-auto">
