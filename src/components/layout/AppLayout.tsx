@@ -166,11 +166,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ActiveAccountContext.Provider value={{ selectedConfigId, setSelectedConfigId: handleAccountChange, configs, refreshConfigs: fetchConfigs }}>
-      <div className="flex min-h-screen bg-[#f8fafc]">
+      <div className="flex min-h-screen bg-[#f8fafc] font-sans">
         {/* Sidebar */}
         <aside 
           className={cn(
-            "border-r bg-[#000033] flex flex-col fixed inset-y-0 shadow-xl z-50 transition-all duration-300 ease-in-out",
+            "border-r border-white/5 bg-[#000033] flex flex-col fixed inset-y-0 shadow-2xl z-50 transition-all duration-300 ease-in-out",
             isCollapsed ? "w-20" : "w-64"
           )}
         >
