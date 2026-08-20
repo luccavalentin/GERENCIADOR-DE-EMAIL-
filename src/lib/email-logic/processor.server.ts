@@ -144,14 +144,14 @@ export async function processEmailsForConfigLogic(
     });
 
 
-    await log(`Execution ID criado: ${executionId}`);
-    await log("Lock solicitado e adquirido no banco.");
-    await log(`Iniciando conexão TCP IMAP para ${config.imap_host}:${config.imap_port}`);
+    await log(`Identificador de Processamento: ${executionId}`, "info", { executionId });
+    await log("Acesso ao banco de dados garantido.");
+    await log(`Estabelecendo conexão com o servidor de e-mail (${config.imap_host})...`);
     
     try {
-      await log("Iniciando TLS e Handshake...");
+      await log("Iniciando camada de segurança (TLS)...");
       await imap.connect();
-      await log("TLS estabelecido. Enviando autenticação...");
+      await log("Conexão segura estabelecida. Autenticando usuário...");
     } catch (connErr: any) {
       const detailedError = {
         message: connErr.message,
@@ -162,24 +162,19 @@ export async function processEmailsForConfigLogic(
         stack: connErr.stack,
         stage: "connection/auth"
       };
-      await log(`ERRO IMAP: ${connErr.message} (Etapa: ${detailedError.stage})`, "error");
-      await supabaseAdmin.from("email_logs").insert({
-        config_id: configId,
-        message: `DETALHES DO ERRO: ${JSON.stringify(detailedError)}`,
-        level: "error"
-      });
+      await log(`Falha na conexão: ${connErr.message}`, "error", detailedError);
       throw new Error(`IMAP Connection Failure: ${connErr.message}`);
     }
     
     stats.imapConnected = true;
-    await log("Autenticação aceita. Abrindo INBOX...");
+    await log("Acesso à conta autorizado. Lendo caixa de entrada...");
     
     let mailboxLock;
     try {
       mailboxLock = await imap.getMailboxLock("INBOX");
-      await log("INBOX aberta. Buscando UNSEEN...");
+      await log("Caixa de entrada aberta. Verificando novos e-mails...");
     } catch (lockErr: any) {
-      await log(`Falha ao abrir INBOX: ${lockErr.message}`, "error");
+      await log(`Não foi possível ler a caixa de entrada: ${lockErr.message}`, "error");
       throw new Error(`IMAP Mailbox Lock Failure: ${lockErr.message}`);
     }
     
