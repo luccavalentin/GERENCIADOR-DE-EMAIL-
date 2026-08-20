@@ -12,7 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+
 
 function NotFoundComponent() {
   return (
@@ -39,9 +39,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -82,23 +79,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0000A0" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-      { title: "Agilliza | Painel de Monitoramento" },
-      { name: "description", content: "Sistema responsivo de monitoramento de e-mails Agilliza" },
-      { name: "author", content: "Agilliza" },
-      { property: "og:title", content: "Agilliza | Painel de Monitoramento" },
-      { property: "og:description", content: "Sistema responsivo de monitoramento de e-mails Agilliza" },
+      { title: "Agilliza Gerenciador de E-mail" },
+      { name: "description", content: "Sistema profissional para gerenciamento e monitoramento de e-mails Agilliza" },
+      { name: "author", content: "Lucca Santana" },
+      { name: "creator", content: "Lucca Santana" },
+      { name: "copyright", content: "Lucca Santana" },
+
+      { property: "og:title", content: "Agilliza Gerenciador de E-mail" },
+      { property: "og:description", content: "Sistema profissional para gerenciamento e monitoramento de e-mails Agilliza" },
+
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/favicon.png" },
+      
     ],
   }),
   shellComponent: RootShell,

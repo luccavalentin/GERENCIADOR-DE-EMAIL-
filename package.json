@@ -1,5 +1,7 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "agilliza-email-manager",
+  "author": "Lucca Santana",
+
   "private": true,
   "sideEffects": false,
   "type": "module",
