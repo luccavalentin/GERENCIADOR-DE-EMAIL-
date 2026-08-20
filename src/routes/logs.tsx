@@ -129,7 +129,7 @@ function LogsIndexPage() {
             </table>
           </div>
           {totalPages > 1 && (
-            <div className="p-4 border-t bg-slate-50 flex items-center justify-between">
+            <div className="p-4 border-t bg-slate-50/50 flex items-center justify-between">
               <p className="text-xs text-slate-500">
                 Mostrando {page * limit + 1} a {Math.min((page + 1) * limit, totalCount)} de {totalCount} logs
               </p>
