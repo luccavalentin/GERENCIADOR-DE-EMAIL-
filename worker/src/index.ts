@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
-import { processEmailsForConfigLogic } from '../../src/lib/email-logic/processor';
+import { processEmailsForConfigLogic } from './lib/email-logic/processor';
 
 dotenv.config();
 
