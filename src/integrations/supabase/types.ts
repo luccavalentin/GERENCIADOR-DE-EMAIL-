@@ -18,7 +18,6 @@ export type Database = {
         Row: {
           created_at: string | null
           destinations: string[]
-          email_password: string
           email_user: string
           id: string
           imap_host: string
@@ -30,6 +29,8 @@ export type Database = {
           last_error: string | null
           last_heartbeat: string | null
           last_success_at: string | null
+          processing_lock_id: string | null
+          processing_lock_until: string | null
           provider: string
           smtp_host: string
           smtp_port: number
@@ -41,7 +42,6 @@ export type Database = {
         Insert: {
           created_at?: string | null
           destinations?: string[]
-          email_password: string
           email_user: string
           id?: string
           imap_host: string
@@ -53,6 +53,8 @@ export type Database = {
           last_error?: string | null
           last_heartbeat?: string | null
           last_success_at?: string | null
+          processing_lock_id?: string | null
+          processing_lock_until?: string | null
           provider?: string
           smtp_host: string
           smtp_port: number
@@ -64,7 +66,6 @@ export type Database = {
         Update: {
           created_at?: string | null
           destinations?: string[]
-          email_password?: string
           email_user?: string
           id?: string
           imap_host?: string
@@ -76,6 +77,8 @@ export type Database = {
           last_error?: string | null
           last_heartbeat?: string | null
           last_success_at?: string | null
+          processing_lock_id?: string | null
+          processing_lock_until?: string | null
           provider?: string
           smtp_host?: string
           smtp_port?: number
@@ -85,6 +88,32 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      email_credentials: {
+        Row: {
+          config_id: string
+          created_at: string | null
+          password: string
+        }
+        Insert: {
+          config_id: string
+          created_at?: string | null
+          password: string
+        }
+        Update: {
+          config_id?: string
+          created_at?: string | null
+          password?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_credentials_config_id_fkey"
+            columns: ["config_id"]
+            isOneToOne: true
+            referencedRelation: "email_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_logs: {
         Row: {
@@ -205,10 +234,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      reserve_email_for_processing: {
-        Args: { p_config_id: string; p_imap_uid: number; p_mailbox: string }
+      acquire_email_config_lock: {
+        Args: { p_config_id: string; p_lock_timeout: string }
+        Returns: string
+      }
+      release_email_config_lock: {
+        Args: { p_config_id: string; p_lock_id: string }
         Returns: boolean
       }
+      reserve_email_for_processing:
+        | {
+            Args: { p_config_id: string; p_imap_uid: number; p_mailbox: string }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              p_config_id: string
+              p_imap_uid: number
+              p_mailbox: string
+              p_max_retries?: number
+            }
+            Returns: boolean
+          }
     }
     Enums: {
       [_ in never]: never
