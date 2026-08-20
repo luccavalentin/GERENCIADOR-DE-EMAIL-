@@ -456,10 +456,27 @@ function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {config.status === 'error' && config.last_error && (
+                    {config.last_error?.includes('Bloqueado') ? (
+                      <div className="p-2 bg-amber-50 border border-amber-100 rounded flex items-start gap-2 mb-2">
+                        <Clock className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-amber-600 font-bold">Processamento: Bloqueado por outra execução</span>
+                          <span className="text-[9px] text-amber-500">O IMAP não foi testado nesta rodada.</span>
+                        </div>
+                      </div>
+                    ) : config.status === 'error' && config.last_error && (
                       <div className="p-2 bg-red-50 border border-red-100 rounded flex items-start gap-2 mb-2">
-                        <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0 mt-0.5" />
-                        <span className="text-[10px] text-red-600 line-clamp-2">{config.last_error}</span>
+                        <XCircle className="h-3.5 w-3.5 text-red-500 shrink-0 mt-0.5" />
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-red-600 font-bold">STATUS IMAP: Falha</span>
+                          <span className="text-[9px] text-red-500 line-clamp-2">{config.last_error}</span>
+                        </div>
+                      </div>
+                    )}
+                    {config.status === 'success' && (
+                      <div className="p-2 bg-green-50 border border-green-100 rounded flex items-start gap-2 mb-2">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" />
+                        <span className="text-[10px] text-green-600 font-bold">STATUS IMAP: Conectado</span>
                       </div>
                     )}
                     <div className="grid grid-cols-2 gap-2 text-xs">
