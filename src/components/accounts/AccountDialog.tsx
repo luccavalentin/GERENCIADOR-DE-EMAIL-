@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   Trash2,
   Tags,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Copy
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
@@ -121,6 +122,36 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
     },
     onError: (error: any) => {
       toast.error(`Erro ao salvar: ${error.message}`);
+    },
+  });
+
+  const duplicateMutation = useMutation({
+    mutationFn: async () => {
+      if (!config) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Usuário não autenticado");
+
+      const { email_password: _, ...rest } = form.getValues();
+      
+      return saveEmailConfiguration({
+        data: {
+          configData: {
+            ...rest,
+            user_id: user.id,
+            email_user: `${rest.email_user} (Cópia)`,
+            provider: "custom",
+          },
+          emailPassword: "", // Copy doesn't include password for safety
+        }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activeConfigs"] });
+      toast.success("Conta duplicada com sucesso. Lembre-se de configurar a senha.");
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast.error(`Erro ao duplicar: ${error.message}`);
     },
   });
 
