@@ -361,7 +361,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
           }
         }
       } finally {
-        mailboxLock.release();
+        if (mailboxLock) mailboxLock.release();
       }
 
       await imap.logout();
