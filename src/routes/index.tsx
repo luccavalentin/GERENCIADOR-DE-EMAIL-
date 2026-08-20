@@ -31,159 +31,197 @@ function DashboardPage() {
   return (
     <div className="space-y-8">
       <div className="bg-slate-50 p-6 border border-slate-200 rounded-lg text-xs font-mono whitespace-pre-wrap break-words text-slate-700 shadow-inner max-h-[500px] overflow-y-auto">
-        {`Quero evoluir o sistema atual Agilliza Gerenciador de E-mail.
+        {`5. CONTAS DE E-MAIL EM LISTA SUSPENSA
 
-REGRA PRINCIPAL
+Não quero vários cards enormes das contas na tela principal.
 
-O motor atual está funcionando em produção através de:
+Criar um seletor elegante no topo:
 
-Hostinger VPS → Worker Node.js → Supabase → IMAP/SMTP
+Conta monitorada
 
-Portanto:
+Exemplo:
 
-NÃO RECONSTRUA O MOTOR DE E-MAIL.
+lucca@agilliza.net.br ▼
 
-NÃO VOLTE A USAR CRON DA LOVABLE.
+Ao clicar, abrir dropdown contendo todas as contas cadastradas.
 
-NÃO crie outro processador paralelo.
+No final da lista:
 
-NÃO altere a lógica funcional que já está comprovadamente funcionando, incluindo:
++ Adicionar nova conta
 
+Também colocar botão destacado:
+
++ Nova conta
+
+Quando selecionar outra conta, todas as informações da tela devem mudar para aquela configuração:
+
+status;
+logs;
+palavras-chave;
+destinatários;
 IMAP;
 SMTP;
-ImapFlow;
-nodemailer;
-UID;
-Message-ID;
-deduplicação;
-email_processing_state;
-locks;
-retry;
-.eml;
-\\Seen;
-proteção contra loop;
-worker da VPS;
-Supabase existente.
+histórico;
+métricas.
+6. RENOMEAR A ÁREA "CREDENCIAIS"
 
-Quero evoluir principalmente UX, administração, observabilidade e controle operacional.
+Na configuração atual existe:
 
-1. NOVO DESIGN GERAL
+CREDENCIAIS
 
-Quero uma reformulação visual profissional.
+com:
 
-A aparência atual é simples demais.
+E-mail
 
-Quero estética de software corporativo moderno, tecnológico e sofisticado, mantendo a identidade visual Agilliza.
+Senha / App Password
 
-Utilizar:
+Não quero o título Credenciais.
 
-fundo predominantemente branco;
-azul profundo/navy;
-azul Agilliza;
-cinzas muito claros;
-detalhes discretos em verde para status positivo;
-amarelo para atenção;
-vermelho somente para falhas;
-bordas suaves;
-sombras extremamente discretas;
-boa hierarquia tipográfica;
-bastante espaço entre os elementos;
-ícones profissionais;
-sem aparência genérica de template;
-sem excesso de cards coloridos;
-sem gradientes chamativos.
+Alterar para:
 
-O sistema deve transmitir:
+E-MAIL DE SAÍDA / CONTA PRINCIPAL
 
-infraestrutura / monitoramento / segurança / operação 24h.
+Essa é a conta principal responsável pelo monitoramento e pelo encaminhamento.
 
-2. ESTRUTURA PRINCIPAL
+Exibir:
 
-Criar navegação lateral profissional contendo:
-
-Dashboard
-
-Contas de E-mail
-
-Monitoramento
-
-Logs
-
-Usuários
-
-Servidor
-
-Configurações
-
-No topo mostrar:
-
-logo Agilliza;
-status global do sistema;
-usuário conectado;
-horário da última atualização.
-3. NÃO CONFUNDIR USUÁRIOS COM CONTAS DE E-MAIL
-
-Existem duas coisas diferentes no sistema.
-
-Usuários do sistema
-
-São pessoas que fazem login no Gerenciador.
-
-Exemplo:
-
-Lucca;
-Paula;
-Andy;
-administrador;
-operador.
-Contas de e-mail monitoradas
-
-São caixas de e-mail processadas pelo worker.
-
-Exemplo:
+E-mail de saída
 
 lucca@agilliza.net.br
 
-Esses conceitos devem ser separados visualmente e no banco.
+Senha / App Password
 
-4. USUÁRIOS DO SISTEMA
+••••••••••
 
-Criar módulo:
+Logo abaixo, criar seção separada:
 
-Usuários
+E-MAILS DE RECEBIMENTO
 
-Quero conseguir criar novos usuários que possam entrar no sistema com login e senha.
+Esses são os endereços que receberão os e-mails encaminhados pela conta principal.
 
-Inicialmente todos os usuários criados podem visualizar e administrar:
+Não hardcode nenhum endereço.
 
-mesmas contas de e-mail;
-mesmas configurações;
-monitoramento;
-logs;
-destinatários;
-palavras-chave.
+O usuário deve poder:
 
-Não criar dados mock.
+adicionar;
+editar;
+remover;
+reorganizar.
 
-Utilizar autenticação real do Supabase existente.
+Interface sugerida:
 
-Tela de usuários deve mostrar:
+paula@... ×
 
-nome;
-e-mail;
-status ativo/inativo;
-último acesso;
-data de criação.
+andy@... ×
 
-Ações:
+outro@email.com ×
 
-Criar usuário;
-Editar;
-Ativar/desativar;
-redefinir acesso;
-excluir quando permitido.
++ Adicionar destinatário
 
-Não criar sistema de primeiro usuário = super admin automaticamente.`}
+Cada endereço precisa ser salvo como um item individual no array destinations.
+
+NUNCA salvar:
+
+["email1; email2; email3"]
+
+Salvar:
+
+["email1","email2","email3"]
+
+7. PALAVRAS-CHAVE — CORRIGIR DEFINITIVAMENTE
+
+O campo:
+
+Palavras-chave (separadas por vírgula, ponto e vírgula ou Enter)
+
+deve realmente funcionar.
+
+O usuário pode escrever:
+
+codigo
+
+ou:
+
+codigo; token; senha
+
+ou pressionar Enter entre palavras.
+
+Antes de salvar, transformar em array real:
+
+["codigo","token","senha"]
+
+NUNCA:
+
+["codigo; token; senha"]
+8. VARIAÇÕES DA PALAVRA "CÓDIGO"
+
+Não quero cadastrar manualmente:
+
+codigo
+
+Código
+
+CODIGO
+
+CÓDIGO
+
+O sistema deve normalizar automaticamente.
+
+Manter/aprimorar a função existente:
+
+converter para minúsculo;
+remover acentuação;
+Unicode NFD;
+ignorar caixa;
+busca por inclusão.
+
+Portanto, se a palavra configurada for:
+
+codigo
+
+deve reconhecer automaticamente:
+
+codigo
+
+Código
+
+CODIGO
+
+CÓDIGO
+
+código
+
+codigos
+
+códigos
+
+CODIGOS
+
+CÓDIGOS
+
+codigo123
+
+123codigo
+
+meucodigo
+
+codigo de acesso
+
+código de segurança
+
+código de confirmação
+
+código de verificação
+
+seu código é 123456
+
+seus códigos são 123 e 456
+
+Não utilizar IA para isso.
+
+Utilizar normalização determinística.
+
+Aplicar a mesma lógica a qualquer palavra-chave cadastrada.`}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
