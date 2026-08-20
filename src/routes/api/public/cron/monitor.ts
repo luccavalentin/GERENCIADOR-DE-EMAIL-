@@ -21,8 +21,14 @@ export const Route = createFileRoute("/api/public/cron/monitor")({
           const results = [];
           for (const config of configs) {
             console.log(`Cron processing config: ${config.id} (${config.email_user})`);
-            const result = await processEmailsForConfig({ data: { configId: config.id } });
-            results.push({ id: config.id, success: result.success, stats: result.stats, error: result.error });
+            // Call the handler directly or via its internal logic to bypass middleware if needed
+            // Since this is internal server-to-server, we can call the handler
+            try {
+              const result = await processEmailsForConfig({ data: { configId: config.id } });
+              results.push({ id: config.id, success: result.success, stats: result.stats, error: result.error });
+            } catch (err: any) {
+              results.push({ id: config.id, success: false, error: err.message });
+            }
           }
 
           return new Response(JSON.stringify({ 

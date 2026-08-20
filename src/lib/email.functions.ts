@@ -153,12 +153,12 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { ImapFlow } = await import("imapflow");
-    const dns = await import("dns");
+    const dns = await import("dns/promises");
     const net = await import("net");
     const tls = await import("tls");
-    const { promisify } = await import("util");
     
     const startTime = Date.now();
+
     
     const diagResults: any = {
       dns: { status: "pending", data: null },
