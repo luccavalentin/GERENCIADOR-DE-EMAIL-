@@ -325,7 +325,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                   </TabsContent>
 
                   <TabsContent value="destinatarios" className="mt-0 space-y-6">
-                    <Card className="shadow-none border-slate-100">
+                    <Card className="premium-card shadow-none">
                       <CardHeader>
                         <CardTitle className="text-sm font-bold">E-mails de Recebimento</CardTitle>
                         <CardDescription>Para onde os e-mails filtrados serão encaminhados.</CardDescription>
