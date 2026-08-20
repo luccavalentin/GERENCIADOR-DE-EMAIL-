@@ -109,7 +109,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
             keywords: values.keywords,
             provider: "custom",
           },
-          emailPassword: values.email_password,
+          emailPassword: values.email_password || "",
         }
       });
     },

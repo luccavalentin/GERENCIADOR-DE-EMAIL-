@@ -121,7 +121,7 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
     if (!targetConfigId) throw new Error("Failed to get config ID");
 
     // Save password securely if provided
-    if (emailPassword) {
+    if (emailPassword && emailPassword.trim() !== "") {
       const { error: credsError } = await supabaseAdmin
         .from("email_credentials")
         .upsert({
