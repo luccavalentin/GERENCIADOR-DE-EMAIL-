@@ -715,7 +715,6 @@ function Dashboard() {
             <Button onClick={() => setIsTestModalOpen(false)} className="w-full">Fechar</Button>
           </DialogFooter>
         </DialogContent>
-        </DialogContent>
       </Dialog>
     </div>
   );
