@@ -506,7 +506,9 @@ export const getLogs = createServerFn({ method: "GET" })
     startDate: z.string().optional(),
     endDate: z.string().optional(),
     search: z.string().optional(),
+    clearView: z.boolean().optional(),
   }).parse(data))
+
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let query = supabaseAdmin
