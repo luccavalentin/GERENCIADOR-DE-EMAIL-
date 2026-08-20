@@ -161,8 +161,9 @@ function Dashboard() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#fcfbf8] p-4 text-center">
         <Mail className="mb-4 h-16 w-16 text-blue-600" />
         <h1 className="mb-4 text-4xl font-bold text-gray-900">
-          Sistema Gerenciador de Email
+          recrie tudo no supabse
         </h1>
+
         <p className="mb-8 text-lg text-gray-600">
           Gerencie e encaminhe seus e-mails automaticamente.
         </p>
