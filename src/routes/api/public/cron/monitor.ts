@@ -5,17 +5,16 @@ export const Route = createFileRoute("/api/public/cron/monitor")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // Simple apikey check
-        const authHeader = request.headers.get("apikey");
-        const publishableKey = process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+        const cronSecret = request.headers.get("x-cron-secret");
+        const serverSecret = process.env["EMAIL_MONITOR_CRON_SECRET"];
         
-        if (authHeader !== publishableKey && authHeader !== "sb_publishable_9klNiYfipDaAaS5soluiKg_7KA199Mv" && authHeader !== "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJid2luYmdkeWdvYm90a3ZwaGhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMzg3NzQsImV4cCI6MjEwMjgxNDc3NH0.E3TkqILiVGSbs2v9dyUMGEkUv1wQOfHJXCwVQqjoQDs") {
+        if (!serverSecret || cronSecret !== serverSecret) {
            return new Response("Unauthorized", { status: 401 });
         }
 
         console.log("Starting cron monitor...");
         try {
-          const configs = await getActiveConfigs();
+          const configs = await (getActiveConfigs as any)();
           console.log(`Processing ${configs?.length || 0} active configurations`);
 
           const results = [];

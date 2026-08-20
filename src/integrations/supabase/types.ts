@@ -26,10 +26,15 @@ export type Database = {
           imap_secure: boolean
           is_active: boolean
           keywords: string[]
+          last_check_at: string | null
+          last_error: string | null
+          last_heartbeat: string | null
+          last_success_at: string | null
           provider: string
           smtp_host: string
           smtp_port: number
           smtp_secure: boolean
+          status: string | null
           updated_at: string | null
           user_id: string
         }
@@ -44,10 +49,15 @@ export type Database = {
           imap_secure?: boolean
           is_active?: boolean
           keywords?: string[]
+          last_check_at?: string | null
+          last_error?: string | null
+          last_heartbeat?: string | null
+          last_success_at?: string | null
           provider?: string
           smtp_host: string
           smtp_port: number
           smtp_secure?: boolean
+          status?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -62,10 +72,15 @@ export type Database = {
           imap_secure?: boolean
           is_active?: boolean
           keywords?: string[]
+          last_check_at?: string | null
+          last_error?: string | null
+          last_heartbeat?: string | null
+          last_success_at?: string | null
           provider?: string
           smtp_host?: string
           smtp_port?: number
           smtp_secure?: boolean
+          status?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -96,6 +111,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "email_logs_config_id_fkey"
+            columns: ["config_id"]
+            isOneToOne: false
+            referencedRelation: "email_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_processing_state: {
+        Row: {
+          attempt_count: number | null
+          config_id: string
+          created_at: string | null
+          forwarded_at: string | null
+          id: string
+          imap_uid: number
+          last_error: string | null
+          mailbox: string
+          message_id: string | null
+          processing_started_at: string | null
+          status: string | null
+        }
+        Insert: {
+          attempt_count?: number | null
+          config_id: string
+          created_at?: string | null
+          forwarded_at?: string | null
+          id?: string
+          imap_uid: number
+          last_error?: string | null
+          mailbox: string
+          message_id?: string | null
+          processing_started_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          attempt_count?: number | null
+          config_id?: string
+          created_at?: string | null
+          forwarded_at?: string | null
+          id?: string
+          imap_uid?: number
+          last_error?: string | null
+          mailbox?: string
+          message_id?: string | null
+          processing_started_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_processing_state_config_id_fkey"
             columns: ["config_id"]
             isOneToOne: false
             referencedRelation: "email_configurations"
@@ -140,7 +205,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      reserve_email_for_processing: {
+        Args: { p_config_id: string; p_imap_uid: number; p_mailbox: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
