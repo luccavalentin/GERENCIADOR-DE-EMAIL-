@@ -340,6 +340,8 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
         p_config_id: configId,
         p_lock_id: lockId as string
       });
+    }
+  });
 
 export const testImapConnectionDetailed = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
