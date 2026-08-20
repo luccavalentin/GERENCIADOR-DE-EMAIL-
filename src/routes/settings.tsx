@@ -40,7 +40,7 @@ function SettingsPage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setUser(user);
-        setFullName(user.user_metadata?.full_name || "");
+        setFullName(user.user_metadata?.['full_name'] || "");
       }
     });
   }, []);
