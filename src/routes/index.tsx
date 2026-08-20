@@ -69,6 +69,7 @@ function Dashboard() {
     smtp_secure: true,
     email_user: "thiago@agilliza.net.br",
     email_password: "",
+    allow_invalid: true,
     destinations: "renzo@agilliza.net.br, carlos@agilliza.net.br, pamela@agilliza.net.br, paula@agilliza.net.br",
     keywords: "codigo",
   });
@@ -121,19 +122,21 @@ function Dashboard() {
     setIsTesting(true);
 
     try {
-      // 1. Test Connection
-      await runTestConnection({
-        data: {
-          imap_host: formData.imap_host,
-          imap_port: formData.imap_port,
-          imap_secure: formData.imap_secure,
-          smtp_host: formData.smtp_host,
-          smtp_port: formData.smtp_port,
-          smtp_secure: formData.smtp_secure,
-          email_user: formData.email_user,
-          email_password: formData.email_password,
-        }
-      });
+      // 1. Test Connection (Only if not allowed invalid)
+      if (!formData.allow_invalid) {
+        await runTestConnection({
+          data: {
+            imap_host: formData.imap_host,
+            imap_port: formData.imap_port,
+            imap_secure: formData.imap_secure,
+            smtp_host: formData.smtp_host,
+            smtp_port: formData.smtp_port,
+            smtp_secure: formData.smtp_secure,
+            email_user: formData.email_user,
+            email_password: formData.email_password,
+          }
+        });
+      }
 
       // 2. Save to DB
       const { error } = await supabase.from("email_configurations").insert({
@@ -175,7 +178,7 @@ function Dashboard() {
             <div className="flex items-center gap-4">
               <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Gerenciador de E-mail</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Painel de Monitoramento</h1>
                 <p className="text-gray-600">Olá, {session.user.email}</p>
               </div>
             </div>
@@ -246,7 +249,7 @@ function Dashboard() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email_password">Senha / App Password</Label>
-                        <Input id="email_password" type="password" placeholder="••••••••" value={formData.email_password} onChange={e => setFormData({...formData, email_password: e.target.value})} required />
+                        <Input id="email_password" type="password" placeholder="••••••••" value={formData.email_password} onChange={e => setFormData({...formData, email_password: e.target.value})} required={!formData.allow_invalid} />
                       </div>
                     </div>
                   </div>
@@ -260,6 +263,17 @@ function Dashboard() {
                     <div className="space-y-2">
                       <Label htmlFor="keywords">Palavras-chave (separadas por vírgula)</Label>
                       <Input id="keywords" placeholder="codigo, token, senha" value={formData.keywords} onChange={e => setFormData({...formData, keywords: e.target.value})} required />
+                    </div>
+                    <div className="flex items-center space-x-2 border-t pt-4">
+                      <Checkbox id="allow_invalid" checked={formData.allow_invalid} onCheckedChange={(checked) => setFormData({...formData, allow_invalid: !!checked})} />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label htmlFor="allow_invalid" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                          Salvar mesmo que as credenciais falhem no teste
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Ele deve me permitir salvas as configurações mesmo que não tenha a senha e etc.
+                        </p>
+                      </div>
                     </div>
                   </div>
 
