@@ -333,10 +333,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Page Body */}
           <div className="p-8 max-w-[1600px] w-full mx-auto">
             {children}
-            <footer className="mt-20 py-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              <div>© {new Date().getFullYear()} Agilliza. Todos os direitos reservados.</div>
-              <div className="opacity-60">Desenvolvido por Lucca Santana</div>
-            </footer>
           </div>
         </main>
       </div>
