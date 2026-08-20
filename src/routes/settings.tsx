@@ -136,43 +136,49 @@ function SettingsPage() {
         </Card>
 
         {/* Alterar Senha */}
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Key className="h-5 w-5 text-[#0000A0]" />
-              <CardTitle>Segurança da Conta</CardTitle>
+        <Card className="premium-card overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Key className="h-5 w-5 text-[#0000A0]" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Segurança da Conta</CardTitle>
+                <CardDescription>Mantenha sua conta protegida alterando sua senha.</CardDescription>
+              </div>
             </div>
-            <CardDescription>Mantenha sua conta segura alterando sua senha periodicamente.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="new-password">Nova Senha</Label>
+                <Label htmlFor="new-password" title="password" className="text-sm font-bold text-slate-700 uppercase tracking-wider">Nova Senha</Label>
                 <Input 
                   id="new-password" 
                   type="password" 
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
+                  className="h-11 border-slate-200 focus:border-agilliza focus:ring-agilliza/20 transition-all"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirmar Nova Senha</Label>
+                <Label htmlFor="confirm-password" title="password" className="text-sm font-bold text-slate-700 uppercase tracking-wider">Confirmar Nova Senha</Label>
                 <Input 
                   id="confirm-password" 
                   type="password" 
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
+                  className="h-11 border-slate-200 focus:border-agilliza focus:ring-agilliza/20 transition-all"
                 />
               </div>
             </div>
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end border-t border-slate-100 pt-6">
               <Button 
                 onClick={handleChangePassword} 
                 disabled={loading}
                 variant="outline"
-                className="border-[#0000A0] text-[#0000A0] hover:bg-blue-50"
+                className="h-11 px-8 border-agilliza text-agilliza font-bold hover:bg-blue-50 transition-all active:scale-95"
               >
                 {loading ? "Processando..." : "Alterar Senha"}
               </Button>
