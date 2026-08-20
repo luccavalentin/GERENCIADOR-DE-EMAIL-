@@ -503,6 +503,29 @@ function Dashboard() {
                         <SettingsIcon className="h-4 w-4" />
                       </Button>
                     </div>
+                    
+                    <div className="flex gap-2 pt-2 flex-wrap">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1 gap-2 h-8 text-[10px] uppercase font-bold text-gray-500 hover:text-blue-600 border-dashed"
+                        onClick={() => handleTestImap(config.id)}
+                        disabled={testingConfigId === config.id}
+                      >
+                        {testingConfigId === config.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Mail className="h-3 w-3" />}
+                        Testar IMAP
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1 gap-2 h-8 text-[10px] uppercase font-bold text-gray-500 hover:text-blue-600 border-dashed"
+                        onClick={() => handleTestSmtp(config.id)}
+                        disabled={testingConfigId === config.id}
+                      >
+                        {testingConfigId === config.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Activity className="h-3 w-3" />}
+                        Testar SMTP
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
