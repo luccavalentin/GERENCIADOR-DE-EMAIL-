@@ -187,29 +187,33 @@ function SettingsPage() {
         </Card>
 
         {/* Configurações do Sistema */}
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Database className="h-5 w-5 text-[#0000A0]" />
-              <CardTitle>Preferências do Sistema</CardTitle>
+        <Card className="premium-card overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Database className="h-5 w-5 text-[#0000A0]" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Preferências do Sistema</CardTitle>
+                <CardDescription>Parâmetros globais de execução e integração.</CardDescription>
+              </div>
             </div>
-            <CardDescription>Parâmetros globais de execução.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="lock-ttl">Lock TTL (Segundos)</Label>
-              <Input id="lock-ttl" type="number" defaultValue="300" />
+          <CardContent className="p-6 space-y-8">
+            <div className="space-y-3">
+              <Label htmlFor="lock-ttl" className="text-sm font-bold text-slate-700 uppercase tracking-wider">Lock TTL (Segundos)</Label>
+              <Input id="lock-ttl" type="number" defaultValue="300" className="h-11 border-slate-200 focus:border-agilliza focus:ring-agilliza/20 transition-all max-w-[200px]" />
               <p className="text-[11px] text-slate-400 italic">Tempo máximo que um worker segura o processamento de uma conta.</p>
             </div>
             
-            <Separator />
+            <Separator className="bg-slate-100" />
             
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base font-semibold">Notificações por E-mail</Label>
+            <div className="flex items-center justify-between group">
+              <div className="space-y-1">
+                <Label className="text-base font-bold text-slate-800">Notificações por E-mail</Label>
                 <p className="text-sm text-slate-500">Receber alertas de erros críticos no processamento.</p>
               </div>
-              <Switch defaultChecked />
+              <Switch defaultChecked className="data-[state=checked]:bg-agilliza" />
             </div>
           </CardContent>
         </Card>
