@@ -204,6 +204,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       });
 
       await imap.connect();
+      stats.imapConnected = true;
       await log("Conectado ao IMAP. Verificando novos e-mails...");
 
       let mailboxLock = await imap.getMailboxLock("INBOX");
@@ -212,6 +213,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
         const fetchQuery = { envelope: true, source: true, uid: true, flags: true };
 
         for await (let message of imap.fetch(fetchOptions, fetchQuery)) {
+          stats.found++;
           if (!message.envelope || !message.source || !message.uid) continue;
 
           const imapUid = Number(message.uid);
@@ -224,7 +226,12 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
             p_imap_uid: imapUid
           });
 
-          if (reserveError || !reserved) continue;
+          if (reserveError || !reserved) {
+            stats.duplicates++;
+            continue;
+          }
+
+          stats.analyzed++;
 
           try {
             const parsed = await simpleParser(message.source);
