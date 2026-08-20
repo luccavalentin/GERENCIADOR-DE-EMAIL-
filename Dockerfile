@@ -14,36 +14,36 @@ WORKDIR /app/worker
 COPY worker/package*.json ./
 RUN npm install
 COPY worker/ ./
+# O worker depende da lógica compartilhada
 COPY src/lib/email-logic/ ../src/lib/email-logic/
 RUN npm run build
 
-# --- Stage 3: Final Production Image ---
-FROM node:20-slim AS production
+# --- Stage 3: Base for Production (Shared Utilities) ---
+FROM node:20-slim AS production-base
+RUN apt-get update && apt-get install -y \
+    iputils-ping \
+    curl \
+    netcat-traditional \
+    dnsutils \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- Stage 4: Web Production Target ---
+FROM production-base AS web-production
 WORKDIR /app
-
-# Instalar utilitários de rede para diagnóstico na VPS
-RUN apt-get update && apt-get install -y iputils-ping curl netcat-traditional dnsutils && rm -rf /var/lib/apt/lists/*
-
-# Copiar Web App
 COPY --from=web-builder /app/.output ./.output
 COPY --from=web-builder /app/package.json ./package.json
+# TanStack Start needs node_modules in production for some setups, 
+# or at least the ones required by the generated output.
+RUN npm install --omit=dev
+EXPOSE 3000
+CMD ["npm", "start"]
 
-# Copiar Worker
+# --- Stage 5: Worker Production Target ---
+FROM production-base AS worker-production
 WORKDIR /app/worker
 COPY --from=worker-builder /app/worker/dist ./dist
 COPY --from=worker-builder /app/worker/package*.json ./
-
-# Script de entrada para decidir o que rodar
-WORKDIR /app
-COPY <<EOF ./entrypoint.sh
-#!/bin/sh
-if [ "$MODE" = "worker" ]; then
-  cd /app/worker && npm start
-else
-  npm start
-fi
-EOF
-RUN chmod +x entrypoint.sh
-
-EXPOSE 3000
-ENTRYPOINT ["./entrypoint.sh"]
+# Instalar dependências de produção do worker
+RUN npm install --omit=dev
+CMD ["npm", "start"]
