@@ -340,5 +340,128 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
         p_config_id: configId,
         p_lock_id: lockId as string
       });
+
+export const testImapConnectionDetailed = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
+  .handler(async ({ data: { configId } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const startTime = Date.now();
+    const result = {
+      connection: "pending",
+      auth: "pending",
+      inbox: "pending",
+      time: 0,
+      error: null as string | null
+    };
+
+    try {
+      const { data: config } = await supabaseAdmin
+        .from("email_configurations")
+        .select("*")
+        .eq("id", configId)
+        .single();
+      
+      const { data: creds } = await supabaseAdmin
+        .from("email_credentials")
+        .select("password")
+        .eq("config_id", configId)
+        .single();
+
+      if (!config || !creds?.password) throw new Error("Configuração ou credenciais não encontradas");
+
+      const imap = new ImapFlow({
+        host: config.imap_host,
+        port: config.imap_port,
+        secure: config.imap_secure,
+        auth: {
+          user: config.email_user,
+          pass: creds.password,
+        },
+        logger: false,
+        connectTimeout: 10000,
+      });
+
+      try {
+        await imap.connect();
+        result.connection = "ok";
+        result.auth = "ok";
+        
+        let lock = await imap.getMailboxLock("INBOX");
+        try {
+          result.inbox = "ok";
+        } finally {
+          lock.release();
+        }
+        
+        await imap.logout();
+      } catch (err: any) {
+        if (result.connection === "pending") result.connection = "error";
+        else if (result.auth === "pending") result.auth = "error";
+        else if (result.inbox === "pending") result.inbox = "error";
+        throw err;
+      }
+
+      result.time = Date.now() - startTime;
+      return { success: true, result };
+    } catch (error: any) {
+      result.time = Date.now() - startTime;
+      return { success: false, error: error.message, result };
+    }
+  });
+
+export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
+  .handler(async ({ data: { configId } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const startTime = Date.now();
+    const result = {
+      connection: "pending",
+      auth: "pending",
+      time: 0,
+      error: null as string | null
+    };
+
+    try {
+      const { data: config } = await supabaseAdmin
+        .from("email_configurations")
+        .select("*")
+        .eq("id", configId)
+        .single();
+      
+      const { data: creds } = await supabaseAdmin
+        .from("email_credentials")
+        .select("password")
+        .eq("config_id", configId)
+        .single();
+
+      if (!config || !creds?.password) throw new Error("Configuração ou credenciais não encontradas");
+
+      const transporter = nodemailer.createTransport({
+        host: config.smtp_host,
+        port: config.smtp_port,
+        secure: config.smtp_secure,
+        auth: {
+          user: config.email_user,
+          pass: creds.password,
+        },
+        connectionTimeout: 10000,
+      });
+
+      try {
+        await transporter.verify();
+        result.connection = "ok";
+        result.auth = "ok";
+      } catch (err: any) {
+        // Nodemailer verify() usually fails at connection or auth
+        result.connection = "error";
+        result.auth = "error";
+        throw err;
+      }
+
+      result.time = Date.now() - startTime;
+      return { success: true, result };
+    } catch (error: any) {
+      result.time = Date.now() - startTime;
+      return { success: false, error: error.message, result };
     }
   });
