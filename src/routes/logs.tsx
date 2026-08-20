@@ -113,7 +113,7 @@ function LogsIndexPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                        <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" asChild>
-                         <a href={`/logs/${log.config_id || ''}`}>
+                         <a href={`/logs/${log.config_id || ''}`} title="Ver Detalhes">
                             <Eye className="h-3 w-3 text-slate-400" />
                          </a>
                        </Button>

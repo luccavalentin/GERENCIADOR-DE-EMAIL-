@@ -50,7 +50,7 @@ function SettingsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="system-name">Nome do Sistema</Label>
-                <Input id="system-name" defaultValue="Agilliza Gerenciador de E-mail" />
+                <Input id="system-name" defaultValue="Agilliza" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="admin-email">E-mail Administrativo</Label>

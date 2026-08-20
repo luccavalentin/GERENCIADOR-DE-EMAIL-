@@ -185,13 +185,13 @@ function ServerPage() {
 
       {/* Serviços */}
       <section className="space-y-4">
-        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Serviços do Ecossistema</h2>
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Serviços Agilliza</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: "Worker Core", status: isOnline ? 'online' : 'offline', icon: Activity, desc: "Processador de E-mail" },
             { label: "Engine IMAP", status: isOnline ? 'online' : 'aguardando', icon: Mail, desc: "Protocolo de Entrada" },
             { label: "Engine SMTP", status: isOnline ? 'online' : 'aguardando', icon: ShieldCheck, desc: "Protocolo de Saída" },
-            { label: "Database", status: 'online', icon: Database, desc: "Supabase Postgres" },
+            { label: "Banco de Dados", status: 'online', icon: Database, desc: "Serviço de Dados" },
           ].map((service, i) => (
             <Card key={i} className="shadow-sm border-slate-200">
               <CardContent className="p-4 flex items-center gap-4">
