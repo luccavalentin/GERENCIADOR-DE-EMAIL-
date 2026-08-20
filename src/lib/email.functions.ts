@@ -213,7 +213,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       const imap = new ImapFlow({
         host: config.imap_host,
         port: config.imap_port,
-        secure: config.imap_secure,
+        secure: config.imap_secure, // Deve ser true para porta 993
         auth: {
           user: config.email_user,
           pass: creds.password,
@@ -221,27 +221,51 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
         logger: false,
         connectionTimeout: 30000,
         greetingTimeout: 30000,
+        socketTimeout: 30000,
       });
 
       imap.on('error', (err) => {
         console.error(`[IMAP Global Error] Config ${configId}:`, err);
       });
 
-      await log("Tentando conexão IMAP...");
+      await log(`Execution ID criado: ${executionId}`);
+      await log("Lock solicitado e adquirido no banco.");
+      await log(`Iniciando conexão TCP IMAP para ${config.imap_host}:${config.imap_port}`);
+      
       try {
+        await log("Iniciando TLS e Handshake...");
         await imap.connect();
+        await log("TLS estabelecido. Enviando autenticação...");
       } catch (connErr: any) {
-        console.error(`[IMAP Connection Error Details] Config ${configId}:`, connErr);
+        const detailedError = {
+          message: connErr.message,
+          code: connErr.code,
+          command: connErr.command,
+          response: connErr.response,
+          responseCode: connErr.responseCode,
+          stack: connErr.stack,
+          stage: "connection/auth"
+        };
+        console.error(`[IMAP Connection Error Details] Config ${configId}:`, detailedError);
+        await log(`ERRO IMAP: ${connErr.message} (Etapa: ${detailedError.stage})`, "error");
+        // Registro persistente do erro detalhado (sem senha)
+        await supabaseAdmin.from("email_logs").insert({
+          config_id: configId,
+          message: `DETALHES DO ERRO: ${JSON.stringify(detailedError)}`,
+          level: "error"
+        });
         throw new Error(`IMAP Connection Failure: ${connErr.message}`);
       }
       
       stats.imapConnected = true;
-      await log("Conectado ao IMAP. Verificando novos e-mails...");
+      await log("Autenticação aceita. Abrindo INBOX...");
       
       let mailboxLock;
       try {
         mailboxLock = await imap.getMailboxLock("INBOX");
+        await log("INBOX aberta. Buscando UNSEEN...");
       } catch (lockErr: any) {
+        await log(`Falha ao abrir INBOX: ${lockErr.message}`, "error");
         throw new Error(`IMAP Mailbox Lock Failure: ${lockErr.message}`);
       }
       try {
@@ -425,12 +449,17 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
       });
 
       try {
+        // Log individual do teste para diagnóstico
+        console.log(`[IMAP TEST] Conectando a ${config.imap_host}:${config.imap_port} (secure: ${config.imap_secure})`);
+        
         await imap.connect();
         result.connection = "ok";
+        console.log(`[IMAP TEST] Conectado e autenticado.`);
         result.auth = "ok";
         
         let lock = await imap.getMailboxLock("INBOX");
         try {
+          console.log(`[IMAP TEST] INBOX acessada com sucesso.`);
           result.inbox = "ok";
         } finally {
           lock.release();
@@ -438,6 +467,13 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
         
         await imap.logout();
       } catch (err: any) {
+        console.error(`[IMAP TEST ERROR]`, {
+          message: err.message,
+          code: err.code,
+          response: err.response,
+          stage: result.connection === "pending" ? "connection" : (result.auth === "pending" ? "auth" : "inbox")
+        });
+        
         if (result.connection === "pending") result.connection = "error";
         else if (result.auth === "pending") result.auth = "error";
         else if (result.inbox === "pending") result.inbox = "error";
