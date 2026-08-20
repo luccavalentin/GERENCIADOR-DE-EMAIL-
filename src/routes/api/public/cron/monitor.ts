@@ -1,4 +1,4 @@
-import { createServerFn } from "@tanstack/react-router";
+import { createServerFn, createFileRoute } from "@tanstack/react-router";
 import { getActiveConfigs, processEmailsForConfig } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/api/public/cron/monitor")({

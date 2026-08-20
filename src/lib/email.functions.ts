@@ -124,17 +124,15 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
 
       let lock = await imap.getMailboxLock("INBOX");
       try {
-        // Fetch only UNSEEN emails
         const fetchOptions = { seen: false };
         const fetchQuery = { envelope: true, source: true, uid: true, flags: true };
 
         for await (let message of imap.fetch(fetchOptions, fetchQuery)) {
           if (!message.envelope || !message.source || !message.uid) continue;
 
-          const imapUid = BigInt(message.uid);
+          const imapUid = Number(message.uid);
           const mailbox = "INBOX";
 
-          // 1. Atomic Reservation (Deduplication)
           const { data: reserved, error: reserveError } = await supabaseAdmin.rpc('reserve_email_for_processing', {
             p_config_id: configId,
             p_mailbox: mailbox,
@@ -142,17 +140,14 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
           });
 
           if (reserveError || !reserved) {
-            // Already processing or processed
             continue;
           }
 
           try {
-            // 2. Parse Email properly
             const parsed = await simpleParser(message.source);
             const subject = parsed.subject || "";
             const from = parsed.from?.value[0]?.address || "desconhecido";
             
-            // Loop Protection
             const isLoop = 
               from.toLowerCase() === config.email_user.toLowerCase() ||
               subject.toUpperCase().startsWith("ENC:") ||
@@ -168,7 +163,6 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
             const htmlContent = parsed.html ? convert(parsed.html) : "";
             const fullContent = normalizeText(`${subject} ${plainContent} ${htmlContent}`);
 
-            // Regex for keyword matching: \w*codigo\w*
             const hasKeyword = config.keywords.some((kw: string) => {
               const normalizedKw = normalizeText(kw);
               const regex = new RegExp(`\\w*${normalizedKw}\\w*`, 'i');
@@ -188,7 +182,6 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
                 },
               });
 
-              // 3. Send via SMTP with original email attached as .eml
               await transporter.sendMail({
                 from: config.email_user,
                 to: config.destinations.join(", "),
@@ -206,7 +199,6 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
                 }
               });
 
-              // 4. Register Success in DB
               await supabaseAdmin.from("forwarded_emails").insert({
                 config_id: configId,
                 original_subject: subject,
@@ -218,7 +210,6 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
                 forwarded_at: new Date().toISOString()
               }).eq("config_id", configId).eq("imap_uid", imapUid);
 
-              // 5. Mark as Seen ONLY after success
               await imap.messageFlagsAdd(message.uid, ['\\Seen'], { uid: true });
               await log(`E-mail encaminhado com sucesso para ${config.destinations.join(", ")}`, "success");
             } else {
