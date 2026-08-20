@@ -555,26 +555,40 @@ export const getLogs = createServerFn({ method: "GET" })
 export const getDailyStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ userId: z.string() }).parse(data))
-  .handler(async ({ data: { userId } }) => {
+  .handler(async ({ data: { userId }, context }) => {
+    // Security check: only allow querying own stats unless maybe an admin role exists
+    if (userId !== context.userId) {
+      throw new Error("Unauthorized");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
     const today = new Date();
     today.setHours(0,0,0,0);
     const todayStr = today.toISOString();
 
+    // Get config IDs for this user to filter logs
+    const { data: userConfigs } = await supabaseAdmin
+      .from("email_configurations")
+      .select("id")
+      .eq("user_id", userId);
+    
+    const configIds = userConfigs?.map(c => c.id) || [];
+
     const { data: logs } = await supabaseAdmin
       .from("email_logs")
       .select("level, message")
+      .in("config_id", configIds)
       .gte("created_at", todayStr);
 
     const { data: forwarded } = await supabaseAdmin
       .from("forwarded_emails")
       .select("id")
-      .eq("user_id" as any, userId)
+      .in("config_id", configIds)
       .gte("created_at", todayStr);
 
     const stats = {
-      found: logs?.filter(l => l.message.includes("encontrada")).length || 0,
+      found: logs?.filter(l => l.message.includes("identificada")).length || 0,
       analyzed: logs?.filter(l => l.message.includes("analisada")).length || 0,
       keywords: logs?.filter(l => l.message.includes("Palavra-chave detectada")).length || 0,
       forwarded: forwarded?.length || 0,
