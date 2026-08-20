@@ -112,9 +112,10 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
 
           const subject = message.envelope.subject || "";
           const from = message.envelope.from?.[0]?.address || "desconhecido";
-          const bodyText = message.source.toString().toLowerCase();
+          const bodyText = message.source.toString();
+          const bodyTextLower = bodyText.toLowerCase();
 
-          const hasKeyword = config.keywords.some((kw: string) => bodyText.includes(kw.toLowerCase()));
+          const hasKeyword = config.keywords.some((kw: string) => bodyTextLower.includes(kw.toLowerCase()));
 
           if (hasKeyword) {
             await log(`Palavra-chave detectada no e-mail de ${from}: "${subject}"`);
@@ -133,7 +134,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
               from: config.email_user,
               to: config.destinations.join(", "),
               subject: `ENC: ${subject}`,
-              text: `E-mail encaminhado automaticamente.\n\nDe: ${from}\nAssunto: ${subject}\n\nCorpo:\n${bodyText}`,
+              text: `E-mail encaminhado automaticamente.\n\nDe: ${from}\nAssunto: ${subject}\n\nConteúdo:\n${bodyText}`,
             });
 
             await supabaseAdmin.from("forwarded_emails").insert({
