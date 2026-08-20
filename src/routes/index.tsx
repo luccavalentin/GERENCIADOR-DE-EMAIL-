@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 /**
- * No perfil do usuario coloque a opção de configurações e etc inclusive mudar a senha.
+ * remova isso © 2026 Agilliza. Todos os direitos reservados.
+ * Desenvolvido por Lucca Santana
  */
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
