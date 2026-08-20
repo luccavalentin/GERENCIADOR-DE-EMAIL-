@@ -190,8 +190,8 @@ function DashboardPage() {
       </div>
       
       {/* Atividade Recente Table */}
-      <Card className="shadow-sm border-slate-200 overflow-hidden">
-        <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between bg-slate-50/30">
+      <Card className="premium-card overflow-hidden">
+        <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between bg-slate-50/50">
           <div>
             <CardTitle className="text-lg font-bold text-slate-900">Atividade Recente</CardTitle>
             <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos reais do sistema.</p>
