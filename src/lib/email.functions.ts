@@ -156,8 +156,8 @@ export const toggleProfileStatus = createServerFn({ method: "POST" })
   .handler(async ({ data: { id, is_active } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
-      .from("profiles")
-      .update({ is_active })
+      .from("profiles" as any)
+      .update({ is_active } as any)
       .eq("id", id);
     if (error) throw error;
     return { success: true };
