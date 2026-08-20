@@ -87,7 +87,7 @@ function DashboardPage() {
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
             </div>
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Requisitos de Evolução Agilliza</h3>
-            <div className="font-mono text-[10px] leading-relaxed text-slate-400 max-h-[300px] overflow-y-auto custom-scrollbar">
+            <div className="font-mono text-[10px] leading-relaxed text-slate-400 max-h-[400px] overflow-y-auto custom-scrollbar">
               <div className="text-green-400 opacity-80 mb-2">// Especificações Técnicas e Funcionais</div>
               {`MONITORAMENTO AO VIVO
 Quero enxergar o funcionamento do worker em tempo real.
@@ -170,7 +170,55 @@ Para ações destrutivas mostrar confirmação:
 Tem certeza que deseja reiniciar o worker?
 Esses botões devem chamar endpoints protegidos no backend da VPS.
 NÃO colocar: senha SSH; root password; shell; terminal aberto; comandos arbitrários no frontend.
-Somente usuários autorizados podem executar essas ações.`}
+Somente usuários autorizados podem executar essas ações.
+
+15. STATUS DO SERVIDOR
+Na página Servidor mostrar:
+VPS Online; uptime; memória RAM; CPU; armazenamento; versão do worker; última inicialização.
+Worker PID/container; status; uptime; última execução; última falha.
+Docker container web; container worker; status.
+Atualizar periodicamente.
+
+16. REINÍCIO SEGURO
+Quando clicar: Reiniciar Worker
+Fluxo: solicitação → confirmação → backend VPS → restart controlado → heartbeat → confirmação
+Na interface: Reiniciando...
+Depois: 🟢 Worker reiniciado com sucesso
+Se não voltar: 🔴 Worker não respondeu após reinicialização
+Nunca mostrar sucesso sem verificar heartbeat.
+
+17. BOTÃO "PROCESSAR AGORA"
+Continuar oferecendo: Processar agora
+Porém deve acionar o worker da VPS, não criar processamento paralelo na Lovable.
+Não reativar cron antigo.
+O worker permanente continua sendo a única autoridade de processamento.
+
+18. TESTAR IMAP E SMTP
+Manter: Testar IMAP, Testar SMTP
+Mas agora o teste deve acontecer a partir da infraestrutura da VPS, porque já comprovamos que o runtime da Lovable pode apresentar problemas de socket.
+Exibir resultado por etapas:
+IMAP DNS; TCP; TLS; autenticação; INBOX.
+SMTP DNS; TCP; TLS; autenticação.
+
+19. EXPERIÊNCIA VISUAL DAS CONFIGURAÇÕES
+Não quero formulário longo e pesado.
+Separar em abas: Geral, Conta principal, Destinatários, Regras, Servidor, Histórico.
+Dentro de cada aba usar cards leves e bem organizados.
+
+20. PRESERVAÇÃO DOS DADOS
+Não excluir nem recriar: usuários existentes; contas existentes; senhas; logs; email_processing_state; forwarded_emails; configurações; histórico.
+Fazer migrations incrementais quando necessário.
+
+21. NÃO CRIAR DADOS MOCK
+Não quero: Servidor Online, 23 mensagens, 99% uptime se isso não vier de dados reais.
+Qualquer informação operacional deve vir: Supabase; worker; backend da VPS.
+Se a informação ainda não estiver disponível, mostrar: Aguardando dados e não inventar valor.
+
+22. NÃO QUEBRAR O QUE JÁ FOI CORRIGIDO
+Já foram identificados e corrigidos problemas anteriores envolvendo: socket IMAP no runtime antigo; Node 20/WebSocket; funções RPC duplicadas; cron antigo; deduplicação; parsing de arrays; processamento na VPS.
+NÃO recrie esses problemas.
+A aplicação de produção será executada na Hostinger VPS.
+O Supabase continuará sendo utilizado.`}
             </div>
           </div>
         </div>
