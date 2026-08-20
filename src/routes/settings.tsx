@@ -94,35 +94,40 @@ function SettingsPage() {
 
       <div className="grid grid-cols-1 gap-8">
         {/* Perfil do Usuário */}
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <User className="h-5 w-5 text-[#0000A0]" />
-              <CardTitle>Meu Perfil</CardTitle>
+        <Card className="premium-card overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <User className="h-5 w-5 text-[#0000A0]" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Meu Perfil</CardTitle>
+                <CardDescription>Suas informações básicas de acesso ao sistema.</CardDescription>
+              </div>
             </div>
-            <CardDescription>Suas informações básicas de acesso.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="full-name">Nome Completo</Label>
+                <Label htmlFor="full-name" className="text-sm font-bold text-slate-700 uppercase tracking-wider">Nome Completo</Label>
                 <Input 
                   id="full-name" 
                   value={fullName} 
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Seu nome completo"
+                  className="h-11 border-slate-200 focus:border-agilliza focus:ring-agilliza/20 transition-all"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input id="email" value={user?.email || ""} disabled className="bg-slate-50" />
+                <Label htmlFor="email" className="text-sm font-bold text-slate-700 uppercase tracking-wider">E-mail</Label>
+                <Input id="email" value={user?.email || ""} disabled className="h-11 bg-slate-50 border-slate-200 font-medium text-slate-500" />
               </div>
             </div>
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end border-t border-slate-100 pt-6">
               <Button 
                 onClick={handleUpdateProfile} 
                 disabled={loading}
-                className="bg-[#0000A0] hover:bg-[#000080]"
+                className="bg-[#0000A0] hover:bg-[#000080] h-11 px-8 font-bold shadow-lg shadow-blue-900/10 transition-all active:scale-95"
               >
                 {loading ? "Salvando..." : "Atualizar Perfil"}
               </Button>
