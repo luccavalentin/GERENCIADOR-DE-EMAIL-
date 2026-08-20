@@ -171,7 +171,7 @@ function MonitoringPage() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="shadow-sm border-slate-200">
+          <Card className="premium-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-bold uppercase text-slate-400">Status da VPS</CardTitle>
             </CardHeader>
