@@ -112,24 +112,43 @@ function DashboardPage() {
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <h3 className="font-bold text-slate-900">Últimos Encaminhamentos</h3>
-            <Button variant="ghost" size="sm" className="text-[#0000A0] font-bold">Ver tudo</Button>
+            <Button variant="ghost" size="sm" className="text-[#0000A0] font-bold" asChild>
+              <a href="/logs">Ver tudo</a>
+            </Button>
           </div>
           <Table>
             <TableHeader className="bg-slate-50">
               <TableRow>
                 <TableHead>Horário</TableHead>
-                <TableHead>Assunto</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Assunto / Mensagem</TableHead>
+                <TableHead>Nível</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentLogs?.logs?.map((log: any) => (
+              {recentLogs?.logs?.length ? recentLogs.logs.map((log: any) => (
                 <TableRow key={log.id}>
                   <TableCell className="text-xs text-slate-500 font-mono">{format(new Date(log.created_at), "HH:mm:ss")}</TableCell>
-                  <TableCell className="text-sm">{log.message.substring(0, 30)}...</TableCell>
-                  <TableCell><Badge variant="secondary" className="text-[10px]">OK</Badge></TableCell>
+                  <TableCell className="text-sm truncate max-w-[300px]">{log.message}</TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "text-[10px] capitalize",
+                        log.level === 'error' ? "bg-red-50 text-red-700" : 
+                        log.level === 'success' ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"
+                      )}
+                    >
+                      {log.level || 'info'}
+                    </Badge>
+                  </TableCell>
                 </TableRow>
-              ))}
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-8 text-slate-400 text-xs italic">
+                    Nenhuma atividade recente encontrada.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
@@ -139,26 +158,43 @@ function DashboardPage() {
             <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
           </div>
           <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Requisitos de Evolução Agilliza</h3>
-          <div className="font-mono text-[10px] leading-relaxed text-slate-400 max-h-[300px] overflow-y-auto custom-scrollbar">
+          <div className="font-mono text-[10px] leading-relaxed text-slate-400 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
             <div className="text-green-400 opacity-80 mb-2">// Especificações Técnicas e Funcionais</div>
-            {`MONITORAMENTO AO VIVO
+            <pre className="whitespace-pre-wrap">
+{`9. MONITORAMENTO AO VIVO
+Quero enxergar o funcionamento do worker em tempo real.
 Exibir uma interface semelhante a console profissional.
-18:42:01  Worker ativo
-18:42:02  Conectando IMAP...
+Atualizar automaticamente sem precisar atualizar a página.
+Utilizar os logs reais existentes no Supabase.
 
-STATUS DO WORKER
-Indicador permanente no topo:
-🟢 Sistema operacional
-🟡 Atenção
-🔴 Worker offline
+10. STATUS DO WORKER
+No topo do sistema mostrar um indicador permanente:
+🟢 Sistema operacional ou 🟡 Atenção ou 🔴 Worker offline
 
-DASHBOARD OPERACIONAL
-Indicadores reais: Sistema, IMAP, SMTP, Supabase.
-Tabela de encaminhamentos real.
+11. DASHBOARD OPERACIONAL
+Criar dashboard inicial contendo indicadores reais.
 
-TELA DE LOGS
-Atualização automática, filtros avançados.
-Timeline de execução.`}
+12. TELA DE LOGS
+Página de Logs com atualização automática e filtros.
+
+13. DETALHES DA EXECUÇÃO
+Cada processamento deve ter um execution_id e timeline.
+
+14. CONTROLE DO SERVIDOR / WORKER
+Reiniciar Worker, Parar Worker, Verificar Saúde.
+
+15. STATUS DO SERVIDOR
+Na página Servidor mostrar: VPS Online; uptime; RAM; CPU.
+
+16. REINÍCIO SEGURO
+Fluxo controlado de reinicialização com verificação de heartbeat.
+
+19. EXPERIÊNCIA VISUAL DAS CONFIGURAÇÕES
+Separar em abas: Geral, Conta principal, Destinatários, Regras.
+
+21. NÃO CRIAR DADOS MOCK
+Qualquer informação operacional deve vir de dados reais.`}
+            </pre>
           </div>
         </div>
       </div>
