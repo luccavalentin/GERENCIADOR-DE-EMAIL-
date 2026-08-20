@@ -138,8 +138,10 @@
   }
 
   body {
-    background-color: var(--color-background);
+    background-color: #f8fafc;
     color: var(--color-foreground);
+    font-family: 'Inter', sans-serif;
   }
+
 }
 
