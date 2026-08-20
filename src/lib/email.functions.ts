@@ -525,9 +525,9 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
           else if (result.inbox === "pending") result.inbox = "error";
         }
 
-        // Ensure destruction to prevent hung sockets
+        // Ensure logout to clean up resources if possible
         try {
-          imap.destroy();
+          await imap.logout();
         } catch (e) {}
         
         throw err;
