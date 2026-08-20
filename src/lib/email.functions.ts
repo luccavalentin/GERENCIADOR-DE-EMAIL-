@@ -95,6 +95,8 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
       targetConfigId = data.id;
     }
 
+    if (!targetConfigId) throw new Error("Failed to get config ID");
+
     // Save password securely
     const { error: credsError } = await supabaseAdmin
       .from("email_credentials")
@@ -142,6 +144,16 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       return { success: false, error: "Locked or error acquiring lock" };
     }
 
+    const updateHeartbeat = async (status: string, errorMsg?: string) => {
+      await supabaseAdmin.from("email_configurations").update({
+        last_heartbeat: new Date().toISOString(),
+        last_check_at: new Date().toISOString(),
+        status,
+        last_error: errorMsg || null,
+        ...(status === 'success' ? { last_success_at: new Date().toISOString() } : {})
+      }).eq("id", configId);
+    };
+
     try {
       const { data: config, error: configError } = await supabaseAdmin
         .from("email_configurations")
@@ -166,16 +178,6 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
           message,
           level
         });
-      };
-
-      const updateHeartbeat = async (status: string, errorMsg?: string) => {
-        await supabaseAdmin.from("email_configurations").update({
-          last_heartbeat: new Date().toISOString(),
-          last_check_at: new Date().toISOString(),
-          status,
-          last_error: errorMsg || null,
-          ...(status === 'success' ? { last_success_at: new Date().toISOString() } : {})
-        }).eq("id", configId);
       };
 
       const imap = new ImapFlow({
@@ -220,7 +222,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
             // Persist Message-ID
             await supabaseAdmin.from("email_processing_state").update({
               message_id: parsed.messageId || null
-            }).eq("config_id", configId).eq("imap_uid", imapUid);
+            } as any).eq("config_id", configId).eq("imap_uid", imapUid);
 
             // Loop Protection
             const isLoop = 
@@ -312,7 +314,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       // Global Lock Release
       await supabaseAdmin.rpc('release_email_config_lock', {
         p_config_id: configId,
-        p_lock_id: lockId
+        p_lock_id: lockId as string
       });
     }
   });
