@@ -55,3 +55,102 @@ export const testConnection = createServerFn({ method: "POST" })
 
     return { success: true };
   });
+
+export const getActiveConfigs = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("email_configurations")
+      .select("*")
+      .eq("is_active", true);
+
+    if (error) throw error;
+    return data;
+  });
+
+export const processEmailsForConfig = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
+  .handler(async ({ data: { configId } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    const { data: config, error: configError } = await supabaseAdmin
+      .from("email_configurations")
+      .select("*")
+      .eq("id", configId)
+      .single();
+
+    if (configError || !config) return { success: false, error: "Config not found" };
+
+    const log = async (message: string, level = "info") => {
+      console.log(`[Config ${configId}] ${message}`);
+      await supabaseAdmin.from("email_logs").insert({
+        config_id: configId,
+        message,
+        level
+      });
+    };
+
+    const imap = new ImapFlow({
+      host: config.imap_host,
+      port: config.imap_port,
+      secure: config.imap_secure,
+      auth: {
+        user: config.email_user,
+        pass: config.email_password,
+      },
+      logger: false,
+    });
+
+    try {
+      await imap.connect();
+      await log("Conectado ao IMAP. Verificando novos e-mails...");
+
+      let lock = await imap.getMailboxLock("INBOX");
+      try {
+        for await (let message of imap.fetch({ seen: false }, { envelope: true, source: true })) {
+          const subject = message.envelope.subject || "";
+          const from = message.envelope.from?.[0]?.address || "desconhecido";
+          const bodyText = message.source.toString().toLowerCase();
+
+          const hasKeyword = config.keywords.some((kw: string) => bodyText.includes(kw.toLowerCase()));
+
+          if (hasKeyword) {
+            await log(`Palavra-chave detectada no e-mail de ${from}: "${subject}"`);
+            
+            const transporter = nodemailer.createTransport({
+              host: config.smtp_host,
+              port: config.smtp_port,
+              secure: config.smtp_secure,
+              auth: {
+                user: config.email_user,
+                pass: config.email_password,
+              },
+            });
+
+            await transporter.sendMail({
+              from: config.email_user,
+              to: config.destinations.join(", "),
+              subject: `ENC: ${subject}`,
+              text: `E-mail encaminhado automaticamente.\n\nDe: ${from}\nAssunto: ${subject}\n\nCorpo:\n${bodyText}`,
+            });
+
+            await supabaseAdmin.from("forwarded_emails").insert({
+              config_id: configId,
+              original_subject: subject,
+              original_from: from,
+            });
+
+            await log(`E-mail encaminhado com sucesso para ${config.destinations.join(", ")}`, "success");
+          }
+        }
+      } finally {
+        lock.release();
+      }
+
+      await imap.logout();
+      return { success: true };
+    } catch (error: any) {
+      await log(`Erro ao processar e-mails: ${error.message}`, "error");
+      return { success: false, error: error.message };
+    }
+  });
