@@ -156,9 +156,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <ActiveAccountContext.Provider value={{ selectedConfigId, setSelectedConfigId: handleAccountChange, configs, refreshConfigs: fetchConfigs }}>
       <div className="flex min-h-screen bg-[#f8fafc]">
         {/* Sidebar */}
-        <aside className="w-64 border-r bg-[#0000A0] flex flex-col fixed inset-y-0 shadow-xl z-50">
-          <div className="p-8 mb-4 flex items-center justify-center bg-white/5">
-            <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain brightness-0 invert" />
+        <aside className="w-64 border-r bg-[#000033] flex flex-col fixed inset-y-0 shadow-xl z-50">
+          <div className="p-8 mb-4 flex items-center justify-center border-b border-white/5 bg-white/[0.02]">
+            <img src={logoPrimary.url} alt="Agilliza" className="h-9 object-contain brightness-0 invert opacity-90" />
           </div>
           
           <nav className="flex-1 px-4 space-y-1">
