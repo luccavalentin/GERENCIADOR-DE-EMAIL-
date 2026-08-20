@@ -58,7 +58,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#fcfbf8] p-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col items-center">
           <img src={logoPrimary.url} alt="Agilliza" className="mb-4 h-16 object-contain" />
