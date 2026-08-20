@@ -111,12 +111,13 @@ export async function processEmailsForConfigLogic(
 
     if (!creds?.password) return { success: false, error: "Credentials not found" };
 
-    const log = async (message: string, level = "info") => {
+    const log = async (message: string, level = "info", details: any = null) => {
       console.log(`[Config ${configId}] ${message}`);
       await supabaseAdmin.from("email_logs").insert({
         config_id: configId,
         message,
-        level
+        level,
+        details
       });
     };
 
