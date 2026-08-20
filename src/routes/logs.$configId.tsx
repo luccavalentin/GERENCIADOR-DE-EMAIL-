@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Terminal, AlertCircle, Info, CheckCircle2 } from "lucide-react";
+import { Terminal, AlertCircle, Info, CheckCircle2, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/logs/$configId")({
@@ -31,10 +31,13 @@ function LogsPage() {
           filter: `config_id=eq.${configId}`,
         },
         (payload) => {
+          console.log("Realtime log received:", payload.new);
           setLogs((prev) => [...prev, payload.new]);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Realtime subscription status:", status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -78,6 +81,10 @@ function LogsPage() {
     <div className="min-h-screen bg-[#fcfbf8] p-8">
       <div className="mx-auto max-w-4xl">
         <header className="mb-8">
+          <Link to="/" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 mb-4 gap-1">
+            <ArrowLeft className="h-4 w-4" />
+            Voltar ao Dashboard
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <Terminal className="h-8 w-8 text-blue-600" />
             Logs em Tempo Real
