@@ -78,7 +78,7 @@ function ServerPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Status da VPS */}
-        <Card className="lg:col-span-3 shadow-sm border-slate-200">
+        <Card className="lg:col-span-3 premium-card">
           <CardHeader className="border-b border-slate-50 bg-slate-50/50 py-4">
             <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Status da VPS Hostinger</CardTitle>
           </CardHeader>
