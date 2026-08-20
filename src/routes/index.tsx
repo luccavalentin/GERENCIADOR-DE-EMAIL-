@@ -57,10 +57,11 @@ function Dashboard() {
   const [configs, setConfigs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingConfig, setEditingConfig] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
   const runTestConnection = useServerFn(testConnection);
 
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     imap_host: "imap.uhserver.com",
     imap_port: 993,
     imap_secure: true,
@@ -72,7 +73,9 @@ function Dashboard() {
     allow_invalid: true,
     destinations: "renzo@agilliza.net.br, carlos@agilliza.net.br, pamela@agilliza.net.br, paula@agilliza.net.br",
     keywords: "codigo",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -117,12 +120,29 @@ function Dashboard() {
     }
   };
 
-  const handleCreateConfig = async (e: React.FormEvent) => {
+  const handleOpenEdit = (config: any) => {
+    setEditingConfig(config);
+    setFormData({
+      imap_host: config.imap_host,
+      imap_port: config.imap_port,
+      imap_secure: config.imap_secure,
+      smtp_host: config.smtp_host,
+      smtp_port: config.smtp_port,
+      smtp_secure: config.smtp_secure,
+      email_user: config.email_user,
+      email_password: config.email_password,
+      allow_invalid: true,
+      destinations: config.destinations.join(", "),
+      keywords: config.keywords.join(", "),
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSaveConfig = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsTesting(true);
 
     try {
-      // 1. Test Connection (Only if not allowed invalid)
       if (!formData.allow_invalid) {
         await runTestConnection({
           data: {
@@ -138,8 +158,7 @@ function Dashboard() {
         });
       }
 
-      // 2. Save to DB
-      const { error } = await supabase.from("email_configurations").insert({
+      const configData = {
         user_id: session.user.id,
         imap_host: formData.imap_host,
         imap_port: formData.imap_port,
@@ -152,15 +171,27 @@ function Dashboard() {
         destinations: formData.destinations.split(",").map(e => e.trim()),
         keywords: formData.keywords.split(",").map(e => e.trim()),
         provider: "Custom"
-      });
+      };
 
-      if (error) throw error;
+      if (editingConfig) {
+        const { error } = await supabase
+          .from("email_configurations")
+          .update(configData)
+          .eq("id", editingConfig.id);
+        if (error) throw error;
+        toast.success("Configuração atualizada com sucesso!");
+      } else {
+        const { error } = await supabase.from("email_configurations").insert(configData);
+        if (error) throw error;
+        toast.success("Configuração criada com sucesso!");
+      }
 
-      toast.success("Configuração criada com sucesso!");
       setIsModalOpen(false);
+      setEditingConfig(null);
+      setFormData(initialFormData);
       fetchConfigs();
     } catch (error: any) {
-      toast.error(error.message || "Erro ao criar configuração");
+      toast.error(error.message || "Erro ao salvar configuração");
     } finally {
       setIsTesting(false);
     }
@@ -188,20 +219,29 @@ function Dashboard() {
               <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Sair</span>
             </Button>
             
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <Dialog open={isModalOpen} onOpenChange={(open) => {
+              setIsModalOpen(open);
+              if (!open) {
+                setEditingConfig(null);
+                setFormData(initialFormData);
+              }
+            }}>
               <DialogTrigger asChild>
-                <Button className="flex-1 md:flex-none gap-2">
+                <Button className="flex-1 md:flex-none gap-2" onClick={() => {
+                  setEditingConfig(null);
+                  setFormData(initialFormData);
+                }}>
                   <Plus className="h-4 w-4" /> <span className="inline sm:inline">Novo</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Nova Configuração de E-mail</DialogTitle>
+                  <DialogTitle>{editingConfig ? "Editar Configuração" : "Nova Configuração"} de E-mail</DialogTitle>
                   <DialogDescription>
                     Configure os servidores IMAP e SMTP para monitoramento e encaminhamento.
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleCreateConfig} className="space-y-6 py-4">
+                <form onSubmit={handleSaveConfig} className="space-y-6 py-4">
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="space-y-4">
                       <h3 className="font-semibold text-sm uppercase text-gray-500">Servidor IMAP (Entrada)</h3>
@@ -362,7 +402,7 @@ function Dashboard() {
                           <History className="h-4 w-4" />
                         </a>
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9" title="Configurações">
+                      <Button variant="outline" size="icon" className="h-9 w-9" title="Configurações" onClick={() => handleOpenEdit(config)}>
                         <SettingsIcon className="h-4 w-4" />
                       </Button>
                     </div>
