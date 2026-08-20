@@ -104,12 +104,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchConfigs();
+      if (session?.user) fetchConfigs();
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) fetchConfigs();
+      if (session?.user) fetchConfigs();
     });
 
     return () => subscription.unsubscribe();
@@ -125,10 +125,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     navigate({ to: "/auth" });
   };
 
-  const handleAccountChange = (id: string) => {
+  const handleAccountChange = (id: string | null) => {
     setSelectedConfigId(id);
     // If we are on a specific log page, we might want to navigate
-    if (location.pathname.startsWith('/logs/')) {
+    if (id && location.pathname.startsWith('/logs/')) {
       navigate({ to: `/logs/${id}` });
     }
   };
