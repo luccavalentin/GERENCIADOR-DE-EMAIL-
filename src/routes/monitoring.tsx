@@ -22,11 +22,31 @@ export const Route = createFileRoute("/monitoring")({
 
 function MonitoringPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { data: logsData } = useQuery({
+  const { data: logsData, refetch: refetchLogs } = useQuery({
     queryKey: ["monitoringLogs"],
     queryFn: () => getLogs({ data: { limit: 100 } }),
-    refetchInterval: 5000
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'email_logs'
+        },
+        () => {
+          refetchLogs();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetchLogs]);
 
   const { data: workerStatus } = useQuery({
     queryKey: ["workerStatus"],
