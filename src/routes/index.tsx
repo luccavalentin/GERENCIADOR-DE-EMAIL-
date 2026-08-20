@@ -161,8 +161,24 @@ function Dashboard() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#fcfbf8] p-4 text-center">
         <img src={logoPrimary.url} alt="Agilliza Logo" className="mb-6 h-24 object-contain" />
-        <h1 className="mb-4 text-4xl font-bold text-gray-900">
-          recrie tudo no supabse lembre-se que o sistema é multitenanci
+        <h1 className="mb-4 text-4xl font-bold text-gray-900 leading-tight">
+          as configurações Processamento instantaneo
+
+-        O sistema mantem conexao aberta com o servidor IMAP e usa IMAP IDLE quando disponivel.
+
+-        Quando o servidor avisa que chegou email novo, o processamento inicia imediatamente.
+
+-        Se o servidor nao aceitar IMAP IDLE, o sistema usa verificacao rapida a cada 1 segundo.
+
+-        O encaminhamento acontece assim que uma mensagem nao lida com codigo e detectada.
+
+Servidores configurados
+
+-        Recebimento IMAP: imap.uhserver.com, porta 993, SSL/TLS direto.
+
+-        Envio SMTP: smtps.uhserver.com, porta 465, SSL/TLS direto.
+
+-        Para usar outro email da mesma hospedagem, troque apenas o email e a senha/app password.
         </h1>
 
         <p className="mb-8 text-lg text-gray-600">
