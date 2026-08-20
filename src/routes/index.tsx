@@ -61,6 +61,10 @@ function Dashboard() {
   const [isTesting, setIsTesting] = useState(false);
   const runTestConnection = useServerFn(testConnection);
   const runSaveConfig = useServerFn(saveEmailConfiguration);
+  const runProcessNow = useServerFn(processEmailsForConfig);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+  const [processStats, setProcessStats] = useState<any>(null);
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
 
   const initialFormData = {
     imap_host: "imap.uhserver.com",
