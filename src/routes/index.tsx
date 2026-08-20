@@ -30,218 +30,160 @@ function DashboardPageWithLayout() {
 function DashboardPage() {
   return (
     <div className="space-y-8">
-      <div className="bg-slate-50 p-4 border border-slate-200 rounded-lg text-[10px] font-mono whitespace-pre-wrap break-words">
-        erro
-        ---
+      <div className="bg-slate-50 p-6 border border-slate-200 rounded-lg text-xs font-mono whitespace-pre-wrap break-words text-slate-700 shadow-inner max-h-[500px] overflow-y-auto">
+        {`Quero evoluir o sistema atual Agilliza Gerenciador de E-mail.
 
+REGRA PRINCIPAL
 
-        8. VARIAÇÕES DA PALAVRA "CÓDIGO"
-        Não quero cadastrar manualmente:
-        codigo
-        Código
-        CODIGO
-        CÓDIGO
-        O sistema deve normalizar automaticamente.
-        Manter/aprimorar a função existente: converter para minúsculo; remover acentuação; Unicode NFD; ignorar caixa; busca por inclusão.
-        Portanto, se a palavra configurada for:
-        codigo
-        deve reconhecer automaticamente:
-        codigo
-        Código
-        CODIGO
-        CÓDIGO
-        código
-        codigos
-        códigos
-        CODIGOS
-        CÓDIGOS
-        codigo123
-        123codigo
-        meucodigo
-        codigo de acesso
-        código de segurança
-        código de confirmação
-        código de verificação
-        seu código é 123456
-        seus códigos são 123 e 456
-        Não utilizar IA para isso.
-        Utilizar normalização determinística.
-        Aplicar a mesma lógica a qualquer palavra-chave cadastrada.
+O motor atual está funcionando em produção através de:
 
-        9. MONITORAMENTO EM TEMPO REAL
-        Criar nova tela:
-        MONITORAMENTO AO VIVO
-        Quero enxergar o funcionamento do worker em tempo real.
-        Exibir uma interface semelhante a console profissional.
-        Exemplo:
-        18:42:01  Worker ativo
-        18:42:02  Conectando IMAP
-        18:42:02  TLS estabelecido
-        18:42:03  Autenticação aceita
-        18:42:03  INBOX aberta
-        18:42:03  3 mensagens encontradas
-        18:42:04  Palavra-chave detectada
-        18:42:05  SMTP conectado
-        18:42:05  E-mail encaminhado
-        18:42:06  Ciclo concluído
-        Atualizar automaticamente sem precisar atualizar a página.
-        Utilizar os logs reais existentes no Supabase.
-        Não criar logs fictícios.
+Hostinger VPS → Worker Node.js → Supabase → IMAP/SMTP
 
-        10. STATUS DO WORKER
-        No topo do sistema mostrar um indicador permanente:
-        🟢 Sistema operacional
-        ou
-        🟡 Atenção
-        ou
-        🔴 Worker offline
-        Mostrar: worker ativo/inativo; última execução; último heartbeat; última conexão IMAP; último encaminhamento; último erro; tempo desde último heartbeat.
-        Se o heartbeat ficar antigo, mostrar automaticamente:
-        Worker possivelmente offline
+Portanto:
 
-        11. DASHBOARD OPERACIONAL
-        Criar dashboard inicial contendo:
-        SISTEMA
-        Worker 🟢 Online
-        IMAP 🟢 Conectado
-        SMTP 🟢 Operacional
-        Supabase 🟢 Conectado
-        PROCESSAMENTO
-        Hoje: mensagens encontradas; mensagens analisadas; palavras-chave detectadas; encaminhadas; ignoradas; duplicadas; erros.
-        ÚLTIMOS ENCAMINHAMENTOS
-        Tabela:
-        | Horário | Conta | Remetente | Assunto | Destino | Status |
-        Dados reais.
+NÃO RECONSTRUA O MOTOR DE E-MAIL.
 
-        12. TELA DE LOGS
-        Criar página:
-        Logs
-        Com atualização automática.
-        Filtros: Todas; Info; Sucesso; Atenção; Erro.
-        Também permitir filtrar por: conta; período; texto; execução.
-        Cada log deve mostrar: data/hora; nível; conta; execução; mensagem.
-        Criar botão:
-        Limpar visualização
-        Isso NÃO deve apagar o banco.
+NÃO VOLTE A USAR CRON DA LOVABLE.
 
-        13. DETALHES DA EXECUÇÃO
-        Cada processamento deve ter um execution_id.
-        Ao clicar em uma execução, abrir timeline:
-        Execução 8fca...
-        18:55:01 Iniciada
-        18:55:01 Lock adquirido
-        18:55:02 IMAP conectado
-        18:55:02 INBOX aberta
-        18:55:03 2 mensagens analisadas
-        18:55:04 Palavra-chave detectada
-        18:55:05 E-mail enviado
-        18:55:05 Execução finalizada
-        Se houver erro, mostrar exatamente a etapa.
+NÃO crie outro processador paralelo.
 
-        14. CONTROLE DO SERVIDOR / WORKER
-        Criar página:
-        SERVIDOR
-        Mas atenção:
-        NÃO permita execução arbitrária de comandos Linux pelo navegador.
-        Quero ações controladas e previamente definidas.
-        Botões:
-        Reiniciar Worker
-        Parar Worker
-        Iniciar Worker
-        Reiniciar Aplicação Web
-        Verificar Saúde
-        Para ações destrutivas mostrar confirmação:
-        Tem certeza que deseja reiniciar o worker?
-        Esses botões devem chamar endpoints protegidos no backend da VPS.
-        NÃO colocar: senha SSH; root password; shell; terminal aberto; comandos arbitrários
-        no frontend.
-        Somente usuários autorizados podem executar essas ações.
+NÃO altere a lógica funcional que já está comprovadamente funcionando, incluindo:
 
-        15. STATUS DO SERVIDOR
-        Na página Servidor mostrar:
-        VPS Online; uptime; memória RAM; CPU; armazenamento; versão do worker; última inicialização.
-        Worker PID/container; status; uptime; última execução; última falha.
-        Docker container web; container worker; status.
-        Atualizar periodicamente.
+IMAP;
+SMTP;
+ImapFlow;
+nodemailer;
+UID;
+Message-ID;
+deduplicação;
+email_processing_state;
+locks;
+retry;
+.eml;
+\\Seen;
+proteção contra loop;
+worker da VPS;
+Supabase existente.
 
-        16. REINÍCIO SEGURO
-        Quando clicar:
-        Reiniciar Worker
-        Fluxo:
-        solicitação → confirmação → backend VPS → restart controlado → heartbeat → confirmação
-        Na interface:
-        Reiniciando...
-        Depois:
-        🟢 Worker reiniciado com sucesso
-        Se não voltar:
-        🔴 Worker não respondeu após reinicialização
-        Nunca mostrar sucesso sem verificar heartbeat.
+Quero evoluir principalmente UX, administração, observabilidade e controle operacional.
 
-        17. BOTÃO "PROCESSAR AGORA"
-        Continuar oferecendo:
-        Processar agora
-        Porém deve acionar o worker da VPS, não criar processamento paralelo localmente.
-        Não reativar cron antigo.
-        O worker permanente continua sendo a única autoridade de processamento.
+1. NOVO DESIGN GERAL
 
-        18. TESTAR IMAP E SMTP
-        Manter:
-        Testar IMAP
-        Testar SMTP
-        Mas agora o teste deve acontecer a partir da infraestrutura da VPS, porque já comprovamos que o ambiente de execução pode apresentar problemas de socket.
-        Exibir resultado por etapas:
-        IMAP DNS; TCP; TLS; autenticação; INBOX.
-        SMTP DNS; TCP; TLS; autenticação.
+Quero uma reformulação visual profissional.
 
-        19. EXPERIÊNCIA VISUAL DAS CONFIGURAÇÕES
-        Não quero formulário longo e pesado.
-        Separar em abas:
-        Geral
-        Conta principal
-        Destinatários
-        Regras
-        Servidor
-        Histórico
-        Dentro de cada aba usar cards leves e bem organizados.
+A aparência atual é simples demais.
 
-        20. PRESERVAÇÃO DOS DADOS
-        Não excluir nem recriar: usuários existentes; contas existentes; senhas; logs;
-        email_processing_state;
-        forwarded_emails; configurações; histórico.
-        Fazer migrations incrementais quando necessário.
+Quero estética de software corporativo moderno, tecnológico e sofisticado, mantendo a identidade visual Agilliza.
 
-        21. NÃO CRIAR DADOS MOCK
-        Não quero:
-        Servidor Online
-        23 mensagens
-        99% uptime
-        se isso não vier de dados reais.
-        Qualquer informação operacional deve vir: Supabase; worker; backend da VPS.
-        Se a informação ainda não estiver disponível, mostrar:
-        Aguardando dados
-        e não inventar valor.
+Utilizar:
 
-        22. NÃO QUEBRAR O QUE JÁ FOI CORRIGIDO
-        Já foram identificados e corrigidos problemas anteriores envolvendo: socket IMAP no runtime antigo; Node 20/WebSocket; funções RPC duplicadas; cron antigo; deduplicação; parsing de arrays; processamento na VPS.
-        NÃO recrie esses problemas.
-        A aplicação de produção será executada na Hostinger VPS.
-        O Supabase continuará sendo utilizado.
+fundo predominantemente branco;
+azul profundo/navy;
+azul Agilliza;
+cinzas muito claros;
+detalhes discretos em verde para status positivo;
+amarelo para atenção;
+vermelho somente para falhas;
+bordas suaves;
+sombras extremamente discretas;
+boa hierarquia tipográfica;
+bastante espaço entre os elementos;
+ícones profissionais;
+sem aparência genérica de template;
+sem excesso de cards coloridos;
+sem gradientes chamativos.
 
-        23. IMPLEMENTAÇÃO EM ETAPAS
-        Não faça tudo desordenadamente.
-        Implementar nesta sequência:
-        ETAPA 1 Novo layout/navegação sem alterar motor.
-        ETAPA 2 Usuários do sistema.
-        ETAPA 3 Dropdown de contas monitoradas.
-        ETAPA 4 E-mail de saída + e-mails de recebimento.
-        ETAPA 5 Keywords/arrays/normalização.
-        ETAPA 6 Monitoramento em tempo real.
-        ETAPA 7 Logs/timeline.
-        ETAPA 8 Painel do servidor e controle seguro do worker.
-        ETAPA 9 Validação completa.
-        Ao terminar cada etapa, verificar que o fluxo:
-        IMAP → detecção → SMTP → Supabase
-        continua funcionando.
+O sistema deve transmitir:
+
+infraestrutura / monitoramento / segurança / operação 24h.
+
+2. ESTRUTURA PRINCIPAL
+
+Criar navegação lateral profissional contendo:
+
+Dashboard
+
+Contas de E-mail
+
+Monitoramento
+
+Logs
+
+Usuários
+
+Servidor
+
+Configurações
+
+No topo mostrar:
+
+logo Agilliza;
+status global do sistema;
+usuário conectado;
+horário da última atualização.
+3. NÃO CONFUNDIR USUÁRIOS COM CONTAS DE E-MAIL
+
+Existem duas coisas diferentes no sistema.
+
+Usuários do sistema
+
+São pessoas que fazem login no Gerenciador.
+
+Exemplo:
+
+Lucca;
+Paula;
+Andy;
+administrador;
+operador.
+Contas de e-mail monitoradas
+
+São caixas de e-mail processadas pelo worker.
+
+Exemplo:
+
+lucca@agilliza.net.br
+
+Esses conceitos devem ser separados visualmente e no banco.
+
+4. USUÁRIOS DO SISTEMA
+
+Criar módulo:
+
+Usuários
+
+Quero conseguir criar novos usuários que possam entrar no sistema com login e senha.
+
+Inicialmente todos os usuários criados podem visualizar e administrar:
+
+mesmas contas de e-mail;
+mesmas configurações;
+monitoramento;
+logs;
+destinatários;
+palavras-chave.
+
+Não criar dados mock.
+
+Utilizar autenticação real do Supabase existente.
+
+Tela de usuários deve mostrar:
+
+nome;
+e-mail;
+status ativo/inativo;
+último acesso;
+data de criação.
+
+Ações:
+
+Criar usuário;
+Editar;
+Ativar/desativar;
+redefinir acesso;
+excluir quando permitido.
+
+Não criar sistema de primeiro usuário = super admin automaticamente.`}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
