@@ -154,39 +154,42 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ActiveAccountContext.Provider value={{ selectedConfigId, setSelectedConfigId: handleAccountChange, configs, refreshConfigs: fetchConfigs }}>
-      <div className="flex min-h-screen bg-[#fcfbf8]">
+      <div className="flex min-h-screen bg-[#f8fafc]">
         {/* Sidebar */}
-        <aside className="w-64 border-r bg-white flex flex-col fixed inset-y-0 shadow-sm z-50">
-          <div className="p-6 border-b flex items-center justify-center">
-            <img src={logoPrimary.url} alt="Agilliza" className="h-8 object-contain" />
+        <aside className="w-64 border-r bg-[#0000A0] flex flex-col fixed inset-y-0 shadow-xl z-50">
+          <div className="p-8 mb-4 flex items-center justify-center bg-white/5">
+            <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain brightness-0 invert" />
           </div>
           
-          <nav className="flex-1 p-4 space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
-                  location.pathname === item.to || (item.to === '/logs' && location.pathname.startsWith('/logs/'))
-                    ? "bg-[#0000A0] text-white shadow-md"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-[#0000A0]"
-                )}
-              >
-                <item.icon className="h-4.5 w-4.5" />
-                {item.label}
-              </Link>
-            ))}
+          <nav className="flex-1 px-4 space-y-1">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.to || (item.to === '/logs' && location.pathname.startsWith('/logs/'));
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                    isActive
+                      ? "bg-white/10 text-white shadow-sm ring-1 ring-white/20"
+                      : "text-blue-100/70 hover:bg-white/5 hover:text-white"
+                  )}
+                >
+                  <item.icon className={cn("h-5 w-5", isActive ? "text-white" : "text-blue-100/50")} />
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="p-4 border-t">
+          <div className="p-6 border-t border-white/10">
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-slate-600 hover:text-destructive hover:bg-destructive/5"
+              className="w-full justify-start text-blue-100/70 hover:text-white hover:bg-white/5 font-medium"
               onClick={handleSignOut}
             >
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
+              <LogOut className="mr-3 h-5 w-5" />
+              Sair da conta
             </Button>
           </div>
         </aside>
@@ -194,33 +197,43 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Main Content */}
         <main className="flex-1 pl-64 flex flex-col">
           {/* Top Header */}
-          <header className="h-16 border-b bg-white flex items-center justify-between px-8 sticky top-0 z-40 shadow-sm">
+          <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40 shadow-sm">
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Conta monitorada</span>
+              <div className="flex items-center gap-3">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-9 px-3 gap-2 border-slate-200 hover:border-[#0000A0] hover:bg-slate-50 transition-all font-semibold">
-                      <Mail className="h-4 w-4 text-[#0000A0]" />
-                      {selectedConfig ? selectedConfig.email_user : "Selecione uma conta"}
+                    <Button variant="ghost" size="sm" className="h-9 px-3 gap-3 hover:bg-slate-50 transition-all">
+                      <div className="p-1.5 bg-blue-50 rounded-md">
+                        <Mail className="h-4 w-4 text-[#0000A0]" />
+                      </div>
+                      <div className="text-left hidden sm:block">
+                        <div className="text-xs font-bold text-slate-900 leading-none mb-0.5">
+                          {selectedConfig ? selectedConfig.email_user : "Selecione uma conta"}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className={cn("h-1.5 w-1.5 rounded-full", selectedConfig ? "bg-green-500" : "bg-slate-300")} />
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ativo</span>
+                        </div>
+                      </div>
                       <ChevronDown className="h-3 w-3 text-slate-400" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-64">
-                    <DropdownMenuLabel>Minhas Contas</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+                  <DropdownMenuContent align="start" className="w-64 p-2 shadow-xl border-slate-200 rounded-xl">
+                    <DropdownMenuLabel className="px-2 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Minhas Contas</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="my-1" />
                     {configs.map((config) => (
                       <DropdownMenuItem 
                         key={config.id}
                         onClick={() => handleAccountChange(config.id)}
-                        className="cursor-pointer font-medium"
+                        className="cursor-pointer font-semibold rounded-lg py-2 focus:bg-slate-50 focus:text-[#0000A0]"
                       >
+                        <Mail className="mr-2 h-4 w-4 opacity-50" />
                         {config.email_user}
                       </DropdownMenuItem>
                     ))}
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="my-1" />
                     <DropdownMenuItem 
-                      className="cursor-pointer text-[#0000A0] font-bold"
+                      className="cursor-pointer text-[#0000A0] font-bold rounded-lg py-2 focus:bg-blue-50 focus:text-[#0000A0]"
                       onClick={() => navigate({ to: "/accounts" })}
                     >
                       <Plus className="mr-2 h-4 w-4" />
@@ -228,58 +241,60 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="h-9 w-9 border-slate-200 hover:border-[#0000A0] hover:bg-slate-50 text-[#0000A0]"
-                  onClick={() => navigate({ to: "/accounts" })}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
               </div>
 
               <div className="h-6 w-px bg-slate-200" />
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 shadow-inner">
                   <div className={cn(
-                    "h-2 w-2 rounded-full",
-                    workerStatus?.status === "online" ? "bg-green-500 animate-pulse" : "bg-red-500"
+                    "h-1.5 w-1.5 rounded-full",
+                    workerStatus?.status === "online" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500"
                   )} />
-                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                     {workerStatus?.message || "Worker Offline"}
                   </span>
-                  {workerStatus?.status !== 'online' && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-5 w-5 ml-1 text-red-500 hover:text-red-600 hover:bg-red-50"
-                      onClick={() => restartMutation.mutate()}
-                      disabled={restartMutation.isPending}
-                    >
-                      <RefreshCw className={cn("h-3 w-3", restartMutation.isPending && "animate-spin")} />
-                    </Button>
-                  )}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-slate-600">
-              <div className="text-right flex flex-col mr-2">
-                <span className="text-sm font-bold text-slate-900">{session?.user?.user_metadata?.full_name || session?.user?.email || "Usuário"}</span>
+            <div className="flex items-center gap-6">
+              <div className="hidden md:flex flex-col text-right">
+                <span className="text-xs font-bold text-slate-900 leading-none mb-1">
+                  {session?.user?.user_metadata?.full_name || session?.user?.email || "Usuário"}
+                </span>
                 <LastHeartbeat time={workerStatus?.last_heartbeat} />
               </div>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-9 w-9 p-0 rounded-full border border-slate-200 hover:border-[#0000A0] transition-colors overflow-hidden">
+                    <div className="h-full w-full bg-slate-50 flex items-center justify-center text-[#0000A0] font-bold text-xs">
+                      {(session?.user?.user_metadata?.full_name || "U")[0]}
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 p-2 shadow-xl border-slate-200 rounded-xl">
+                  <DropdownMenuLabel className="font-bold">Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate({ to: "/settings" })} className="cursor-pointer rounded-lg">
+                    <Settings className="mr-2 h-4 w-4" /> Configurações
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive rounded-lg">
+                    <LogOut className="mr-2 h-4 w-4" /> Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-
           </header>
 
           {/* Page Body */}
-          <div className="p-8">
+          <div className="p-8 max-w-[1600px] w-full mx-auto">
             {children}
           </div>
         </main>
       </div>
+
     </ActiveAccountContext.Provider>
   );
 }
