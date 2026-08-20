@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+// Ele deve permitir editar as configurações e etc que já existem. Duplicar editar ee tc
 /**
  * Agilliza Gerenciador de E-mail - Refinamento Final
  */

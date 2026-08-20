@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   Trash2,
   Tags,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Copy
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
@@ -121,6 +122,36 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
     },
     onError: (error: any) => {
       toast.error(`Erro ao salvar: ${error.message}`);
+    },
+  });
+
+  const duplicateMutation = useMutation({
+    mutationFn: async () => {
+      if (!config) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Usuário não autenticado");
+
+      const { email_password: _, ...rest } = form.getValues();
+      
+      return saveEmailConfiguration({
+        data: {
+          configData: {
+            ...rest,
+            user_id: user.id,
+            email_user: `${rest.email_user} (Cópia)`,
+            provider: "custom",
+          },
+          emailPassword: "", // Copy doesn't include password for safety
+        }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activeConfigs"] });
+      toast.success("Conta duplicada com sucesso. Lembre-se de configurar a senha.");
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast.error(`Erro ao duplicar: ${error.message}`);
     },
   });
 
@@ -394,10 +425,24 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
               </ScrollArea>
             </Tabs>
 
-            <DialogFooter className="p-6 bg-slate-50 border-t gap-3">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="font-bold border-slate-200">
-                Cancelar
-              </Button>
+            <DialogFooter className="p-6 bg-slate-50 border-t flex flex-row justify-between items-center sm:justify-between gap-3">
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="font-bold border-slate-200">
+                  Cancelar
+                </Button>
+                {config && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => duplicateMutation.mutate()}
+                    disabled={duplicateMutation.isPending}
+                    className="font-bold border-[#0000A0] text-[#0000A0] hover:bg-blue-50"
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Duplicar
+                  </Button>
+                )}
+              </div>
               <Button 
                 type="submit" 
                 className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold px-8" 
