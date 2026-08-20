@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as LogsRouteImport } from './routes/logs'
 import { Route as MonitoringRouteImport } from './routes/monitoring'
 import { Route as ServerRouteImport } from './routes/server'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -32,6 +33,11 @@ const AccountsRoute = AccountsRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogsRoute = LogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MonitoringRoute = MonitoringRouteImport.update({
@@ -55,9 +61,9 @@ const UsersRoute = UsersRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const LogsConfigIdRoute = LogsConfigIdRouteImport.update({
-  id: '/logs/$configId',
-  path: '/logs/$configId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$configId',
+  path: '/$configId',
+  getParentRoute: () => LogsRoute,
 } as any)
 const ApiPublicCronMonitorRoute = ApiPublicCronMonitorRouteImport.update({
   id: '/api/public/cron/monitor',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/accounts': typeof AccountsRoute
   '/auth': typeof AuthRoute
+  '/logs': typeof LogsRouteWithChildren
   '/monitoring': typeof MonitoringRoute
   '/server': typeof ServerRoute
   '/settings': typeof SettingsRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/accounts': typeof AccountsRoute
   '/auth': typeof AuthRoute
+  '/logs': typeof LogsRouteWithChildren
   '/monitoring': typeof MonitoringRoute
   '/server': typeof ServerRoute
   '/settings': typeof SettingsRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/accounts': typeof AccountsRoute
   '/auth': typeof AuthRoute
+  '/logs': typeof LogsRouteWithChildren
   '/monitoring': typeof MonitoringRoute
   '/server': typeof ServerRoute
   '/settings': typeof SettingsRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/accounts'
     | '/auth'
+    | '/logs'
     | '/monitoring'
     | '/server'
     | '/settings'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/accounts'
     | '/auth'
+    | '/logs'
     | '/monitoring'
     | '/server'
     | '/settings'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/accounts'
     | '/auth'
+    | '/logs'
     | '/monitoring'
     | '/server'
     | '/settings'
@@ -139,11 +151,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountsRoute: typeof AccountsRoute
   AuthRoute: typeof AuthRoute
+  LogsRoute: typeof LogsRouteWithChildren
   MonitoringRoute: typeof MonitoringRoute
   ServerRoute: typeof ServerRoute
   SettingsRoute: typeof SettingsRoute
   UsersRoute: typeof UsersRoute
-  LogsConfigIdRoute: typeof LogsConfigIdRoute
   ApiPublicCronMonitorRoute: typeof ApiPublicCronMonitorRoute
 }
 
@@ -168,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logs': {
+      id: '/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof LogsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/monitoring': {
@@ -200,10 +219,10 @@ declare module '@tanstack/react-router' {
     }
     '/logs/$configId': {
       id: '/logs/$configId'
-      path: '/logs/$configId'
+      path: '/$configId'
       fullPath: '/logs/$configId'
       preLoaderRoute: typeof LogsConfigIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof LogsRoute
     }
     '/api/public/cron/monitor': {
       id: '/api/public/cron/monitor'
@@ -215,15 +234,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface LogsRouteChildren {
+  LogsConfigIdRoute: typeof LogsConfigIdRoute
+}
+
+const LogsRouteChildren: LogsRouteChildren = {
+  LogsConfigIdRoute: LogsConfigIdRoute,
+}
+
+const LogsRouteWithChildren = LogsRoute._addFileChildren(LogsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountsRoute: AccountsRoute,
   AuthRoute: AuthRoute,
+  LogsRoute: LogsRouteWithChildren,
   MonitoringRoute: MonitoringRoute,
   ServerRoute: ServerRoute,
   SettingsRoute: SettingsRoute,
   UsersRoute: UsersRoute,
-  LogsConfigIdRoute: LogsConfigIdRoute,
   ApiPublicCronMonitorRoute: ApiPublicCronMonitorRoute,
 }
 export const routeTree = rootRouteImport

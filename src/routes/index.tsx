@@ -31,81 +31,9 @@ function DashboardPage() {
   return (
     <div className="space-y-8">
       <div className="bg-slate-50 p-4 border border-slate-200 rounded-lg text-[10px] font-mono whitespace-pre-wrap break-words">
-        Quero o monitor de logs como se fossem da matrix porém de cores e temas da Agilliza
-
-        Ao inves de aparecer esses nomes:
-
-        INBOX aberta. Buscando UNSEEN...
-        [19:12:58]
-        Execution ID criado: 8936ff48-46c5-4d25-8561-1ae1882294bd
-        [19:12:58]
-        Lock solicitado e adquirido no banco.
-        [19:12:58]
-        Iniciando conexão TCP IMAP para imap.uhserver.com:993
-        [19:12:58]
-        Iniciando TLS e Handshake...
-        [19:12:59]
-        TLS estabelecido. Enviando autenticação...
-        [19:12:59]
-        Autenticação aceita. Abrindo INBOX...
-        [19:13:00]
-        INBOX aberta. Buscando UNSEEN...
-        [19:14:03]
-        Execution ID criado: 38efd37c-e8dc-450d-8dc7-89f5ebcb7b82
-        [19:14:03]
-        Lock solicitado e adquirido no banco.
-        [19:14:03]
-        Iniciando conexão TCP IMAP para imap.uhserver.com:993
-        [19:14:03]
-        Iniciando TLS e Handshake...
-        [19:14:04]
-        TLS estabelecido. Enviando autenticação...
-        [19:14:04]
-        Autenticação aceita. Abrindo INBOX...
-        [19:14:04]
-        INBOX aberta. Buscando UNSEEN...
-        [19:15:08]
-        Execution ID criado: bd5a4fc7-2e46-47a2-a0f9-98d864713e74
-        [19:15:08]
-        Lock solicitado e adquirido no banco.
-        [19:15:08]
-        Iniciando conexão TCP IMAP para imap.uhserver.com:993
-        [19:15:08]
-        Iniciando TLS e Handshake...
-        [19:15:09]
-        TLS estabelecido. Enviando autenticação...
-        [19:15:09]
-        Autenticação aceita. Abrindo INBOX...
-        [19:15:09]
-        INBOX aberta. Buscando UNSEEN...
-        [19:16:12]
-        Execution ID criado: e2a3abff-bd66-4372-9f38-5475d7acefd6
-        [19:16:12]
-        Lock solicitado e adquirido no banco.
-        [19:16:12]
-        Iniciando conexão TCP IMAP para imap.uhserver.com:993
-        [19:16:13]
-        Iniciando TLS e Handshake...
-        [19:16:13]
-        TLS estabelecido. Enviando autenticação...
-        [19:16:13]
-        Autenticação aceita. Abrindo INBOX...
-        [19:16:14]
-        INBOX aberta. Buscando UNSEEN...
-        [19:17:17]
-        Execution ID criado: 9ff929ee-c6b8-45d9-9df3-20ae234322cd
-        [19:17:17]
-        Lock solicitado e adquirido no banco.
-        [19:17:18]
-        Iniciando conexão TCP IMAP para imap.uhserver.com:993
-        [19:17:18]
-        Iniciando TLS e Handshake...
-        [19:17:18]
-        TLS estabelecido. Enviando autenticação...
-
-        Quero mensagens mais amigaveis ao usuario
-
+        erro
         ---
+
 
         8. VARIAÇÕES DA PALAVRA "CÓDIGO"
         Não quero cadastrar manualmente:
