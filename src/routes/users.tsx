@@ -9,6 +9,7 @@ import {
   Mail, 
   Clock, 
   User,
+  Users,
   Power
 } from "lucide-react";
 import { 
@@ -109,7 +110,7 @@ function UsersPage() {
           <DialogTrigger asChild>
             <Button className="bg-[#0000A0] hover:bg-[#000080]">
               <UserPlus className="mr-2 h-4 w-4" />
-              Novo Usuário
+              + Novo usuário
             </Button>
           </DialogTrigger>
           <DialogContent>

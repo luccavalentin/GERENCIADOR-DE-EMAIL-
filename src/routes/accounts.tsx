@@ -1,7 +1,8 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getActiveConfigs, deleteProfile } from "@/lib/email.functions";
+import { getActiveConfigs } from "@/lib/email.functions";
+import { format } from "date-fns";
 import { 
   Plus, 
   Search,
