@@ -267,6 +267,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
             });
 
             if (hasKeyword) {
+              stats.withCode++;
               await log(`Palavra-chave detectada no e-mail de ${from}: "${subject}"`);
               
               const transporter = nodemailer.createTransport({
@@ -308,11 +309,14 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
               }).eq("config_id", configId).eq("imap_uid", imapUid);
 
               await imap.messageFlagsAdd(message.uid, ['\\Seen'], { uid: true });
+              stats.forwarded++;
               await log(`E-mail encaminhado com sucesso para ${config.destinations.join(", ")}`, "success");
             } else {
+              stats.ignored++;
               await supabaseAdmin.from("email_processing_state").update({ status: 'ignored' }).eq("config_id", configId).eq("imap_uid", imapUid);
             }
           } catch (msgError: any) {
+            stats.errors++;
             await log(`Erro no processamento individual (UID ${message.uid}): ${msgError.message}`, "error");
             await supabaseAdmin.from("email_processing_state").update({ 
               status: 'error',
@@ -326,10 +330,10 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
 
       await imap.logout();
       await updateHeartbeat('success');
-      return { success: true };
+      return { success: true, stats };
     } catch (error: any) {
       await updateHeartbeat('error', error.message);
-      return { success: false, error: error.message };
+      return { success: false, error: error.message, stats };
     } finally {
       // Global Lock Release
       await supabaseAdmin.rpc('release_email_config_lock', {
