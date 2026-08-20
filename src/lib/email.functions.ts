@@ -96,17 +96,18 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
     if (configId) {
       const { error: updateError } = await supabaseAdmin
         .from("email_configurations")
-        .update(configData as any)
+        .update(configData)
         .eq("id", configId);
       if (updateError) throw updateError;
     } else {
       const { data, error: insertError } = await supabaseAdmin
         .from("email_configurations")
-        .insert(configData as any)
+        .insert(configData)
         .select("id")
         .single();
       if (insertError) throw insertError;
       targetConfigId = data.id;
+
     }
 
     if (!targetConfigId) throw new Error("Failed to get config ID");
@@ -152,12 +153,12 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { ImapFlow } = await import("imapflow");
-    const dns = await import("dns");
+    const dns = await import("dns/promises");
     const net = await import("net");
     const tls = await import("tls");
-    const { promisify } = await import("util");
     
     const startTime = Date.now();
+
     
     const diagResults: any = {
       dns: { status: "pending", data: null },
@@ -219,9 +220,9 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
 
       // TEST 1: DNS
       try {
-        const lookup = promisify(dns.lookup);
-        const addresses = await lookup(imapHost, { all: true });
+        const addresses = await dns.lookup(imapHost, { all: true });
         diagResults.dns = { status: "ok", data: addresses };
+
       } catch (e: any) {
         diagResults.dns = { status: "error", error: e.message };
       }

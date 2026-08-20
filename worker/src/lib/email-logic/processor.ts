@@ -41,28 +41,34 @@ export async function processEmailsForConfigLogic(
   };
 
   // Global Lock Attempt
-  const { data: lockId, error: lockError } = await supabaseAdmin.rpc('acquire_email_config_lock', {
-    p_config_id: configId,
-    p_lock_timeout: '2 minutes'
-  });
+  let lockId: string | null = null;
+  try {
+    const { data: acquiredLockId, error: lockError } = await supabaseAdmin.rpc('acquire_email_config_lock', {
+      p_config_id: configId,
+      p_lock_timeout: '5 minutes'
+    });
 
-  if (lockError || !lockId) {
-    const { data: currentConfig } = await supabaseAdmin
-      .from("email_configurations")
-      .select("processing_lock_id, processing_lock_until")
-      .eq("id", configId)
-      .single();
+    if (lockError || !acquiredLockId) {
+      const { data: currentConfig } = await supabaseAdmin
+        .from("email_configurations")
+        .select("processing_lock_id, processing_lock_until")
+        .eq("id", configId)
+        .single();
 
-    const isLocked = currentConfig?.processing_lock_id && 
-                     currentConfig.processing_lock_until && 
-                     new Date(currentConfig.processing_lock_until) > new Date();
+      const isLocked = currentConfig?.processing_lock_id && 
+                       currentConfig.processing_lock_until && 
+                       new Date(currentConfig.processing_lock_until) > new Date();
 
-    return { 
-      success: false, 
-      error: isLocked ? "Processamento: Bloqueado por outra execução" : "Locked or error acquiring lock",
-      isLocked: !!isLocked,
-      stats 
-    };
+      return { 
+        success: false, 
+        error: isLocked ? "Processamento: Bloqueado por outra execução ativa" : "Erro ao adquirir lock de processamento",
+        isLocked: !!isLocked,
+        stats 
+      };
+    }
+    lockId = acquiredLockId;
+  } catch (err: any) {
+    return { success: false, error: `Falha na infraestrutura de lock: ${err.message}`, stats };
   }
 
   const updateHeartbeat = async (status: string, errorMsg?: string) => {
@@ -83,6 +89,17 @@ export async function processEmailsForConfigLogic(
       .single();
 
     if (configError || !config) return { success: false, error: "Config not found" };
+
+    const normalizeConfigArray = (arr: any) => {
+      if (!Array.isArray(arr)) return [];
+      if (arr.length === 1 && (arr[0].includes(';') || arr[0].includes(','))) {
+        return arr[0].split(/[;,\n\r]+/).map((s: string) => s.trim()).filter((s: string) => s.length > 0);
+      }
+      return arr;
+    };
+
+    config.destinations = normalizeConfigArray(config.destinations);
+    config.keywords = normalizeConfigArray(config.keywords);
 
     const { data: creds } = await supabaseAdmin
       .from("email_credentials")
@@ -189,7 +206,7 @@ export async function processEmailsForConfigLogic(
           
           await supabaseAdmin.from("email_processing_state").update({
             message_id: parsed.messageId || null
-          } as any).eq("config_id", configId).eq("imap_uid", imapUid);
+          }).eq("config_id", configId).eq("imap_uid", imapUid);
 
           const isLoop = 
             from.toLowerCase() === config.email_user.toLowerCase() ||
@@ -223,7 +240,7 @@ export async function processEmailsForConfigLogic(
                 user: config.email_user,
                 pass: creds.password,
               },
-              connectionTimeout: 20000, // 20s timeout
+              connectionTimeout: 20000,
               greetingTimeout: 20000,
               socketTimeout: 30000,
             });
@@ -235,13 +252,14 @@ export async function processEmailsForConfigLogic(
               text: `E-mail encaminhado automaticamente.\n\nDe: ${from}\nAssunto: ${subject}\n\n[Email original anexado como rfc822]`,
               attachments: [
                 {
-                  filename: 'email-original.eml',
+                  filename: `${normalizeText(subject.substring(0, 30)) || 'email-original'}.eml`,
                   content: message.source,
                   contentType: 'message/rfc822'
                 }
               ],
               headers: {
-                'X-Email-Monitor': 'processed'
+                'X-Email-Monitor': 'processed',
+                'X-Original-Message-ID': parsed.messageId || ''
               }
             });
 
@@ -256,7 +274,7 @@ export async function processEmailsForConfigLogic(
               forwarded_at: new Date().toISOString()
             }).eq("config_id", configId).eq("imap_uid", imapUid);
 
-            await imap.messageFlagsAdd(message.uid, ['\\Seen'], { uid: true });
+            await imap.messageFlagsAdd(message.uid.toString(), ['\\Seen'], { uid: true });
             stats.forwarded++;
             await log(`E-mail encaminhado com sucesso para ${config.destinations.join(", ")}`, "success");
           } else {
@@ -289,15 +307,17 @@ export async function processEmailsForConfigLogic(
     return { success: true, stats };
   } catch (error: any) {
     const errorMsg = error.message || "Unknown error during processing";
-    const isLocked = errorMsg === "Processamento: Bloqueado por outra execução" || 
-                     errorMsg.includes("Locked or error acquiring lock");
+    const isLocked = errorMsg === "Processamento: Bloqueado por outra execução ativa" || 
+                     errorMsg.includes("Erro ao adquirir lock de processamento");
     
     await updateHeartbeat('error', errorMsg);
     return { success: false, error: errorMsg, isLocked, stats };
   } finally {
-    await supabaseAdmin.rpc('release_email_config_lock', {
-      p_config_id: configId,
-      p_lock_id: lockId as string
-    });
+    if (lockId) {
+      await supabaseAdmin.rpc('release_email_config_lock', {
+        p_config_id: configId,
+        p_lock_id: lockId
+      });
+    }
   }
 }
