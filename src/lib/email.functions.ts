@@ -108,6 +108,8 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
       let lock = await imap.getMailboxLock("INBOX");
       try {
         for await (let message of imap.fetch({ seen: false }, { envelope: true, source: true })) {
+          if (!message.envelope || !message.source) continue;
+
           const subject = message.envelope.subject || "";
           const from = message.envelope.from?.[0]?.address || "desconhecido";
           const bodyText = message.source.toString().toLowerCase();
