@@ -67,6 +67,19 @@ function LogsPage() {
     );
   }
 
+  const [hiddenLogs, setHiddenLogs] = useState<Set<string>>(new Set());
+
+  const handleClearView = () => {
+    if (logs.length > 0) {
+      const newHidden = new Set(hiddenLogs);
+      logs.forEach((log: any) => newHidden.add(log.id));
+      setHiddenLogs(newHidden);
+      toast.info("Visualização limpa. Os logs novos aparecerão normalmente.");
+    }
+  };
+
+  const visibleLogs = logs.filter((log: any) => !hiddenLogs.has(log.id));
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -85,7 +98,12 @@ function LogsPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="font-bold border-slate-200 text-slate-600">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="font-bold border-slate-200 text-slate-600 hover:bg-slate-50"
+            onClick={handleClearView}
+          >
             <Trash2 className="mr-2 h-4 w-4" /> Limpar Visualização
           </Button>
         </div>
