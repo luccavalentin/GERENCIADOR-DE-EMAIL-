@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getLogs, getWorkerStatus } from "@/lib/email.functions";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute("/monitoring")({
   component: () => (
@@ -27,12 +27,19 @@ export const Route = createFileRoute("/monitoring")({
 
 function MonitoringPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [hiddenLogs, setHiddenLogs] = useState<Set<string>>(new Set());
+  const [autoScroll, setAutoScroll] = useState(true);
+
   const { data: logsData, refetch: refetchLogs } = useQuery({
     queryKey: ["monitoringLogs"],
     queryFn: () => getLogs({ data: { limit: 100 } }),
+    enabled: !isPaused
   });
 
   useEffect(() => {
+    if (isPaused) return;
+
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -51,7 +58,7 @@ function MonitoringPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [refetchLogs]);
+  }, [refetchLogs, isPaused]);
 
   const { data: workerStatus } = useQuery({
     queryKey: ["workerStatus"],
@@ -62,10 +69,20 @@ function MonitoringPage() {
   const isOnline = workerStatus?.status === 'online';
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (autoScroll && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [logsData]);
+  }, [logsData, autoScroll]);
+
+  const handleClear = () => {
+    if (logsData?.logs) {
+      const newHidden = new Set(hiddenLogs);
+      logsData.logs.forEach((log: any) => newHidden.add(log.id));
+      setHiddenLogs(newHidden);
+    }
+  };
+
+  const visibleLogs = logsData?.logs?.filter((log: any) => !hiddenLogs.has(log.id)) || [];
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -82,11 +99,22 @@ function MonitoringPage() {
             <div className={cn("h-2 w-2 rounded-full", isOnline ? "bg-green-500 animate-pulse" : "bg-red-500")} />
             <span>{isOnline ? "AO VIVO" : "OFFLINE"}</span>
           </div>
-          <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest">
-            Pausar
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className={cn("h-8 text-[10px] font-bold uppercase tracking-widest transition-colors", isPaused && "bg-blue-50 border-blue-200 text-[#0000A0]")}
+            onClick={() => setIsPaused(!isPaused)}
+          >
+            {isPaused ? <Play className="mr-2 h-3 w-3" /> : <Pause className="mr-2 h-3 w-3" />}
+            {isPaused ? "Retomar" : "Pausar"}
           </Button>
-          <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest">
-            Limpar Visualização
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8 text-[10px] font-bold uppercase tracking-widest"
+            onClick={handleClear}
+          >
+            <Trash2 className="mr-2 h-3 w-3" /> Limpar Visualização
           </Button>
         </div>
       </div>
@@ -105,7 +133,7 @@ function MonitoringPage() {
             className="p-6 relative z-10 font-mono text-[11px] leading-loose h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 bg-transparent"
           >
             <div className="space-y-2">
-              {logsData?.logs?.slice().reverse().map((log: any) => (
+              {visibleLogs.slice().reverse().map((log: any) => (
                 <div key={log.id} className="flex gap-4 group hover:bg-white/5 transition-colors p-1 rounded">
                   <span className="text-white/20 shrink-0 select-none">
                     {log.created_at ? format(new Date(log.created_at), "HH:mm:ss") : "--:--:--"}
