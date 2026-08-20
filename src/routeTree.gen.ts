@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LogsConfigIdRouteImport } from './routes/logs.$configId'
+import { Route as ApiPublicCronMonitorRouteImport } from './routes/api/public/cron/monitor'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,45 @@ const LogsConfigIdRoute = LogsConfigIdRouteImport.update({
   path: '/logs/$configId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronMonitorRoute = ApiPublicCronMonitorRouteImport.update({
+  id: '/api/public/cron/monitor',
+  path: '/api/public/cron/monitor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/logs/$configId': typeof LogsConfigIdRoute
+  '/api/public/cron/monitor': typeof ApiPublicCronMonitorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/logs/$configId': typeof LogsConfigIdRoute
+  '/api/public/cron/monitor': typeof ApiPublicCronMonitorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/logs/$configId': typeof LogsConfigIdRoute
+  '/api/public/cron/monitor': typeof ApiPublicCronMonitorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/logs/$configId'
+  fullPaths: '/' | '/auth' | '/logs/$configId' | '/api/public/cron/monitor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/logs/$configId'
-  id: '__root__' | '/' | '/auth' | '/logs/$configId'
+  to: '/' | '/auth' | '/logs/$configId' | '/api/public/cron/monitor'
+  id:
+    '__root__' | '/' | '/auth' | '/logs/$configId' | '/api/public/cron/monitor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   LogsConfigIdRoute: typeof LogsConfigIdRoute
+  ApiPublicCronMonitorRoute: typeof ApiPublicCronMonitorRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +93,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogsConfigIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/monitor': {
+      id: '/api/public/cron/monitor'
+      path: '/api/public/cron/monitor'
+      fullPath: '/api/public/cron/monitor'
+      preLoaderRoute: typeof ApiPublicCronMonitorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +107,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   LogsConfigIdRoute: LogsConfigIdRoute,
+  ApiPublicCronMonitorRoute: ApiPublicCronMonitorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
