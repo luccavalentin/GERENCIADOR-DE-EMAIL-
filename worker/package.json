@@ -1,0 +1,28 @@
+{
+  "name": "email-monitor-worker",
+  "version": "1.0.0",
+  "description": "Worker Node.js para monitoramento de e-mails via Supabase",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.7",
+    "imapflow": "^1.0.158",
+    "nodemailer": "^6.9.9",
+    "mailparser": "^3.6.5",
+    "html-to-text": "^9.0.5",
+    "zod": "^3.22.4",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.20",
+    "@types/nodemailer": "^6.4.14",
+    "@types/mailparser": "^3.4.4",
+    "@types/html-to-text": "^9.0.4",
+    "ts-node": "^10.9.2"
+  }
+}
