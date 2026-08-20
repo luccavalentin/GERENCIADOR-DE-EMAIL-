@@ -242,20 +242,15 @@ export type Database = {
         Args: { p_config_id: string; p_lock_id: string }
         Returns: boolean
       }
-      reserve_email_for_processing:
-        | {
-            Args: { p_config_id: string; p_imap_uid: number; p_mailbox: string }
-            Returns: boolean
-          }
-        | {
-            Args: {
-              p_config_id: string
-              p_imap_uid: number
-              p_mailbox: string
-              p_max_retries?: number
-            }
-            Returns: boolean
-          }
+      reserve_email_for_processing: {
+        Args: {
+          p_config_id: string
+          p_imap_uid: number
+          p_mailbox: string
+          p_max_retries?: number
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
