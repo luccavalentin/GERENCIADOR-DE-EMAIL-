@@ -5,9 +5,12 @@ import {
   Activity, 
   History, 
   Server,
+  Shield,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
