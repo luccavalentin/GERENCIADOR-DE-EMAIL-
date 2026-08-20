@@ -101,7 +101,7 @@ function DashboardPage() {
 
       {/* Saúde do Sistema Section */}
       <section className="space-y-4">
-        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde do Sistema</h2>
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde do Sistema</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { label: "Worker", status: workerStatus?.status === 'online' ? 'operacional' : 'falha', icon: Activity },
