@@ -335,6 +335,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Page Body */}
           <div className="p-8 max-w-[1600px] w-full mx-auto">
             {children}
+          </div>
+
           {/* Footer */}
           <footer className="py-6 px-8 border-t bg-white">
             <div className="max-w-[1600px] mx-auto flex justify-center items-center">

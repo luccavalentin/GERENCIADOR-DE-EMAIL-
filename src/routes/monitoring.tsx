@@ -138,7 +138,7 @@ function MonitoringPage() {
             <div className="space-y-2">
               {visibleLogs.slice().reverse().map((log: any) => (
                 <div key={log.id} className="flex gap-4 group hover:bg-white/5 transition-colors p-1 rounded">
-                  <span className="text-white/20 shrink-0 select-none">
+                  <span className="text-slate-500 shrink-0 select-none">
                     {log.created_at ? format(new Date(log.created_at), "HH:mm:ss") : "--:--:--"}
                   </span>
                   <span className={cn(
