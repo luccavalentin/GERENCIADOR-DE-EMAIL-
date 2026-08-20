@@ -227,6 +227,45 @@ function Dashboard() {
     }
   };
 
+  const handleTestImap = async (configId: string) => {
+    setTestingConfigId(configId);
+    setTestResult(null);
+    try {
+      const result = await runTestImap({ data: { configId } });
+      setTestResult({ type: 'IMAP', ...result });
+      setIsTestModalOpen(true);
+      if (result.success) {
+        toast.success("Teste IMAP concluído com sucesso!");
+      } else {
+        toast.error(`Falha no teste IMAP: ${result.error}`);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao testar IMAP");
+    } finally {
+      setTestingConfigId(null);
+    }
+  };
+
+  const handleTestSmtp = async (configId: string) => {
+    setTestingConfigId(configId);
+    setTestResult(null);
+    try {
+      const result = await runTestSmtp({ data: { configId } });
+      setTestResult({ type: 'SMTP', ...result });
+      setIsTestModalOpen(true);
+      if (result.success) {
+        toast.success("Teste SMTP concluído com sucesso!");
+      } else {
+        toast.error(`Falha no teste SMTP: ${result.error}`);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao testar SMTP");
+    } finally {
+      setTestingConfigId(null);
+    }
+  };
+
+
   if (!session) {
     return null;
   }
