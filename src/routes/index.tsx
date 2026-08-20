@@ -464,6 +464,66 @@ function Dashboard() {
           </div>
         )}
       </div>
+
+      <Dialog open={isStatsOpen} onOpenChange={setIsStatsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-green-600" />
+              Resumo do Processamento
+            </DialogTitle>
+            <DialogDescription>
+              Resultados da execução manual do monitor.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {processStats && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Status IMAP</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${processStats.imapConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+                    <span className="text-sm font-semibold">{processStats.imapConnected ? 'Conectado' : 'Falha'}</span>
+                  </div>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Encontradas</span>
+                  <span className="text-xl font-bold text-gray-900">{processStats.found}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Analisadas</span>
+                  <span className="text-xl font-bold text-blue-600">{processStats.analyzed}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Com Código</span>
+                  <span className="text-xl font-bold text-orange-600">{processStats.withCode}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Encaminhadas</span>
+                  <span className="text-xl font-bold text-green-600">{processStats.forwarded}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Ignoradas</span>
+                  <span className="text-xl font-bold text-gray-500">{processStats.ignored}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Duplicadas</span>
+                  <span className="text-xl font-bold text-purple-600">{processStats.duplicates}</span>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Erros</span>
+                  <span className="text-xl font-bold text-red-600">{processStats.errors}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setIsStatsOpen(false)} className="w-full">Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
