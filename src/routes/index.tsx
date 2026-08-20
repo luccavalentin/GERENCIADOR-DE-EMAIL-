@@ -61,15 +61,15 @@ function Dashboard() {
   const runTestConnection = useServerFn(testConnection);
 
   const [formData, setFormData] = useState({
-    imap_host: "",
+    imap_host: "imap.uhserver.com",
     imap_port: 993,
     imap_secure: true,
-    smtp_host: "",
+    smtp_host: "smtps.uhserver.com",
     smtp_port: 465,
     smtp_secure: true,
-    email_user: "",
+    email_user: "thiago@agilliza.net.br",
     email_password: "",
-    destinations: "",
+    destinations: "renzo@agilliza.net.br, carlos@agilliza.net.br, pamela@agilliza.net.br, paula@agilliza.net.br",
     keywords: "codigo",
   });
 
@@ -175,7 +175,7 @@ function Dashboard() {
             <div className="flex items-center gap-4">
               <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Gerenciador de E-mail</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Eu te mandei um win rar com todas as configurações e emails do provedor origial quero que o sistema venha com tudo que tem nele por padrão</h1>
                 <p className="text-gray-600">Olá, {session.user.email}</p>
               </div>
             </div>
