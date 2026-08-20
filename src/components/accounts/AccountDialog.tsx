@@ -48,7 +48,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const accountSchema = z.object({
   email_user: z.string().email("E-mail inválido"),
-  email_password: z.string().min(1, "Senha é obrigatória"),
+  email_password: z.string().optional(),
   imap_host: z.string().min(1, "IMAP host é obrigatório"),
   imap_port: z.number().int().positive(),
   imap_secure: z.boolean(),
@@ -109,7 +109,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
             keywords: values.keywords,
             provider: "custom",
           },
-          emailPassword: values.email_password,
+          emailPassword: values.email_password || "",
         }
       });
     },

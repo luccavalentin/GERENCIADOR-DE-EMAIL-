@@ -81,7 +81,7 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
       keywords: z.array(z.string()),
       provider: z.string(),
     }),
-    emailPassword: z.string(),
+    emailPassword: z.string().optional(),
   }).parse(data))
   .handler(async ({ data: { configId, configData, emailPassword } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -121,7 +121,7 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
     if (!targetConfigId) throw new Error("Failed to get config ID");
 
     // Save password securely if provided
-    if (emailPassword) {
+    if (emailPassword && emailPassword.trim() !== "") {
       const { error: credsError } = await supabaseAdmin
         .from("email_credentials")
         .upsert({

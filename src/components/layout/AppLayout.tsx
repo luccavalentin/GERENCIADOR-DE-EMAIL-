@@ -45,22 +45,18 @@ const navItems = [
   { label: "Configurações", icon: Settings, to: "/settings" },
 ];
 
-function ClientOnlyTime() {
-  const [time, setTime] = React.useState<string>("");
-  
-  React.useEffect(() => {
-    setTime(new Date().toLocaleTimeString());
-    const interval = setInterval(() => {
-      setTime(new Date().toLocaleTimeString());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!time) return null;
+function LastHeartbeat({ time }: { time?: string }) {
+  if (!time) {
+    return (
+      <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
+        Aguardando heartbeat...
+      </span>
+    );
+  }
 
   return (
     <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">
-      Última atualização: {time}
+      Última atualização: {new Date(time).toLocaleTimeString()}
     </span>
   );
 }
@@ -272,7 +268,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-4 text-slate-600">
               <div className="text-right flex flex-col mr-2">
                 <span className="text-sm font-bold text-slate-900">{session?.user?.user_metadata?.full_name || session?.user?.email || "Usuário"}</span>
-                <ClientOnlyTime />
+                <LastHeartbeat time={workerStatus?.last_heartbeat} />
               </div>
             </div>
 
