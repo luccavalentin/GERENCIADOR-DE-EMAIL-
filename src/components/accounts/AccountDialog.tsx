@@ -425,10 +425,24 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
               </ScrollArea>
             </Tabs>
 
-            <DialogFooter className="p-6 bg-slate-50 border-t gap-3">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="font-bold border-slate-200">
-                Cancelar
-              </Button>
+            <DialogFooter className="p-6 bg-slate-50 border-t flex flex-row justify-between items-center sm:justify-between gap-3">
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="font-bold border-slate-200">
+                  Cancelar
+                </Button>
+                {config && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => duplicateMutation.mutate()}
+                    disabled={duplicateMutation.isPending}
+                    className="font-bold border-[#0000A0] text-[#0000A0] hover:bg-blue-50"
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Duplicar
+                  </Button>
+                )}
+              </div>
               <Button 
                 type="submit" 
                 className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold px-8" 
