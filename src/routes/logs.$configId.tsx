@@ -157,14 +157,14 @@ function LogsPage() {
             <TableBody>
               {visibleLogs.map((log: any) => (
                 <TableRow key={log.id} className="hover:bg-slate-50/50 group transition-colors">
-                  <TableCell className="text-slate-500 text-[10px] font-mono whitespace-nowrap">
-                    [{format(new Date(log.created_at), "dd/MM HH:mm:ss")}]
+                  <TableCell className="text-slate-500 text-[10px] font-mono whitespace-nowrap pl-6">
+                    {format(new Date(log.created_at), "dd/MM HH:mm:ss")}
                   </TableCell>
                   <TableCell>
                     <Badge 
                       variant="outline" 
                       className={cn(
-                        "text-[10px] font-bold px-1.5 py-0 border-none shadow-none uppercase",
+                        "text-[9px] font-bold px-1.5 py-0 border-none shadow-none uppercase tracking-wider",
                         log.level === 'error' ? "text-red-600 bg-red-50" : 
                         log.level === 'success' ? "text-green-600 bg-green-50" :
                         log.level === 'warning' ? "text-yellow-600 bg-yellow-50" :
@@ -181,11 +181,24 @@ function LogsPage() {
                   )}>
                     {log.message}
                   </TableCell>
-                  <TableCell className="text-slate-400 text-[10px] font-mono italic">
+                  <TableCell className="text-slate-400 text-[10px] font-mono pr-6">
                     {log.details?.executionId ? (
-                      <span className="cursor-help border-b border-dotted border-slate-300" title={log.details.executionId}>
-                        {log.details.executionId.substring(0, 8)}...
-                      </span>
+                      <div className="flex items-center gap-1 group/id">
+                        <span className="cursor-help border-b border-dotted border-slate-200" title={log.details.executionId}>
+                          {log.details.executionId.substring(0, 4)}...{log.details.executionId.substring(log.details.executionId.length - 4)}
+                        </span>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-4 w-4 opacity-0 group-hover/id:opacity-100 transition-opacity"
+                          onClick={() => {
+                            navigator.clipboard.writeText(log.details.executionId);
+                            toast.success("ID copiado");
+                          }}
+                        >
+                          <Search className="h-2 w-2" />
+                        </Button>
+                      </div>
                     ) : '-'}
                   </TableCell>
                 </TableRow>
