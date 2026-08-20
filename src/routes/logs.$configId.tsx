@@ -31,10 +31,13 @@ function LogsPage() {
           filter: `config_id=eq.${configId}`,
         },
         (payload) => {
+          console.log("Realtime log received:", payload.new);
           setLogs((prev) => [...prev, payload.new]);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Realtime subscription status:", status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
