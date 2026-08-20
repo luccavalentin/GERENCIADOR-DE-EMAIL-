@@ -643,68 +643,144 @@ function Dashboard() {
             </DialogDescription>
           </DialogHeader>
           
-          {testResult && (
+          {testResult && testResult.result && (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className={`p-2 rounded-full ${testResult.result.dns === 'ok' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
-                    {testResult.result.dns === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {/* DNS */}
+                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block mb-1">TESTE 1: DNS</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.dns.status === 'ok' ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-xs font-medium text-green-700">OK</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-xs font-medium text-red-700">ERRO</span>
+                      </>
+                    )}
                   </div>
-                  <span className="text-[10px] font-bold uppercase">DNS</span>
-                </div>
-                
-                <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className={`p-2 rounded-full ${testResult.result.tcp === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.tcp === 'TIMEOUT' ? 'bg-amber-100 text-amber-600' : (testResult.result.tcp === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'))}`}>
-                    {testResult.result.tcp === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.tcp === 'TIMEOUT' ? <Clock className="h-5 w-5" /> : (testResult.result.tcp === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />))}
-                  </div>
-                  <span className="text-[10px] font-bold uppercase">{testResult.result.tcp === 'TIMEOUT' ? 'TIMEOUT' : 'TCP'}</span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className={`p-2 rounded-full ${testResult.result.tls === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.tls === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
-                    {testResult.result.tls === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.tls === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
-                  </div>
-                  <span className="text-[10px] font-bold uppercase">TLS</span>
-                </div>
-
-                {testResult.type === 'IMAP' && (
-                  <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                    <div className={`p-2 rounded-full ${testResult.result.greeting === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.greeting === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400')}`}>
-                      {testResult.result.greeting === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.greeting === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />)}
+                  {testResult.result.dns.data && (
+                    <div className="mt-2 text-[9px] text-gray-400 bg-white p-1 rounded border border-gray-50">
+                      {testResult.result.dns.data.map((d: any, i: number) => (
+                        <div key={i}>{d.address} (v{d.family})</div>
+                      ))}
                     </div>
-                    <span className="text-[10px] font-bold uppercase">Greeting</span>
-                  </div>
-                )}
-
-                <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className={`p-2 rounded-full ${testResult.result.auth === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.auth === 'Não testada' ? 'bg-amber-100 text-amber-600' : (testResult.result.auth === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'))}`}>
-                    {testResult.result.auth === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.auth === 'Não testada' ? <AlertCircle className="h-5 w-5" /> : (testResult.result.auth === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />))}
-                  </div>
-                  <span className="text-[10px] font-bold uppercase">{testResult.result.auth === 'Não testada' ? 'N/T' : 'Auth'}</span>
+                  )}
                 </div>
 
-                {testResult.type === 'IMAP' && (
-                  <div className="flex flex-col items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                    <div className={`p-2 rounded-full ${testResult.result.inbox === 'ok' ? 'bg-green-100 text-green-600' : (testResult.result.inbox === 'Não testada' ? 'bg-amber-100 text-amber-600' : (testResult.result.inbox === 'error' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'))}`}>
-                      {testResult.result.inbox === 'ok' ? <CheckCircle2 className="h-5 w-5" /> : (testResult.result.inbox === 'Não testada' ? <AlertCircle className="h-5 w-5" /> : (testResult.result.inbox === 'error' ? <XCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />))}
-                    </div>
-                    <span className="text-[10px] font-bold uppercase">{testResult.result.inbox === 'Não testada' ? 'N/T' : 'INBOX'}</span>
+                {/* TCP 993 */}
+                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block mb-1">TESTE 2: TCP 993</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.tcp_993.status === 'CONECTOU' ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-xs font-medium text-green-700">CONECTOU ({Math.round(testResult.result.tcp_993.duration)}ms)</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-xs font-medium text-red-700">{testResult.result.tcp_993.status}</span>
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
+
+                {/* TCP 993 IPv4 */}
+                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block mb-1">TESTE 3: TCP IPv4 993</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.tcp_993_ipv4.status === 'CONECTOU' ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-xs font-medium text-green-700">OK ({Math.round(testResult.result.tcp_993_ipv4.duration)}ms)</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-xs font-medium text-red-700">{testResult.result.tcp_993_ipv4.status}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* TLS 993 */}
+                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block mb-1">TESTE 4: TLS 993</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.tls_993?.status === 'ESTABELECIDO' ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-xs font-medium text-green-700">OK ({testResult.result.tls_993.protocol})</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-xs font-medium text-red-700">FALHA</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* GREETING */}
+                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block mb-1">TESTE 5: GREETING</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.greeting.status === 'received' ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-xs font-medium text-green-700">RECEBIDO</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-xs font-medium text-red-700">PENDENTE</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* SMTP 465 */}
+                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block mb-1">TESTE 7: TCP 465</span>
+                  <div className="flex items-center gap-2">
+                    {testResult.result.tcp_465.status === 'CONECTOU' ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-xs font-medium text-green-700">OK ({Math.round(testResult.result.tcp_465.duration)}ms)</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-xs font-medium text-red-700">{testResult.result.tcp_465.status}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                <span className="text-sm font-medium text-gray-600">Duração Total</span>
-                <span className="text-sm font-bold text-gray-900">{testResult.result.time}ms</span>
+              {/* CONCLUSION */}
+              <div className={`p-4 rounded-lg border flex flex-col gap-2 ${testResult.result.tcp_993.status === 'CONECTOU' ? 'bg-blue-50 border-blue-100' : 'bg-amber-50 border-amber-100'}`}>
+                <div className="flex items-center gap-2">
+                  <Activity className={`h-5 w-5 ${testResult.result.tcp_993.status === 'CONECTOU' ? 'text-blue-600' : 'text-amber-600'}`} />
+                  <span className={`text-sm font-bold ${testResult.result.tcp_993.status === 'CONECTOU' ? 'text-blue-800' : 'text-amber-800'}`}>CONCLUSÃO TÉCNICA</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                  {testResult.result.conclusion}
+                </p>
               </div>
 
-              {testResult.result.error && (
+              {/* DETALHES DO ERRO */}
+              {(testResult.result.imap_flow?.status === 'error' || testResult.result.tcp_993.status === 'ERROR') && (
                 <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-lg overflow-x-auto">
                   <p className="text-sm font-semibold text-red-800 mb-2 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" /> Detalhes do Erro
                   </p>
                   <pre className="text-[10px] text-red-700 leading-tight">
-                    {JSON.stringify(testResult.result.error, null, 2)}
+                    {JSON.stringify(testResult.result.imap_flow || testResult.result.tcp_993, null, 2)}
                   </pre>
                 </div>
               )}
