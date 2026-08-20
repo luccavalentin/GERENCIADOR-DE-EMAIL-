@@ -122,19 +122,21 @@ function Dashboard() {
     setIsTesting(true);
 
     try {
-      // 1. Test Connection
-      await runTestConnection({
-        data: {
-          imap_host: formData.imap_host,
-          imap_port: formData.imap_port,
-          imap_secure: formData.imap_secure,
-          smtp_host: formData.smtp_host,
-          smtp_port: formData.smtp_port,
-          smtp_secure: formData.smtp_secure,
-          email_user: formData.email_user,
-          email_password: formData.email_password,
-        }
-      });
+      // 1. Test Connection (Only if not allowed invalid)
+      if (!formData.allow_invalid) {
+        await runTestConnection({
+          data: {
+            imap_host: formData.imap_host,
+            imap_port: formData.imap_port,
+            imap_secure: formData.imap_secure,
+            smtp_host: formData.smtp_host,
+            smtp_port: formData.smtp_port,
+            smtp_secure: formData.smtp_secure,
+            email_user: formData.email_user,
+            email_password: formData.email_password,
+          }
+        });
+      }
 
       // 2. Save to DB
       const { error } = await supabase.from("email_configurations").insert({
