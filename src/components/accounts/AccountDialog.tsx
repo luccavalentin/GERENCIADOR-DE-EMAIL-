@@ -376,9 +376,9 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                         </div>
                         <div className="flex flex-wrap gap-2 min-h-[100px] p-4 bg-slate-50 rounded-lg border border-dashed border-slate-200">
                           {form.watch("keywords").map((kw) => (
-                            <Badge key={kw} className="pl-3 pr-1 py-1 gap-2 bg-[#0000A0] text-white hover:bg-[#0000A0]">
+                            <Badge key={kw} className="pl-3 pr-1 py-1 gap-2 bg-[#0000A0] text-white hover:bg-[#0000A0] font-bold">
                               {kw}
-                              <button type="button" onClick={() => removeKeyword(kw)} className="hover:bg-white/20 p-0.5">
+                              <button type="button" onClick={() => removeKeyword(kw)} className="hover:text-red-200 p-0.5">
                                 <X className="h-3 w-3" />
                               </button>
                             </Badge>
@@ -389,20 +389,20 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                   </TabsContent>
                 </div>
               </ScrollArea>
-            </Tabs>
 
-            <DialogFooter className="p-6 border-t bg-slate-50/50">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancelar
-              </Button>
-              <Button 
-                type="submit" 
-                className="bg-[#0000A0] hover:bg-[#000080] font-bold px-8 shadow-md"
-                disabled={saveMutation.isPending}
-              >
-                {saveMutation.isPending ? "Salvando..." : (config ? "Salvar Alterações" : "Criar Conta")}
-              </Button>
-            </DialogFooter>
+              <DialogFooter className="p-6 bg-slate-50 border-t gap-3">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="font-bold border-slate-200">
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold px-8" 
+                  disabled={saveMutation.isPending}
+                >
+                  {saveMutation.isPending ? "Salvando..." : config ? "Salvar Alterações" : "Criar Conta"}
+                </Button>
+              </DialogFooter>
+
           </form>
         </Form>
       </DialogContent>
