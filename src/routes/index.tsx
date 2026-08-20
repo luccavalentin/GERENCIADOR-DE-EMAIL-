@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -398,9 +398,9 @@ function Dashboard() {
                         )}
                       </Button>
                       <Button variant="outline" size="icon" className="h-9 w-9" asChild title="Logs">
-                        <a href={`/logs/${config.id}`}>
+                        <Link to="/logs/$configId" params={{ configId: config.id }}>
                           <History className="h-4 w-4" />
-                        </a>
+                        </Link>
                       </Button>
                       <Button variant="outline" size="icon" className="h-9 w-9" title="Configurações" onClick={() => handleOpenEdit(config)}>
                         <SettingsIcon className="h-4 w-4" />
