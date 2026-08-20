@@ -171,27 +171,27 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcfbf8] p-8">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-[#fcfbf8] p-4 md:p-8">
+      <div className="mx-auto max-w-6xl w-full">
+        <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-4">
-              <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain" />
+            <div className="flex items-center gap-3 md:gap-4">
+              <img src={logoPrimary.url} alt="Agilliza" className="h-8 md:h-10 object-contain" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Painel de Monitoramento</h1>
-                <p className="text-gray-600">Olá, {session.user.email}</p>
+                <h1 className="text-xl md:text-3xl font-bold text-gray-900">Painel de Monitoramento</h1>
+                <p className="text-sm md:text-base text-gray-600">Olá, {session.user.email}</p>
               </div>
             </div>
           </div>
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={() => supabase.auth.signOut()} className="gap-2">
-              <LogOut className="h-4 w-4" /> Sair
+          <div className="flex gap-2 md:gap-4 w-full md:w-auto">
+            <Button variant="outline" onClick={() => supabase.auth.signOut()} className="flex-1 md:flex-none gap-2">
+              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Sair</span>
             </Button>
             
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
               <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" /> Nova Configuração
+                <Button className="flex-1 md:flex-none gap-2">
+                  <Plus className="h-4 w-4" /> <span className="inline sm:inline">Novo</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
