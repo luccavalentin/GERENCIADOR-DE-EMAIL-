@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import logoPrimary from "@/assets/logo-primary.png.asset.json";
+import logoPrimary from "@/assets/logo-original.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
