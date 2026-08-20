@@ -86,10 +86,19 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
   .handler(async ({ data: { configId, configData, emailPassword } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Garantir que as keywords e destinatários sejam salvos de forma limpa
-    // Apenas a forma base para keywords (lowercase, sem acentos, sem espaços extras)
-    configData.keywords = configData.keywords.map(kw => normalizeTextInternal(kw).trim()).filter(kw => kw.length > 0);
-    configData.destinations = configData.destinations.map(d => d.trim()).filter(d => d.length > 0);
+    // Normalização das keywords
+    if (configData.keywords) {
+      configData.keywords = configData.keywords
+        .map(kw => normalizeTextInternal(kw).trim())
+        .filter(kw => kw.length > 0);
+    }
+    
+    // Normalização dos destinatários
+    if (configData.destinations) {
+      configData.destinations = configData.destinations
+        .map(d => d.trim().toLowerCase())
+        .filter(d => d.length > 0 && d.includes("@"));
+    }
     
     let targetConfigId = configId;
 
@@ -107,20 +116,21 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
         .single();
       if (insertError) throw insertError;
       targetConfigId = data.id;
-
     }
 
     if (!targetConfigId) throw new Error("Failed to get config ID");
 
-    // Save password securely
-    const { error: credsError } = await supabaseAdmin
-      .from("email_credentials")
-      .upsert({
-        config_id: targetConfigId,
-        password: emailPassword
-      });
-    
-    if (credsError) throw credsError;
+    // Save password securely if provided
+    if (emailPassword) {
+      const { error: credsError } = await supabaseAdmin
+        .from("email_credentials")
+        .upsert({
+          config_id: targetConfigId,
+          password: emailPassword
+        });
+      
+      if (credsError) throw credsError;
+    }
 
     return { success: true, id: targetConfigId };
   });
