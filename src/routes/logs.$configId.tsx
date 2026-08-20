@@ -44,7 +44,7 @@ function LogsPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-slate-100 rounded-lg">
             <History className="h-6 w-6 text-slate-600" />
@@ -55,7 +55,7 @@ function LogsPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="font-semibold">
+          <Button variant="outline" size="sm" className="font-bold border-slate-200 text-slate-600">
             <Filter className="mr-2 h-4 w-4" /> Filtros
           </Button>
         </div>
@@ -69,55 +69,60 @@ function LogsPage() {
           </div>
         </div>
         
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="font-bold">Data/Hora</TableHead>
-              <TableHead className="font-bold">Nível</TableHead>
-              <TableHead className="font-bold">Mensagem</TableHead>
-              <TableHead className="font-bold">Detalhes</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {logs?.map((log: any) => (
-              <TableRow key={log.id} className="hover:bg-slate-50/50 group">
-                <TableCell className="text-slate-500 text-[10px] font-mono whitespace-nowrap">
-                  [{format(new Date(log.created_at), "HH:mm:ss")}]
-                </TableCell>
-                <TableCell>
-                  <Badge 
-                    variant="outline" 
-                    className={cn(
-                      "text-[10px] font-bold px-1.5 py-0",
-                      log.level === 'error' ? "text-red-600 border-red-200 bg-red-50" : 
-                      log.level === 'success' ? "text-green-600 border-green-200 bg-green-50" :
-                      "text-[#0000A0] border-blue-100 bg-blue-50"
-                    )}
-                  >
-                    {log.level.toUpperCase()}
-                  </Badge>
-                </TableCell>
-                <TableCell className={cn(
-                  "max-w-md font-medium text-xs",
-                  log.level === 'error' ? "text-red-700" : 
-                  log.level === 'success' ? "text-green-700" : "text-slate-700"
-                )}>
-                  {log.message}
-                </TableCell>
-                <TableCell className="text-slate-400 text-[10px] font-mono italic">
-                  {log.details?.executionId ? `ID: ${log.details.executionId.substring(0, 8)}...` : '-'}
-                </TableCell>
-              </TableRow>
-            ))}
-            {logs?.length === 0 && (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-slate-50">
               <TableRow>
-                <TableCell colSpan={4} className="h-32 text-center text-slate-400">
-                  Nenhum log encontrado para esta conta.
-                </TableCell>
+                <TableHead className="font-bold text-slate-700">Data/Hora</TableHead>
+                <TableHead className="font-bold text-slate-700">Nível</TableHead>
+                <TableHead className="font-bold text-slate-700">Mensagem</TableHead>
+                <TableHead className="font-bold text-slate-700">Detalhes</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {logs?.map((log: any) => (
+                <TableRow key={log.id} className="hover:bg-slate-50/50 group transition-colors">
+                  <TableCell className="text-slate-500 text-[10px] font-mono whitespace-nowrap">
+                    [{format(new Date(log.created_at), "HH:mm:ss")}]
+                  </TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant="outline" 
+                      className={cn(
+                        "text-[10px] font-bold px-1.5 py-0 border-none shadow-none",
+                        log.level === 'error' ? "text-red-600 bg-red-50" : 
+                        log.level === 'success' ? "text-green-600 bg-green-50" :
+                        "text-[#0000A0] bg-blue-50"
+                      )}
+                    >
+                      {log.level.toUpperCase()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className={cn(
+                    "max-w-md font-medium text-xs",
+                    log.level === 'error' ? "text-red-700" : 
+                    log.level === 'success' ? "text-green-700" : "text-slate-700"
+                  )}>
+                    {log.message}
+                  </TableCell>
+                  <TableCell className="text-slate-400 text-[10px] font-mono italic">
+                    {log.details?.executionId ? `ID: ${log.details.executionId.substring(0, 8)}...` : '-'}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {logs?.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-48 text-center text-slate-400">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <History className="h-8 w-8 opacity-20" />
+                      <p>Nenhum log encontrado para esta conta.</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
