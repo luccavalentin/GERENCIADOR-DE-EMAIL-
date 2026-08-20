@@ -150,11 +150,12 @@ export const getActiveConfigs = createServerFn({ method: "GET" })
 
 export const getProfiles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("profiles" as any)
       .select("*")
+      .eq("id", context.userId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
