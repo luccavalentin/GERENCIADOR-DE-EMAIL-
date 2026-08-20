@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { History, Trash2, Search, Filter } from "lucide-react";
+import { History, Trash2, Search, Filter, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -81,30 +81,42 @@ function LogsIndexPage() {
                   <th className="px-6 py-3 text-left">Horário</th>
                   <th className="px-6 py-3 text-left">Nível</th>
                   <th className="px-6 py-3 text-left">Evento</th>
-                  <th className="px-6 py-3 text-left">Conta</th>
+                  <th className="px-6 py-3 text-left">Execução</th>
+                  <th className="px-6 py-3 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={4} className="p-12 text-center text-slate-400">Carregando auditoria...</td>
+                    <td colSpan={5} className="p-12 text-center text-slate-400">Carregando auditoria...</td>
                   </tr>
                 ) : logs.map((log: any) => (
-                  <tr key={log.id} className="hover:bg-slate-50/50">
+                  <tr key={log.id} className="hover:bg-slate-50/50 group">
                     <td className="px-6 py-4 text-slate-400 font-mono text-xs whitespace-nowrap">
                       {format(new Date(log.created_at), "dd/MM HH:mm:ss")}
                     </td>
                     <td className="px-6 py-4">
                       <span className={cn(
-                        "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
+                        "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
                         log.level === 'error' ? "bg-red-50 text-red-600" :
                         log.level === 'success' ? "bg-green-50 text-green-600" :
                         "bg-blue-50 text-blue-600"
                       )}>{log.level}</span>
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-700">{log.message}</td>
-                    <td className="px-6 py-4 text-slate-500 font-mono text-xs">
-                      {log.config_id ? log.config_id.substring(0,8) : "-"}
+                    <td className="px-6 py-4 font-medium text-slate-700 text-xs">{log.message}</td>
+                    <td className="px-6 py-4 text-slate-400 font-mono text-[10px]">
+                      {log.details?.executionId ? (
+                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">
+                          {log.details.executionId.substring(0,4)}...{log.details.executionId.substring(log.details.executionId.length - 4)}
+                        </span>
+                      ) : "-"}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                       <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" asChild>
+                         <a href={`/logs/${log.config_id || ''}`}>
+                            <Eye className="h-3 w-3 text-slate-400" />
+                         </a>
+                       </Button>
                     </td>
                   </tr>
                 ))}
