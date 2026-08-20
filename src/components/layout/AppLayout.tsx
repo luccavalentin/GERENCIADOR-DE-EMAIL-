@@ -95,7 +95,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       if (typedConfigs.length > 0) {
         setSelectedConfigId((prev: string | null) => {
           if (prev !== null && typedConfigs.some(c => c.id === prev)) return prev;
-          return typedConfigs[0].id;
+          return typedConfigs[0]?.id || null;
         });
       }
     }
