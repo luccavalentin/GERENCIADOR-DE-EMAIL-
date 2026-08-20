@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Server, Cpu, HardDrive, Network, ShieldCheck, RefreshCcw, Power, Play, Activity } from "lucide-react";
+import { Server, Cpu, HardDrive, Network, ShieldCheck, RefreshCcw, Power, Play, Activity, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
