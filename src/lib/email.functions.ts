@@ -56,6 +56,58 @@ export const testConnection = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const saveEmailConfiguration = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({
+    configId: z.string().optional(),
+    configData: z.object({
+      user_id: z.string(),
+      imap_host: z.string(),
+      imap_port: z.number(),
+      imap_secure: z.boolean(),
+      smtp_host: z.string(),
+      smtp_port: z.number(),
+      smtp_secure: z.boolean(),
+      email_user: z.string(),
+      destinations: z.array(z.string()),
+      keywords: z.array(z.string()),
+      provider: z.string(),
+    }),
+    emailPassword: z.string(),
+  }).parse(data))
+  .handler(async ({ data: { configId, configData, emailPassword } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    let targetConfigId = configId;
+
+    if (configId) {
+      const { error: updateError } = await supabaseAdmin
+        .from("email_configurations")
+        .update(configData as any)
+        .eq("id", configId);
+      if (updateError) throw updateError;
+    } else {
+      const { data, error: insertError } = await supabaseAdmin
+        .from("email_configurations")
+        .insert(configData as any)
+        .select("id")
+        .single();
+      if (insertError) throw insertError;
+      targetConfigId = data.id;
+    }
+
+    // Save password securely
+    const { error: credsError } = await supabaseAdmin
+      .from("email_credentials")
+      .upsert({
+        config_id: targetConfigId,
+        password: emailPassword
+      });
+    
+    if (credsError) throw credsError;
+
+    return { success: true, id: targetConfigId };
+  });
+
 export const getActiveConfigs = createServerFn({ method: "GET" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -80,49 +132,67 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
-    const { data: config, error: configError } = await supabaseAdmin
-      .from("email_configurations")
-      .select("*")
-      .eq("id", configId)
-      .single();
-
-    if (configError || !config) return { success: false, error: "Config not found" };
-
-    const log = async (message: string, level = "info") => {
-      console.log(`[Config ${configId}] ${message}`);
-      await supabaseAdmin.from("email_logs").insert({
-        config_id: configId,
-        message,
-        level
-      });
-    };
-
-    const updateHeartbeat = async (status: string, errorMsg?: string) => {
-      await supabaseAdmin.from("email_configurations").update({
-        last_heartbeat: new Date().toISOString(),
-        last_check_at: new Date().toISOString(),
-        status,
-        last_error: errorMsg || null,
-        ...(status === 'success' ? { last_success_at: new Date().toISOString() } : {})
-      }).eq("id", configId);
-    };
-
-    const imap = new ImapFlow({
-      host: config.imap_host,
-      port: config.imap_port,
-      secure: config.imap_secure,
-      auth: {
-        user: config.email_user,
-        pass: config.email_password,
-      },
-      logger: false,
+    // Global Lock Attempt
+    const { data: lockId, error: lockError } = await supabaseAdmin.rpc('acquire_email_config_lock', {
+      p_config_id: configId,
+      p_lock_timeout: '5 minutes'
     });
 
+    if (lockError || !lockId) {
+      return { success: false, error: "Locked or error acquiring lock" };
+    }
+
     try {
+      const { data: config, error: configError } = await supabaseAdmin
+        .from("email_configurations")
+        .select("*")
+        .eq("id", configId)
+        .single();
+
+      if (configError || !config) return { success: false, error: "Config not found" };
+
+      const { data: creds } = await supabaseAdmin
+        .from("email_credentials")
+        .select("password")
+        .eq("config_id", configId)
+        .single();
+
+      if (!creds?.password) return { success: false, error: "Credentials not found" };
+
+      const log = async (message: string, level = "info") => {
+        console.log(`[Config ${configId}] ${message}`);
+        await supabaseAdmin.from("email_logs").insert({
+          config_id: configId,
+          message,
+          level
+        });
+      };
+
+      const updateHeartbeat = async (status: string, errorMsg?: string) => {
+        await supabaseAdmin.from("email_configurations").update({
+          last_heartbeat: new Date().toISOString(),
+          last_check_at: new Date().toISOString(),
+          status,
+          last_error: errorMsg || null,
+          ...(status === 'success' ? { last_success_at: new Date().toISOString() } : {})
+        }).eq("id", configId);
+      };
+
+      const imap = new ImapFlow({
+        host: config.imap_host,
+        port: config.imap_port,
+        secure: config.imap_secure,
+        auth: {
+          user: config.email_user,
+          pass: creds.password,
+        },
+        logger: false,
+      });
+
       await imap.connect();
       await log("Conectado ao IMAP. Verificando novos e-mails...");
 
-      let lock = await imap.getMailboxLock("INBOX");
+      let mailboxLock = await imap.getMailboxLock("INBOX");
       try {
         const fetchOptions = { seen: false };
         const fetchQuery = { envelope: true, source: true, uid: true, flags: true };
@@ -133,21 +203,26 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
           const imapUid = Number(message.uid);
           const mailbox = "INBOX";
 
+          // Atomic Reservation with Retry support
           const { data: reserved, error: reserveError } = await supabaseAdmin.rpc('reserve_email_for_processing', {
             p_config_id: configId,
             p_mailbox: mailbox,
             p_imap_uid: imapUid
           });
 
-          if (reserveError || !reserved) {
-            continue;
-          }
+          if (reserveError || !reserved) continue;
 
           try {
             const parsed = await simpleParser(message.source);
             const subject = parsed.subject || "";
             const from = parsed.from?.value[0]?.address || "desconhecido";
             
+            // Persist Message-ID
+            await supabaseAdmin.from("email_processing_state").update({
+              message_id: parsed.messageId || null
+            }).eq("config_id", configId).eq("imap_uid", imapUid);
+
+            // Loop Protection
             const isLoop = 
               from.toLowerCase() === config.email_user.toLowerCase() ||
               subject.toUpperCase().startsWith("ENC:") ||
@@ -178,7 +253,7 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
                 secure: config.smtp_secure,
                 auth: {
                   user: config.email_user,
-                  pass: config.email_password,
+                  pass: creds.password,
                 },
               });
 
@@ -224,15 +299,20 @@ export const processEmailsForConfig = createServerFn({ method: "POST" })
           }
         }
       } finally {
-        lock.release();
+        mailboxLock.release();
       }
 
       await imap.logout();
       await updateHeartbeat('success');
       return { success: true };
     } catch (error: any) {
-      await log(`Erro ao processar e-mails: ${error.message}`, "error");
       await updateHeartbeat('error', error.message);
       return { success: false, error: error.message };
+    } finally {
+      // Global Lock Release
+      await supabaseAdmin.rpc('release_email_config_lock', {
+        p_config_id: configId,
+        p_lock_id: lockId
+      });
     }
   });
