@@ -12,8 +12,11 @@ import {
   AlertCircle,
   CheckCircle2,
   Trash2,
-  Tags
+  Tags,
+  History as HistoryIcon
 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
