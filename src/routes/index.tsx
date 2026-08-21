@@ -1,7 +1,4 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-/**
- * Agilliza Gerenciador de E-mail - Refinamento Final
- */
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { 
