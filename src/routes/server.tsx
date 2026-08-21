@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Server, Cpu, HardDrive, ShieldCheck, RefreshCcw, Clock, Activity, Database, Mail, Power, AlertCircle } from "lucide-react";
+import { Server, Cpu, HardDrive, Shield, RefreshCcw, Clock, Activity, Database, Mail, Power, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,8 +65,8 @@ function ServerPage() {
     <div className="space-y-8 max-w-7xl mx-auto pb-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Infraestrutura</h1>
-          <p className="text-slate-500 mt-1">Gerenciamento de hardware e serviços da VPS Agilliza.</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Infraestrutura do Servidor</h1>
+          <p className="text-slate-500 mt-1 font-medium">Controle operacional e telemetria da instância Hostinger.</p>
         </div>
         <Badge variant="outline" className={cn(
           "px-3 py-1 font-bold tracking-wider",
@@ -80,7 +80,7 @@ function ServerPage() {
         {/* Status da VPS */}
         <Card className="lg:col-span-3 premium-card">
           <CardHeader className="border-b border-slate-50 bg-slate-50/50 py-4">
-            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Status da VPS Hostinger</CardTitle>
+            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Telemetria de Hardware</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -120,11 +120,11 @@ function ServerPage() {
             
             <div className="mt-8 pt-6 border-t border-slate-100 flex gap-12">
                <div>
-                  <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Hostname</span>
+                  <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Hostname do Servidor</span>
                   <span className="text-sm font-semibold text-slate-700">{workerStatus?.hostname || "Aguardando dados..."}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Uptime</span>
+                  <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Tempo Ativo</span>
                   <span className="text-sm font-semibold text-slate-700">{workerStatus?.uptime || "Aguardando dados..."}</span>
                 </div>
             </div>
