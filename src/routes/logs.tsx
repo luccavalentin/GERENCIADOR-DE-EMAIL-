@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState, useCallback, default as React } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { AppLayout, useActiveAccount } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { History, Trash2, Search, Filter, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,23 +19,38 @@ import { getLogs } from "@/lib/email.functions";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/logs")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    configId: (search.configId as string) || undefined,
+  }),
   component: LogsIndexPage,
 });
 
 function LogsIndexPage() {
+  const { configId } = Route.useSearch();
+  const { selectedConfigId, setSelectedConfigId } = useActiveAccount();
+  
+  // Sync URL state to global account context if needed
+  useEffect(() => {
+    if (configId && configId !== selectedConfigId) {
+      setSelectedConfigId(configId);
+    }
+  }, [configId, selectedConfigId, setSelectedConfigId]);
+
   const [level, setLevel] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const limit = 50;
   
   const { data: logsData, isLoading } = useQuery({
-    queryKey: ["allLogs", level, search, page],
+    queryKey: ["allLogs", level, search, page, selectedConfigId],
     queryFn: () => getLogs({ 
+
       data: { 
         limit,
         offset: page * limit,
         level: level === "all" ? undefined : level as any,
-        search
+        search,
+        configId: selectedConfigId || undefined
       } 
     }),
   });
