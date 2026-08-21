@@ -114,7 +114,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           
           <div className="h-px bg-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]" />
 
-          <div className="p-4 md:p-8 max-w-[1600px] w-full mx-auto">
+          <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] w-full mx-auto overflow-hidden">
             {children}
           </div>
 

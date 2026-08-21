@@ -75,8 +75,8 @@ function DashboardPage() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Painel de Monitoramento</h1>
-          <p className="text-slate-500 mt-1 font-medium">Infraestrutura e timeline operacional de e-mails.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Painel de Monitoramento</h1>
+          <p className="text-xs md:text-sm text-slate-500 mt-1 font-medium">Infraestrutura e timeline operacional de e-mails.</p>
         </div>
         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex flex-col items-end mr-2">

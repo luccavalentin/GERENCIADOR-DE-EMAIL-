@@ -117,7 +117,7 @@ export function TopHeader({
 
         <div className="h-6 w-px bg-slate-200" />
 
-        <div className="hidden xs:flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 shadow-inner">
             <div className={cn(
               "h-1.5 w-1.5 rounded-full",
