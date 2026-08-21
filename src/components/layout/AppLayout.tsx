@@ -41,7 +41,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     const { data } = await supabase
       .from("email_configurations")
       .select("*")
-      .order("created_at", { ascending: false });
     
     if (data) {
       const typedConfigs = data as EmailConfig[];
