@@ -144,8 +144,8 @@ function MonitoringPage() {
                   <span className={cn(
                     "font-bold uppercase tracking-tighter shrink-0 w-16 text-center rounded px-1",
                     log.level === 'error' ? "text-red-400 bg-red-400/10" : 
-                    log.level === 'success' ? "text-green-400 bg-green-400/10" : 
-                    log.level === 'warning' ? "text-yellow-400 bg-yellow-400/10" : 
+                    log.level === 'success' ? "text-green-500 bg-green-500/10" : 
+                    log.level === 'warning' ? "text-yellow-500 bg-yellow-500/10" : 
                     "text-slate-400 bg-slate-800"
                   )}>
                     {log.level || 'INFO'}

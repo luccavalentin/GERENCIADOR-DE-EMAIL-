@@ -102,7 +102,7 @@ function DashboardPage() {
         </div>
       </div>
 
-      {/* Saúde do Sistema Section */}
+      {/* Infraestrutura Section */}
       <section className="space-y-4">
         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde da Infraestrutura</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -122,7 +122,7 @@ function DashboardPage() {
                 <item.icon className="h-4 w-4" />
               </div>
               <div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.label}</div>
                 <div className={cn(
                   "text-xs font-bold capitalize",
                   item.status === 'operacional' ? "text-slate-900" : 
@@ -189,12 +189,12 @@ function DashboardPage() {
         ))}
       </div>
       
-      {/* Atividade Recente Table */}
+      {/* Atividade Recente Section */}
       <Card className="premium-card overflow-hidden">
         <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between bg-slate-50/50">
           <div>
             <CardTitle className="text-lg font-bold text-slate-900">Atividade Recente</CardTitle>
-            <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos reais do sistema.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos processados.</p>
           </div>
           <Button variant="outline" size="sm" className="text-[#0000A0] border-[#0000A0]/20 font-bold hover:bg-blue-50" asChild>
             <a href="/logs" className="flex items-center gap-2">
