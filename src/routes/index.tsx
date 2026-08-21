@@ -71,8 +71,8 @@ function DashboardPage() {
   });
 
   const { data: recentLogs } = useQuery({
-    queryKey: ['recentLogs'],
-    queryFn: () => getLogs({ data: { limit: 10 } }),
+    queryKey: ['recentLogs', selectedConfigId],
+    queryFn: () => getLogs({ data: { limit: 10, configId: selectedConfigId || undefined } }),
   });
 
   const isWorkerOnline = workerStatus?.status === 'online';
@@ -214,10 +214,14 @@ function DashboardPage() {
             <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos processados.</p>
           </div>
           <Button variant="outline" size="sm" className="text-[#0000A0] border-[#0000A0]/20 font-bold hover:bg-blue-50" asChild>
-            <a href="/logs" className="flex items-center gap-2">
+            <Link 
+              to="/logs" 
+              search={{ configId: selectedConfigId || undefined }}
+              className="flex items-center gap-2"
+            >
               Ver Histórico Completo
               <ArrowRight className="h-3 w-3" />
-            </a>
+            </Link>
           </Button>
         </CardHeader>
         <div className="overflow-x-auto">
