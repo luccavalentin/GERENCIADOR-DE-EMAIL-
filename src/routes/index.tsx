@@ -51,16 +51,18 @@ function DashboardPageWithLayout() {
 }
 
 function DashboardPage() {
+  const { selectedConfigId } = AppLayout.useActiveAccount?.() || { selectedConfigId: null };
   const { data: session } = useQuery({ 
     queryKey: ['session'], 
     queryFn: async () => (await supabase.auth.getSession()).data.session 
   });
   
   const { data: stats } = useQuery({
-    queryKey: ['stats'],
-    queryFn: () => getDailyStats({ data: { userId: session?.user?.id || '' } }),
+    queryKey: ['stats', selectedConfigId],
+    queryFn: () => getDailyStats({ data: { userId: session?.user?.id || '', configId: selectedConfigId } }),
     enabled: !!session?.user?.id
   });
+
 
   const { data: workerStatus } = useQuery({
     queryKey: ['workerStatus'],
