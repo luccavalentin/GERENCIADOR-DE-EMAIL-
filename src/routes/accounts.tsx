@@ -103,8 +103,8 @@ function AccountsPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contas monitoradas</h1>
-          <p className="text-slate-500 mt-1">Gerencie as caixas de e-mail utilizadas pelo processamento.</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contas de E-mail</h1>
+          <p className="text-slate-500 mt-1 font-medium">Gerencie as caixas de saída e e-mails de recebimento.</p>
         </div>
         <Button 
           onClick={handleCreate}
@@ -131,8 +131,8 @@ function AccountsPage() {
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
-              <TableHead className="font-bold text-slate-700">E-mail</TableHead>
-              <TableHead className="font-bold text-slate-700">Destinatários</TableHead>
+              <TableHead className="font-bold text-slate-700">E-mail de Saída</TableHead>
+              <TableHead className="font-bold text-slate-700">E-mails de Recebimento</TableHead>
               <TableHead className="font-bold text-slate-700">Palavras-chave</TableHead>
               <TableHead className="font-bold text-slate-700">IMAP</TableHead>
               <TableHead className="font-bold text-slate-700">SMTP</TableHead>

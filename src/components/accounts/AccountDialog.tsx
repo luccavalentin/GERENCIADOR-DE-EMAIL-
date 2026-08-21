@@ -220,7 +220,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                       <CardHeader className="pb-4">
                         <CardTitle className="text-sm font-bold flex items-center gap-2">
                           <Globe className="h-4 w-4 text-[#0000A0]" />
-                          Informações Básicas
+                          Configuração da Conta de Saída
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
@@ -358,7 +358,10 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                   <TabsContent value="destinatarios" className="mt-0 space-y-6">
                     <Card className="premium-card shadow-none">
                       <CardHeader>
-                        <CardTitle className="text-sm font-bold">E-mails de Recebimento</CardTitle>
+                        <CardTitle className="text-sm font-bold flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-[#0000A0]" />
+                          E-mails de Recebimento
+                        </CardTitle>
                         <CardDescription>Para onde os e-mails filtrados serão encaminhados.</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
@@ -394,7 +397,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                           <Tags className="h-4 w-4 text-[#0000A0]" />
                           Palavras-chave
                         </CardTitle>
-                        <CardDescription className="text-[11px]">O sistema identifica automaticamente variações de maiúsculas, minúsculas e acentuação.</CardDescription>
+                        <CardDescription className="text-[11px]">Identificação tolerante a maiúsculas, minúsculas e acentos (ex: CÓDIGO, codigo, Código).</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="flex gap-2">

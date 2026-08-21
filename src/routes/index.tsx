@@ -1,9 +1,4 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-// Ele deve permitir editar as configurações e etc que já existem. Duplicar editar ee tc
-// Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec.lovable.js:92 ❤️ Lovable Script — v1.7.015Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('<URL>').lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://gptengineer.app') does not match the recipient window's origin ('https://preview--project-august-future.lovable.app').(anonymous) @ lovable.js:26lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://lovable.dev') does not match the recipient window's origin ('https://preview--project-august-future.lovable.app').(anonymous) @ lovable.js:26lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://beta.lovable.dev') does not match the recipient window's origin ('https://preview--project-august-future.lovable.app').(anonymous) @ lovable.js:26lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://gptengineer.app') does not match the recipient window's origin ('https://preview--project-august-future.lovable.app').(anonymous) @ lovable.js:26lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://lovable.dev') does not match the recipient window's origin ('https://preview--project-august-future.lovable.app').(anonymous) @ lovable.js:26lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://beta.lovable.dev') does not match the recipient window's origin ('https://preview--project-august-future.lovable.app').(anonymous) @ lovable.js:26lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://gptengineer.app') does not match the recipient window's origin ('https://preview--project-august-future.lovable.app').(anonymous) @ lovable.js:26lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://lovable.dev') does not match the recipient window's origin ('https://preview--project-august-future.lovable.app').(anonymous) @ lovable.js:26lovable.js:26 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://beta.lovable.
-/**
- * Agilliza Gerenciador de E-mail - Refinamento Final
- */
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -14,7 +9,7 @@ import {
   CheckCircle2,
   Server,
   Database,
-  ShieldCheck,
+  Shield,
   ArrowRight,
   TrendingUp,
   XCircle,
@@ -85,8 +80,8 @@ function DashboardPage() {
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Painel Operacional</h1>
-          <p className="text-slate-500 mt-1 font-medium">Saúde da infraestrutura e timeline operacional Agilliza.</p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Painel de Monitoramento</h1>
+          <p className="text-slate-500 mt-1 font-medium">Infraestrutura e timeline operacional de e-mails.</p>
         </div>
         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex flex-col items-end mr-2">
@@ -104,16 +99,16 @@ function DashboardPage() {
         </div>
       </div>
 
-      {/* Saúde do Sistema Section */}
+      {/* Infraestrutura Section */}
       <section className="space-y-4">
-        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde do Sistema</h2>
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde da Infraestrutura</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { label: "Worker", status: workerStatus?.status === 'online' ? 'operacional' : 'falha', icon: Activity },
             { label: "IMAP", status: isOnline ? 'operacional' : 'aguardando', icon: Mail },
-            { label: "SMTP", status: isOnline ? 'operacional' : 'aguardando', icon: ShieldCheck },
+            { label: "SMTP", status: isOnline ? 'operacional' : 'aguardando', icon: Shield },
             { label: "Banco de Dados", status: 'operacional', icon: Database },
-            { label: "VPS Hostinger", status: isOnline ? 'operacional' : 'falha', icon: Server },
+            { label: "Infraestrutura Hostinger", status: isOnline ? 'operacional' : 'falha', icon: Server },
           ].map((item, i) => (
             <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 group hover:border-[#0000A0] transition-all">
               <div className={cn(
@@ -124,7 +119,7 @@ function DashboardPage() {
                 <item.icon className="h-4 w-4" />
               </div>
               <div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.label}</div>
                 <div className={cn(
                   "text-xs font-bold capitalize",
                   item.status === 'operacional' ? "text-slate-900" : 
@@ -191,12 +186,12 @@ function DashboardPage() {
         ))}
       </div>
       
-      {/* Atividade Recente Table */}
+      {/* Atividade Recente Section */}
       <Card className="premium-card overflow-hidden">
         <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between bg-slate-50/50">
           <div>
             <CardTitle className="text-lg font-bold text-slate-900">Atividade Recente</CardTitle>
-            <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos reais do sistema.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos processados.</p>
           </div>
           <Button variant="outline" size="sm" className="text-[#0000A0] border-[#0000A0]/20 font-bold hover:bg-blue-50" asChild>
             <a href="/logs" className="flex items-center gap-2">
@@ -222,7 +217,7 @@ function DashboardPage() {
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="text-sm font-semibold text-slate-900 leading-none mb-1">
-                      {log.message.split(' - ')[0] || "Processamento de E-mail"}
+                      {log.message.split(' - ')[0] || "Processamento"}
                     </div>
                     <div className="text-xs text-slate-500 truncate max-w-[600px]">
                       {log.message.includes(' - ') ? log.message.split(' - ').slice(1).join(' - ') : log.message}
@@ -246,7 +241,7 @@ function DashboardPage() {
                   <TableCell colSpan={3} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2 opacity-50">
                       <History className="h-8 w-8" />
-                      <p className="text-xs font-bold uppercase tracking-widest">Aguardando atividade real...</p>
+                      <p className="text-xs font-bold uppercase tracking-widest">Aguardando dados...</p>
                     </div>
                   </TableCell>
                 </TableRow>

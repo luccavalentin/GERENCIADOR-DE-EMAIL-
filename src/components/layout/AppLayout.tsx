@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
-import logoPrimary from "@/assets/logo-original.png.asset.json";
+
 
 interface EmailConfig {
   id: string;
@@ -179,9 +179,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             isCollapsed && "p-4"
           )}>
             {!isCollapsed ? (
-              <img src={logoPrimary.url} alt="Agilliza" className="h-10 object-contain transition-all" />
+              <img src="/logo-original.png" alt="Agilliza" className="h-10 object-contain transition-all" />
             ) : (
-              <img src={logoPrimary.url} alt="A" className="h-8 w-8 object-contain" />
+              <img src="/logo-original.png" alt="A" className="h-8 w-8 object-contain" />
             )}
             
             <button 
@@ -261,8 +261,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-64 p-2 shadow-xl border-slate-200 rounded-xl">
-                    <DropdownMenuLabel className="px-2 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Minhas Contas</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuLabel className="px-2 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">E-mails de Saída</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="my-1 bg-slate-100" />
                     {configs.map((config) => (
                       <DropdownMenuItem 
                         key={config.id}
@@ -273,7 +273,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                         {config.email_user}
                       </DropdownMenuItem>
                     ))}
-                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuSeparator className="my-1 bg-slate-100" />
                     <DropdownMenuItem 
                       className="cursor-pointer text-[#0000A0] font-bold rounded-lg py-2 focus:bg-blue-50 focus:text-[#0000A0]"
                       onClick={() => navigate({ to: "/accounts" })}
@@ -294,7 +294,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     workerStatus?.status === "online" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500"
                   )} />
                   <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                    {workerStatus?.message || "Worker Offline"}
+                    {workerStatus?.message === "Worker Online" ? "Worker Ativo" : workerStatus?.message || "Worker Inativo"}
                   </span>
                 </div>
               </div>
@@ -336,9 +336,17 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="p-8 max-w-[1600px] w-full mx-auto">
             {children}
           </div>
+
+          {/* Footer */}
+          <footer className="py-6 px-8 border-t bg-white">
+            <div className="max-w-[1600px] mx-auto flex justify-center items-center">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Desenvolvido por Lucca Santana
+              </p>
+            </div>
+          </footer>
         </main>
       </div>
-
     </ActiveAccountContext.Provider>
   );
 }
