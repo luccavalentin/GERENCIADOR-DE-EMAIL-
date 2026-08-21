@@ -131,8 +131,8 @@ function AccountsPage() {
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
-              <TableHead className="font-bold text-slate-700">E-mail</TableHead>
-              <TableHead className="font-bold text-slate-700">Destinatários</TableHead>
+              <TableHead className="font-bold text-slate-700">E-mail de Saída</TableHead>
+              <TableHead className="font-bold text-slate-700">E-mails de Recebimento</TableHead>
               <TableHead className="font-bold text-slate-700">Palavras-chave</TableHead>
               <TableHead className="font-bold text-slate-700">IMAP</TableHead>
               <TableHead className="font-bold text-slate-700">SMTP</TableHead>
