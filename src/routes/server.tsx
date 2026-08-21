@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Server, Cpu, HardDrive, Shield, RefreshCcw, Clock, Activity, Database, Mail, Power, AlertCircle } from "lucide-react";
+import { Server, Cpu, HardDrive, Shield, RefreshCcw, Clock, Activity, Database, Mail, Power, AlertCircle, PlayCircle, PauseCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getWorkerStatus, restartWorker } from "@/lib/email.functions";
+import { getWorkerStatus, updateWorkerState, waitForWorkerState } from "@/lib/email.functions";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
+
 
 import { 
   AlertDialog,
