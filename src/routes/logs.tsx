@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, useCallback, default as React } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout, useActiveAccount } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,8 +20,8 @@ import { format } from "date-fns";
 
 export const Route = createFileRoute("/logs")({
   validateSearch: (search: Record<string, unknown>) => ({
-    configId: (search.configId as string) || undefined,
-  }),
+    configId: (search['configId'] as string) || undefined,
+  }) as { configId?: string },
   component: LogsIndexPage,
 });
 
