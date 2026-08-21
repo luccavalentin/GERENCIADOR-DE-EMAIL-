@@ -27,7 +27,7 @@ export function InfrastructureHealth({
       <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde da Infraestrutura</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
         {items.map((item, i) => (
-          <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 group hover:border-[#0000A0] transition-all">
+          <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 group hover:border-[#0000a2] transition-all">
             <div className={cn(
               "p-2 rounded-lg",
               item.status === 'operacional' ? "bg-green-50 text-green-600" : 

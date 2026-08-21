@@ -59,7 +59,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed, onSignOut }: SidebarProps
         
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-10 h-6 w-6 rounded-full bg-[#0000A0] text-white hidden md:flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform z-50"
+          className="absolute -right-3 top-10 h-6 w-6 rounded-full bg-[#0000a2] text-white hidden md:flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform z-50"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
         </button>

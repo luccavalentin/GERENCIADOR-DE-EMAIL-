@@ -193,7 +193,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[90vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-xl font-bold text-[#0000A0]">
+          <DialogTitle className="text-xl font-bold text-[#0000a2]">
             {config ? "Editar Conta de E-mail" : "Nova Conta de E-mail"}
           </DialogTitle>
           <DialogDescription>
@@ -206,10 +206,10 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
             <Tabs defaultValue="geral" className="flex-1 overflow-hidden flex flex-col">
               <div className="px-6 border-b">
                 <TabsList className="w-full justify-start bg-transparent h-auto md:h-12 p-0 gap-4 md:gap-6 flex-wrap md:flex-nowrap">
-                  <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000A0]">CONTA</TabsTrigger>
-                  <TabsTrigger value="entrada" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000A0]">SERVIDORES</TabsTrigger>
-                  <TabsTrigger value="destinatarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000A0]">DESTINOS</TabsTrigger>
-                  <TabsTrigger value="regras" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000A0]">REGRAS</TabsTrigger>
+                  <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000a2] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000a2]">CONTA</TabsTrigger>
+                  <TabsTrigger value="entrada" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000a2] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000a2]">SERVIDORES</TabsTrigger>
+                  <TabsTrigger value="destinatarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000a2] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000a2]">DESTINOS</TabsTrigger>
+                  <TabsTrigger value="regras" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000a2] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000a2]">REGRAS</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -219,7 +219,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                     <Card className="premium-card bg-slate-50/50 shadow-none">
                       <CardHeader className="pb-4">
                         <CardTitle className="text-sm font-bold flex items-center gap-2">
-                          <Globe className="h-4 w-4 text-[#0000A0]" />
+                          <Globe className="h-4 w-4 text-[#0000a2]" />
                           Configuração da Conta de Saída
                         </CardTitle>
                       </CardHeader>
@@ -265,7 +265,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Card className="premium-card shadow-none">
                         <CardHeader className="pb-4">
-                          <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
+                          <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000a2]">
                             <HistoryIcon className="h-4 w-4" />
                             IMAP (Entrada)
                           </CardTitle>
@@ -310,7 +310,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
 
                       <Card className="premium-card shadow-none">
                         <CardHeader className="pb-4">
-                          <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000A0]">
+                          <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0000a2]">
                             <Mail className="h-4 w-4" />
                             SMTP (Saída)
                           </CardTitle>
@@ -359,7 +359,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                     <Card className="premium-card shadow-none">
                       <CardHeader>
                         <CardTitle className="text-sm font-bold flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-[#0000A0]" />
+                          <Mail className="h-4 w-4 text-[#0000a2]" />
                           E-mails de Recebimento
                         </CardTitle>
                         <CardDescription>Para onde os e-mails filtrados serão encaminhados.</CardDescription>
@@ -394,7 +394,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                     <Card className="premium-card shadow-none">
                       <CardHeader className="pb-4">
                         <CardTitle className="text-sm font-bold flex items-center gap-2">
-                          <Tags className="h-4 w-4 text-[#0000A0]" />
+                          <Tags className="h-4 w-4 text-[#0000a2]" />
                           Palavras-chave
                         </CardTitle>
                         <CardDescription className="text-[11px]">Identificação tolerante a maiúsculas, minúsculas e acentos (ex: CÓDIGO, codigo, Código).</CardDescription>
@@ -413,7 +413,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                         </div>
                         <div className="flex flex-wrap gap-2 min-h-[100px] p-4 bg-slate-50 rounded-lg border border-dashed border-slate-200">
                           {form.watch("keywords").map((kw) => (
-                            <Badge key={kw} className="pl-3 pr-1 py-1 gap-2 bg-[#0000A0] text-white hover:bg-[#0000A0] font-bold rounded-md border-none shadow-sm">
+                            <Badge key={kw} className="pl-3 pr-1 py-1 gap-2 bg-[#0000a2] text-white hover:bg-[#0000a2] font-bold rounded-md border-none shadow-sm">
                               {kw}
                               <button type="button" onClick={() => removeKeyword(kw)} className="hover:text-red-200 p-0.5 transition-colors">
                                 <X className="h-3 w-3" />
@@ -439,7 +439,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                     variant="outline" 
                     onClick={() => duplicateMutation.mutate()}
                     disabled={duplicateMutation.isPending}
-                    className="font-bold border-[#0000A0] text-[#0000A0] hover:bg-blue-50"
+                    className="font-bold border-[#0000a2] text-[#0000a2] hover:bg-blue-50"
                   >
                     <Copy className="mr-2 h-4 w-4" />
                     Duplicar
@@ -448,7 +448,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
               </div>
               <Button 
                 type="submit" 
-                className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold px-8 w-full sm:w-auto" 
+                className="bg-[#0000a2] hover:bg-[#000082] shadow-md font-bold px-8 w-full sm:w-auto" 
 
                 disabled={saveMutation.isPending}
               >

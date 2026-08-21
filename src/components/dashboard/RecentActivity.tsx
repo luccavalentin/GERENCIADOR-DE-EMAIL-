@@ -27,7 +27,7 @@ export function RecentActivity({ logs }: RecentActivityProps) {
           <CardTitle className="text-lg font-bold text-slate-900">Atividade Recente</CardTitle>
           <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos processados.</p>
         </div>
-        <Button variant="outline" size="sm" className="w-full sm:w-auto text-[#0000A0] border-[#0000A0]/20 font-bold hover:bg-blue-50" asChild>
+        <Button variant="outline" size="sm" className="w-full sm:w-auto text-[#0000a2] border-[#0000a2]/20 font-bold hover:bg-blue-50" asChild>
           <Link 
             to="/logs" 
             search={{}}

@@ -64,7 +64,7 @@ function LogsPage() {
   if (isLoading && page === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0000A0]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0000a2]"></div>
       </div>
     );
   }
@@ -168,7 +168,7 @@ function LogsPage() {
                         log.level === 'error' ? "text-red-600 bg-red-50" : 
                         log.level === 'success' ? "text-green-600 bg-green-50" :
                         log.level === 'warning' ? "text-yellow-600 bg-yellow-50" :
-                        "text-[#0000A0] bg-blue-50"
+                        "text-[#0000a2] bg-blue-50"
                       )}
                     >
                       {log.level || 'INFO'}
