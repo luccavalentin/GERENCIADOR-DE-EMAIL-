@@ -428,8 +428,8 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
               </ScrollArea>
             </Tabs>
 
-            <DialogFooter className="p-6 bg-slate-50 border-t flex flex-row justify-between items-center sm:justify-between gap-3">
-              <div className="flex gap-2">
+            <DialogFooter className="p-4 sm:p-6 bg-slate-50 border-t flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+              <div className="flex flex-row gap-2">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="font-bold border-slate-200">
                   Cancelar
                 </Button>
@@ -448,7 +448,8 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
               </div>
               <Button 
                 type="submit" 
-                className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold px-8" 
+                className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold px-8 w-full sm:w-auto" 
+
                 disabled={saveMutation.isPending}
               >
                 {saveMutation.isPending ? "Salvando..." : config ? "Salvar Alterações" : "Criar Conta"}
