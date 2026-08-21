@@ -34,30 +34,55 @@ export const Route = createTanstackFileRoute("/server")({
 
 function ServerPage() {
   const queryClient = useQueryClient();
-  const [isRestarting, setIsRestarting] = useState(false);
+  const [operationState, setOperationState] = useState<{
+    command: 'pause' | 'start' | 'restart' | null;
+    status: 'idle' | 'requesting' | 'waiting' | 'success' | 'error';
+    message?: string;
+  }>({ command: null, status: 'idle' });
 
   const { data: workerStatus, isLoading } = useQuery({
     queryKey: ['workerStatus'],
     queryFn: () => getWorkerStatus({}),
-    refetchInterval: 10000
+    refetchInterval: operationState.status === 'idle' ? 10000 : 2000
   });
 
-  const restartMutation = useMutation({
-    mutationFn: () => restartWorker({}),
-    onSuccess: () => {
-      setIsRestarting(true);
-      toast.success("Solicitação de reinício enviada");
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['workerStatus'] });
-        setIsRestarting(false);
-      }, 5000);
+  const controlMutation = useMutation({
+    mutationFn: async (command: 'pause' | 'start' | 'restart') => {
+      setOperationState({ command, status: 'requesting' });
+      const { requestId } = await updateWorkerState({ data: { command } });
+      
+      setOperationState({ command, status: 'waiting', message: `Solicitação enviada. Aguardando worker...` });
+      
+      const expectedStatus = command === 'pause' ? 'paused' : 'running';
+      const result = await waitForWorkerState({ 
+        data: { 
+          requestId, 
+          expectedStatus,
+          timeoutMs: command === 'restart' ? 60000 : 30000 
+        } 
+      });
+
+      if (!result.success) throw new Error(result.error || result.message || "Operação expirou");
+      return result;
     },
-    onError: () => {
-      toast.error("Erro ao solicitar reinício");
+    onSuccess: (_, command) => {
+      const labels = { pause: 'pausado', start: 'iniciado', restart: 'reiniciado' };
+      toast.success(`Serviço ${labels[command]} com sucesso`);
+      setOperationState({ command: null, status: 'idle' });
+      queryClient.invalidateQueries({ queryKey: ['workerStatus'] });
+    },
+    onError: (error: any, command) => {
+      toast.error(`Falha ao ${command}: ${error.message}`);
+      setOperationState({ command: null, status: 'idle' });
     }
   });
 
-  const isOnline = workerStatus?.status === 'online';
+  const workerState = workerStatus?.status || 'offline';
+  const isOnline = workerState === 'online';
+  const isPaused = workerState === 'paused';
+  const isStopped = workerState === 'offline';
+  const isPending = operationState.status !== 'idle';
+
   const cpu = workerStatus?.cpu_usage || 0;
   const ram = workerStatus?.ram_usage || 0;
   const disk = workerStatus?.disk_usage; // Use real telemetry if available
@@ -71,10 +96,13 @@ function ServerPage() {
         </div>
         <Badge variant="outline" className={cn(
           "px-3 py-1 font-bold tracking-wider",
-          isOnline ? "text-green-600 border-green-200 bg-green-50" : "text-slate-400 border-slate-200 bg-slate-50"
+          isOnline ? "text-green-600 border-green-200 bg-green-50" : 
+          isPaused ? "text-yellow-600 border-yellow-200 bg-yellow-50" :
+          "text-slate-400 border-slate-200 bg-slate-50"
         )}>
-          {isOnline ? "● VPS ONLINE" : "○ VPS DESCONECTADA"}
+          {isOnline ? "● WORKER EM EXECUÇÃO" : isPaused ? "● WORKER PAUSADO" : "○ WORKER DESCONECTADO"}
         </Badge>
+
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -135,53 +163,89 @@ function ServerPage() {
         {/* Controles de Serviço */}
         <Card className="premium-card">
           <CardHeader className="border-b border-slate-50 bg-slate-50/50 py-4">
-            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Controles</CardTitle>
+            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Controle do Serviço</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-3">
+            {/* INICIAR */}
+            <Button 
+              variant="outline" 
+              className={cn(
+                "w-full justify-start font-bold text-xs h-10 transition-all",
+                (isOnline || isPending) ? "text-slate-400 opacity-50" : "text-green-600 border-green-100 hover:bg-green-50"
+              )}
+              disabled={isOnline || isPending}
+              onClick={() => controlMutation.mutate('start')}
+            >
+              <PlayCircle className="mr-3 h-4 w-4" />
+              {operationState.command === 'start' ? "Iniciando..." : "Iniciar Serviço"}
+            </Button>
+
+            {/* PAUSAR */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start text-slate-400 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10 cursor-not-allowed"
-                  disabled={true}
+                  className={cn(
+                    "w-full justify-start font-bold text-xs h-10 transition-all",
+                    (!isOnline || isPending) ? "text-slate-400 opacity-50" : "text-yellow-600 border-yellow-100 hover:bg-yellow-50"
+                  )}
+                  disabled={!isOnline || isPending}
                 >
-                  <RefreshCcw className="mr-3 h-4 w-4" />
-                  Integração com VPS pendente
+                  <PauseCircle className="mr-3 h-4 w-4" />
+                  {operationState.command === 'pause' ? "Pausando..." : "Pausar Serviço"}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Reiniciar o Worker?</AlertDialogTitle>
+                  <AlertDialogTitle>Pausar o Worker?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esta ação interromperá o processamento atual. O sistema tentará reconectar em alguns segundos.
+                    Pausar o serviço interromperá temporariamente o processamento de novos e-mails. Deseja continuar?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => restartMutation.mutate()} className="bg-[#0000a2]">Confirmar Reinício</AlertDialogAction>
+                  <AlertDialogAction onClick={() => controlMutation.mutate('pause')} className="bg-yellow-600 hover:bg-yellow-700">Confirmar Pausa</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            
+            {/* REINICIAR */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className={cn(
+                    "w-full justify-start font-bold text-xs h-10 transition-all",
+                    isPending ? "text-slate-400 opacity-50" : "text-[#0000a2] border-blue-100 hover:bg-blue-50"
+                  )}
+                  disabled={isPending}
+                >
+                  <RefreshCcw className={cn("mr-3 h-4 w-4", operationState.command === 'restart' && "animate-spin")} />
+                  {operationState.command === 'restart' ? "Reiniciando..." : "Reiniciar Serviço"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Reiniciar o Serviço?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    O serviço ficará indisponível por alguns segundos durante a reinicialização. Deseja continuar?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => controlMutation.mutate('restart')} className="bg-[#0000a2]">Confirmar Reinício</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
 
-            <Button 
-              variant="outline" 
-              className="w-full justify-start text-slate-600 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10"
-              disabled={!isOnline}
-            >
-              <Power className="mr-3 h-4 w-4" />
-              Parar Worker
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="w-full justify-start text-slate-600 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10"
-              disabled={!isOnline}
-            >
-              <Activity className="mr-3 h-4 w-4" />
-              Verificar Saúde
-            </Button>
+            {operationState.message && (
+              <div className="mt-2 text-[10px] text-center font-bold text-slate-400 animate-pulse">
+                {operationState.message}
+              </div>
+            )}
           </CardContent>
         </Card>
+
       </div>
 
       {/* Serviços */}
