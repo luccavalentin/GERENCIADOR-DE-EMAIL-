@@ -41,7 +41,7 @@ export interface SystemStats {
 }
 
 export interface WorkerStatus {
-  status: 'online' | 'offline';
+  status: 'online' | 'offline' | 'paused';
   message: string;
   db_status: 'online' | 'offline';
   hostname?: string;

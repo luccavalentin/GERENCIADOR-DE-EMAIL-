@@ -121,7 +121,7 @@ export function MonitorPage() {
             "flex items-center gap-3 px-4 py-2 rounded-full border-2 font-black text-xs tracking-wider transition-all shadow-sm",
             isOnline ? "bg-green-50 border-green-200 text-green-700" : 
             isPaused ? "bg-yellow-50 border-yellow-200 text-yellow-700" :
-            status === 'offline' ? "bg-slate-50 border-slate-200 text-slate-500" :
+            (status === 'offline' || status === 'error') ? "bg-slate-50 border-slate-200 text-slate-500" :
             "bg-red-50 border-red-200 text-red-700"
           )}>
             <div className={cn(
@@ -132,7 +132,7 @@ export function MonitorPage() {
             <span>
               {isOnline ? "EM EXECUÇÃO" : 
                isPaused ? "PAUSADO" : 
-               status === 'offline' ? "PARADO / DESCONECTADO" : "ERRO DE CONEXÃO"}
+               status === 'offline' ? "PARADO / DESCONECTADO" : "ERRO"}
             </span>
           </div>
         </div>
