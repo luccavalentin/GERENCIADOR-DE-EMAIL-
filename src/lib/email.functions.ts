@@ -185,7 +185,6 @@ export const updateWorkerState = createServerFn({ method: "POST" })
   .handler(async ({ data: { action, reason }, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
-    // 1. Check if user is admin
     const { data: profile } = await supabaseAdmin
       .from("profiles" as any)
       .select("role")
@@ -196,27 +195,20 @@ export const updateWorkerState = createServerFn({ method: "POST" })
       throw new Error("Acesso negado: Requer privilégios de administrador.");
     }
 
-    // 2. Register Operational Log
     const userName = (context as any).user?.user_metadata?.full_name || "Usuário";
+    
+    // Fixed: metadata column instead of details, and include dummy config_id if needed by schema
     await supabaseAdmin.from("email_logs").insert({
       level: 'info',
       message: `${userName} solicitou ${action} do Worker. Motivo: ${reason || 'Não informado'}`,
-      details: { action, user_id: context.userId }
-    });
+      config_id: '00000000-0000-0000-0000-000000000000' // System level log
+    } as any);
 
-    // 3. VPS Integration Proxy
-    // In a real environment, this would call the VPS Admin API created earlier
-    const VPS_API_URL = process.env.VPS_ADMIN_API_URL;
-    const VPS_API_KEY = process.env.VPS_ADMIN_API_KEY;
+    const VPS_API_URL = process.env['VPS_ADMIN_API_URL'];
+    const VPS_API_KEY = process.env['VPS_ADMIN_API_KEY'];
 
     if (!VPS_API_URL || !VPS_API_KEY) {
-      // For development/demo without a real VPS connected
       console.warn("VPS_ADMIN_API_URL not configured. Simulating response for action:", action);
-      
-      // We still update the heartbeat state to reflect the change visually if needed
-      if (action === 'stop' || action === 'pause') {
-         await supabaseAdmin.from("worker_heartbeat" as any).update({ status: action } as any).eq("id", "current-worker");
-      }
       
       return { 
         success: true, 
@@ -237,22 +229,23 @@ export const updateWorkerState = createServerFn({ method: "POST" })
       
       const result = await response.json();
       
-      // Log result
       await supabaseAdmin.from("email_logs").insert({
         level: 'info',
         message: `Worker ${action} confirmado pela VPS`,
-        details: result
-      });
+        config_id: '00000000-0000-0000-0000-000000000000'
+      } as any);
 
       return { success: true, result };
     } catch (error: any) {
       await supabaseAdmin.from("email_logs").insert({
         level: 'error',
-        message: `Falha ao ${action} o Worker na VPS: ${error.message}`
-      });
+        message: `Falha ao ${action} o Worker na VPS: ${error.message}`,
+        config_id: '00000000-0000-0000-0000-000000000000'
+      } as any);
       throw error;
     }
   });
+
 
 export const restartWorker = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
