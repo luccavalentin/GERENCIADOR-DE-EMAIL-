@@ -162,10 +162,11 @@ export const getWorkerStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: heartbeat } = await supabaseAdmin.from("worker_heartbeat" as any).select("*").order("last_heartbeat", { ascending: false }).limit(1).maybeSingle();
+    const { data: heartbeatData } = await supabaseAdmin.from("worker_heartbeat" as any).select("*").order("last_heartbeat", { ascending: false }).limit(1).maybeSingle();
+    const heartbeat = heartbeatData as any;
     // FIXED: Multi-user configs
     const { data: configs } = await supabaseAdmin.from("email_configurations").select("id, status, email_user, is_active, last_heartbeat");
-    const isOnline = heartbeat && (Date.now() - new Date((heartbeat as any).last_heartbeat).getTime()) < 120000;
+    const isOnline = heartbeat && heartbeat.last_heartbeat && (Date.now() - new Date(heartbeat.last_heartbeat).getTime()) < 120000;
     return { 
       ...(heartbeat || {}), 
       status: isOnline ? "online" : "offline", 
