@@ -132,9 +132,10 @@ function ServerPage() {
                     <HardDrive className="h-3 w-3 text-indigo-500" />
                     Memória (RAM)
                   </div>
-                  <span>{isOnline ? `${ram}%` : "—"}</span>
+                  <span>{isOnline && ram !== null && ram !== undefined ? `${ram}%` : "Indisponível"}</span>
                 </div>
-                <Progress value={isOnline ? ram : 0} className="h-1.5 bg-slate-100" />
+                <Progress value={isOnline && ram !== null && ram !== undefined ? ram : 0} className="h-1.5 bg-slate-100" />
+
               </div>
 
               <div className="space-y-3">
