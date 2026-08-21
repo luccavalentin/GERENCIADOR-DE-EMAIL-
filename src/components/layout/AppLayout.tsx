@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
-import logoPrimary from "@/assets/logo-original.png.asset.json";
+
 
 interface EmailConfig {
   id: string;
