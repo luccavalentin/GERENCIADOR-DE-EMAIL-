@@ -176,11 +176,90 @@ export const getWorkerStatus = createServerFn({ method: "GET" })
     };
   });
 
+export const updateWorkerState = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ 
+    action: z.enum(['start', 'stop', 'restart', 'pause']),
+    reason: z.string().optional()
+  }).parse(data))
+  .handler(async ({ data: { action, reason }, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // 1. Check if user is admin
+    const { data: profile } = await supabaseAdmin
+      .from("profiles" as any)
+      .select("role")
+      .eq("id", context.userId)
+      .single();
+    
+    if (!profile || (profile as any).role !== 'admin') {
+      throw new Error("Acesso negado: Requer privilégios de administrador.");
+    }
+
+    // 2. Register Operational Log
+    const userName = (context as any).user?.user_metadata?.full_name || "Usuário";
+    await supabaseAdmin.from("email_logs").insert({
+      level: 'info',
+      message: `${userName} solicitou ${action} do Worker. Motivo: ${reason || 'Não informado'}`,
+      details: { action, user_id: context.userId }
+    });
+
+    // 3. VPS Integration Proxy
+    // In a real environment, this would call the VPS Admin API created earlier
+    const VPS_API_URL = process.env.VPS_ADMIN_API_URL;
+    const VPS_API_KEY = process.env.VPS_ADMIN_API_KEY;
+
+    if (!VPS_API_URL || !VPS_API_KEY) {
+      // For development/demo without a real VPS connected
+      console.warn("VPS_ADMIN_API_URL not configured. Simulating response for action:", action);
+      
+      // We still update the heartbeat state to reflect the change visually if needed
+      if (action === 'stop' || action === 'pause') {
+         await supabaseAdmin.from("worker_heartbeat" as any).update({ status: action } as any).eq("id", "current-worker");
+      }
+      
+      return { 
+        success: true, 
+        message: `Comando ${action} enviado ao proxy. (Simulado: VPS não configurada)` 
+      };
+    }
+
+    try {
+      const response = await fetch(`${VPS_API_URL}/worker/${action}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${VPS_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error("Falha na comunicação com a VPS");
+      
+      const result = await response.json();
+      
+      // Log result
+      await supabaseAdmin.from("email_logs").insert({
+        level: 'info',
+        message: `Worker ${action} confirmado pela VPS`,
+        details: result
+      });
+
+      return { success: true, result };
+    } catch (error: any) {
+      await supabaseAdmin.from("email_logs").insert({
+        level: 'error',
+        message: `Falha ao ${action} o Worker na VPS: ${error.message}`
+      });
+      throw error;
+    }
+  });
+
 export const restartWorker = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
-    return { success: false, message: "Integração com VPS pendente" };
+  .handler(async ({ context }) => {
+    return updateWorkerState({ data: { action: 'restart' } });
   });
+
 
 export const getSystemHealth = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
