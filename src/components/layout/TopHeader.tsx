@@ -61,7 +61,7 @@ export function TopHeader({
 
   return (
     <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 shadow-sm">
-      <div className="flex items-center gap-2 md:gap-6">
+      <div className="flex items-center gap-1 sm:gap-6 min-w-0">
         <Button
           variant="ghost"
           size="icon"
@@ -74,13 +74,13 @@ export function TopHeader({
         <div className="flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-9 px-3 gap-3 hover:bg-slate-50 transition-all">
+              <Button variant="ghost" size="sm" className="h-9 px-2 sm:px-3 gap-2 sm:gap-3 hover:bg-slate-50 transition-all max-w-[150px] sm:max-w-none">
                 <div className="p-1.5 bg-blue-50 rounded-md">
                   <Mail className="h-4 w-4 text-[#0000A0]" />
                 </div>
                 <div className="text-left hidden sm:block">
-                  <div className="text-xs font-bold text-slate-900 leading-none mb-0.5">
-                    {selectedConfig ? selectedConfig.email_user : "Selecione uma conta"}
+                  <div className="text-[10px] sm:text-xs font-bold text-slate-900 leading-none mb-0.5 truncate max-w-[80px] sm:max-w-none">
+                    {selectedConfig ? selectedConfig.email_user : "Conta"}
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div className={cn("h-1.5 w-1.5 rounded-full", selectedConfig ? "bg-green-500" : "bg-slate-300")} />

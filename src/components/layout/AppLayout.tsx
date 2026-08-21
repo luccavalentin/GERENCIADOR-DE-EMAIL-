@@ -89,6 +89,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ActiveAccountContext.Provider value={{ selectedConfigId, setSelectedConfigId: handleAccountChange, configs, refreshConfigs: fetchConfigs }}>
       <div className="flex min-h-screen bg-[#f8fafc] font-sans">
+        {/* Overlay for mobile sidebar */}
+        {!isCollapsed && (
+          <div 
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-40 md:hidden transition-opacity duration-300"
+            onClick={() => setIsCollapsed(true)}
+          />
+        )}
+
         <Sidebar 
           isCollapsed={isCollapsed} 
           setIsCollapsed={setIsCollapsed} 

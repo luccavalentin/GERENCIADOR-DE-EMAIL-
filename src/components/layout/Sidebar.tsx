@@ -44,7 +44,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed, onSignOut }: SidebarProps
     <aside 
       className={cn(
         "border-r border-white/5 bg-[#000033] flex flex-col fixed inset-y-0 shadow-2xl z-50 transition-all duration-300 ease-in-out",
-        isCollapsed ? "-translate-x-full md:translate-x-0 md:w-20" : "w-64"
+        isCollapsed ? "-translate-x-full md:w-20 md:translate-x-0" : "w-64 translate-x-0"
       )}
     >
       <div className={cn(
