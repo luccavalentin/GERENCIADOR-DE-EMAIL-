@@ -15,7 +15,7 @@ import {
   XCircle,
   Copy
 } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { AppLayout, useActiveAccount } from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,8 +49,6 @@ function DashboardPageWithLayout() {
     </AppLayout>
   );
 }
-
-import { useActiveAccount } from "@/components/layout/AppLayout";
 
 function DashboardPage() {
   const { selectedConfigId } = useActiveAccount();

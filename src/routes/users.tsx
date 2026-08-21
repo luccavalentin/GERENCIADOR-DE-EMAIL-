@@ -148,7 +148,13 @@ function UsersPage() {
             <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancelar</Button>
               <Button 
-                onClick={() => createMutation.mutate()} 
+                onClick={() => {
+                  if (!newUser.email || !newUser.password || !newUser.full_name) {
+                    toast.error("Preencha todos os campos");
+                    return;
+                  }
+                  createMutation.mutate();
+                }} 
                 className="bg-[#0000A0]"
                 disabled={createMutation.isPending}
               >
