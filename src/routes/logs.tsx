@@ -111,7 +111,7 @@ function LogsIndexPage() {
                     <td colSpan={5} className="p-12 text-center text-slate-400">Carregando auditoria...</td>
                   </tr>
                 ) : logs.map((log: any) => (
-                  <tr key={log.id} className="hover:bg-slate-50/50 group md:table-row flex flex-col p-4 md:p-0 border-b md:border-none">
+                  <tr key={log.id} className="hover:bg-slate-50/50 group md:table-row flex flex-col p-4 md:p-0 border-b md:border-none w-full">
                     <td className="px-6 py-2 md:py-4 text-slate-400 font-mono text-xs whitespace-nowrap md:table-cell flex justify-between items-center w-full md:w-auto">
                       <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Horário</span>
                       {format(new Date(log.created_at), "dd/MM HH:mm:ss")}
