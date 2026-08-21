@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import logoPrimary from "@/assets/logo-original.png.asset.json";
+
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -62,8 +62,8 @@ function AuthPage() {
       <Card className="w-full max-w-md premium-card overflow-hidden">
         <CardHeader className="flex flex-col items-center pt-10 pb-6 bg-slate-50/50 border-b border-slate-100">
           <img src="/logo-original.png" alt="Agilliza" className="mb-6 h-16 object-contain transition-transform hover:scale-105" />
-          <CardTitle className="text-2xl font-bold text-slate-900">{isSignUp ? "Criar Conta" : "Painel Agilliza"}</CardTitle>
-          <CardDescription className="text-center px-6 pt-2 text-slate-500 font-medium">
+          <CardTitle className="text-2xl font-bold text-slate-900">{isSignUp ? "Criar Conta" : "Painel de E-mail"}</CardTitle>
+          <CardDescription className="text-center px-6 pt-2 text-slate-500 font-medium tracking-tight">
             {isSignUp
               ? "Cadastre-se para gerenciar seus e-mails com eficiência."
               : "Entre para acessar sua central operacional de e-mails."}
@@ -88,7 +88,7 @@ function AuthPage() {
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">E-mail Corporativo</label>
               <Input
                 type="email"
-                placeholder="exemplo@agilliza.net.br"
+                placeholder="email@empresa.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
