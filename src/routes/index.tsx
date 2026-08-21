@@ -216,7 +216,7 @@ function DashboardPage() {
           <Button variant="outline" size="sm" className="text-[#0000A0] border-[#0000A0]/20 font-bold hover:bg-blue-50" asChild>
             <Link 
               to="/logs" 
-              search={{ configId: selectedConfigId || undefined }}
+              search={selectedConfigId ? { configId: selectedConfigId } : {}}
               className="flex items-center gap-2"
             >
               Ver Histórico Completo

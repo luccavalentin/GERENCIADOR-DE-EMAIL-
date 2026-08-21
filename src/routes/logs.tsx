@@ -20,8 +20,8 @@ import { format } from "date-fns";
 
 export const Route = createFileRoute("/logs")({
   validateSearch: (search: Record<string, unknown>) => ({
-    configId: (search['configId'] as string) || undefined,
-  }) as { configId?: string },
+    configId: typeof search['configId'] === 'string' ? search['configId'] : undefined,
+  }),
   component: LogsIndexPage,
 });
 
