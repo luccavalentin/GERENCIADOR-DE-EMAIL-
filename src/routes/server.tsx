@@ -83,9 +83,10 @@ function ServerPage() {
   const isStopped = workerState === 'offline';
   const isPending = operationState.status !== 'idle';
 
-  const cpu = workerStatus?.cpu_usage || 0;
-  const ram = workerStatus?.ram_usage || 0;
-  const disk = workerStatus?.disk_usage; // Use real telemetry if available
+  const cpu = workerStatus?.cpu_usage;
+  const ram = workerStatus?.ram_usage;
+  const disk = workerStatus?.disk_usage;
+
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10">
