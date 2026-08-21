@@ -38,7 +38,7 @@ export const clearLocks = createServerFn({ method: "POST" })
   .handler(async ({ data: { configId } }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
-      .from("email_locks")
+      .from("email_locks" as any)
       .delete()
       .eq("config_id", configId);
     if (error) throw error;
