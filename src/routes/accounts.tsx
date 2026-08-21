@@ -149,7 +149,7 @@ function AccountsPage() {
                     <div className="p-2 bg-blue-50 rounded-lg shrink-0">
                       <Mail className="h-4 w-4 text-[#0000A0]" />
                     </div>
-                    <div className="font-bold text-slate-900 truncate max-w-[200px]" title={config.email_user}>
+                    <div className="font-bold text-slate-900 truncate max-w-[150px] sm:max-w-[200px]" title={config.email_user}>
                       {config.email_user}
                     </div>
                   </div>
