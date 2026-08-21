@@ -189,9 +189,19 @@ function ServerPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: "Worker Core", status: isOnline ? 'online' : 'offline', icon: Activity, desc: "Processador de E-mail" },
-            { label: "Engine IMAP", status: isOnline ? 'online' : 'aguardando', icon: Mail, desc: "Protocolo de Entrada" },
-            { label: "Engine SMTP", status: isOnline ? 'online' : 'aguardando', icon: Shield, desc: "Protocolo de Saída" },
-            { label: "Banco de Dados", status: 'online', icon: Database, desc: "Serviço de Dados" },
+            { 
+              label: "Engine IMAP", 
+              status: !workerStatus?.configs?.length ? 'aguardando' : workerStatus.configs.some((c: any) => c.status === 'error') ? 'offline' : 'online', 
+              icon: Mail, 
+              desc: "Protocolo de Entrada" 
+            },
+            { 
+              label: "Engine SMTP", 
+              status: !workerStatus?.configs?.length ? 'aguardando' : workerStatus.configs.some((c: any) => c.status === 'error') ? 'offline' : 'online', 
+              icon: Shield, 
+              desc: "Protocolo de Saída" 
+            },
+            { label: "Banco de Dados", status: workerStatus?.db_status || 'aguardando', icon: Database, desc: "Serviço de Dados" },
           ].map((service, i) => (
             <Card key={i} className="premium-card">
               <CardContent className="p-4 flex items-center gap-4">

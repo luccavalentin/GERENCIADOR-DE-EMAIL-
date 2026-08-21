@@ -73,7 +73,25 @@ function DashboardPage() {
     queryFn: () => getLogs({ data: { limit: 10 } }),
   });
 
-  const isOnline = workerStatus?.status === 'online';
+  const isWorkerOnline = workerStatus?.status === 'online';
+  const isDbOnline = workerStatus?.db_status === 'online';
+  
+  // SMTP/IMAP logic based on actual last check results
+  const hasConfigs = workerStatus?.configs && workerStatus.configs.length > 0;
+  
+  const imapStatus = !hasConfigs ? 'aguardando' : 
+    workerStatus.configs.every((c: any) => c.status === 'success') ? 'operacional' : 
+    workerStatus.configs.some((c: any) => c.status === 'error') ? 'falha' : 'operacional';
+    
+  const smtpStatus = !hasConfigs ? 'aguardando' : 
+    workerStatus.configs.every((c: any) => c.status === 'success') ? 'operacional' : 
+    workerStatus.configs.some((c: any) => c.status === 'error') ? 'falha' : 'operacional';
+
+  const isSystemHealthy = isWorkerOnline && isDbOnline && imapStatus === 'operacional' && smtpStatus === 'operacional';
+  const globalStatusLabel = isWorkerOnline ? "Worker Operacional" : "Atenção Requerida";
+  const globalStatusColor = isWorkerOnline ? "text-green-600" : "text-red-600";
+  const globalStatusIcon = isWorkerOnline ? <CheckCircle2 className="h-6 w-6" /> : <AlertCircle className="h-6 w-6" />;
+  const globalStatusBg = isWorkerOnline ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600";
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -86,15 +104,15 @@ function DashboardPage() {
         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex flex-col items-end mr-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Global</span>
-            <span className={cn("text-xs font-bold", isOnline ? "text-green-600" : "text-red-600")}>
-              {isOnline ? "Sistema Operacional" : "Atenção Requerida"}
+            <span className={cn("text-xs font-bold", globalStatusColor)}>
+              {globalStatusLabel}
             </span>
           </div>
           <div className={cn(
             "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
-            isOnline ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
+            globalStatusBg
           )}>
-            {isOnline ? <CheckCircle2 className="h-6 w-6" /> : <AlertCircle className="h-6 w-6" />}
+            {globalStatusIcon}
           </div>
         </div>
       </div>
@@ -104,11 +122,11 @@ function DashboardPage() {
         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde da Infraestrutura</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           {[
-            { label: "Worker", status: workerStatus?.status === 'online' ? 'operacional' : 'falha', icon: Activity },
-            { label: "IMAP", status: isOnline ? 'operacional' : 'aguardando', icon: Mail },
-            { label: "SMTP", status: isOnline ? 'operacional' : 'aguardando', icon: Shield },
-            { label: "Banco de Dados", status: 'operacional', icon: Database },
-            { label: "Infraestrutura Hostinger", status: isOnline ? 'operacional' : 'falha', icon: Server },
+            { label: "Worker", status: isWorkerOnline ? 'operacional' : 'falha', icon: Activity },
+            { label: "IMAP", status: imapStatus, icon: Mail },
+            { label: "SMTP", status: smtpStatus, icon: Shield },
+            { label: "Banco de Dados", status: isDbOnline ? 'operacional' : 'falha', icon: Database },
+            { label: "VPS Hostinger", status: isWorkerOnline ? 'operacional' : 'aguardando telemetria', icon: Server },
           ].map((item, i) => (
             <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 group hover:border-[#0000A0] transition-all">
               <div className={cn(
@@ -121,7 +139,7 @@ function DashboardPage() {
               <div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.label}</div>
                 <div className={cn(
-                  "text-xs font-bold capitalize",
+                  "text-[10px] md:text-xs font-bold capitalize",
                   item.status === 'operacional' ? "text-slate-900" : 
                   item.status === 'falha' ? "text-red-600" : "text-slate-400"
                 )}>
@@ -152,14 +170,14 @@ function DashboardPage() {
           },
           { 
             label: "Ignorados", 
-            value: stats ? (Number(stats.found) - Number(stats.forwarded) - Number(stats.errors)) : "—", 
+            value: stats ? stats.ignored : "—", 
             icon: XCircle, 
             color: "text-slate-400", 
             bg: "bg-slate-50/50" 
           },
           { 
             label: "Duplicados", 
-            value: "0", 
+            value: stats ? stats.duplicates : "—", 
             icon: Copy, 
             color: "text-amber-600", 
             bg: "bg-amber-50/50" 
