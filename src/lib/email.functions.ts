@@ -150,12 +150,11 @@ export const getActiveConfigs = createServerFn({ method: "GET" })
 
 export const getProfiles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("profiles" as any)
       .select("*")
-      .eq("id", context.userId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -556,7 +555,6 @@ export const getDailyStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ userId: z.string() }).parse(data))
   .handler(async ({ data: { userId }, context }) => {
-    // Security check: only allow querying own stats unless maybe an admin role exists
     if (userId !== context.userId) {
       throw new Error("Unauthorized");
     }
@@ -567,7 +565,6 @@ export const getDailyStats = createServerFn({ method: "GET" })
     today.setHours(0,0,0,0);
     const todayStr = today.toISOString();
 
-    // Get config IDs for this user to filter logs
     const { data: userConfigs } = await supabaseAdmin
       .from("email_configurations")
       .select("id")
@@ -587,14 +584,20 @@ export const getDailyStats = createServerFn({ method: "GET" })
       .in("config_id", configIds)
       .gte("created_at", todayStr);
 
+    const { data: procState } = await supabaseAdmin
+      .from("email_processing_state")
+      .select("status")
+      .in("config_id", configIds)
+      .gte("created_at", todayStr);
+
     const stats = {
-      found: logs?.filter(l => l.message.includes("identificada")).length || 0,
-      analyzed: logs?.filter(l => l.message.includes("analisada")).length || 0,
-      keywords: logs?.filter(l => l.message.includes("Palavra-chave detectada")).length || 0,
+      found: procState?.length || 0,
+      analyzed: procState?.filter(s => s.status !== 'duplicate').length || 0,
+      keywords: procState?.filter(s => s.status === 'forwarded').length || 0,
       forwarded: forwarded?.length || 0,
-      ignored: logs?.filter(l => l.message.includes("ignorada")).length || 0,
-      errors: logs?.filter(l => l.level === 'error').length || 0,
-      duplicates: logs?.filter(l => l.message.includes("duplicada")).length || 0
+      ignored: procState?.filter(s => s.status === 'ignored').length || 0,
+      errors: procState?.filter(s => s.status === 'error').length || 0,
+      duplicates: procState?.filter(s => s.status === 'duplicate').length || 0
     };
 
     return stats;
@@ -602,29 +605,46 @@ export const getDailyStats = createServerFn({ method: "GET" })
 
 export const getWorkerStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
-    const { data, error } = await supabaseAdmin
+    const { data: heartbeat, error: hbError } = await supabaseAdmin
       .from("worker_heartbeat" as any)
       .select("*")
       .order("last_heartbeat", { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    if (error || !data) {
-      return { status: "offline", message: "Aguardando dados", last_heartbeat: null };
+    const { data: configs } = await supabaseAdmin
+      .from("email_configurations")
+      .select("id, last_success_at, last_error, status")
+      .eq("user_id", context.userId);
+
+    const dbStatus = hbError ? "offline" : "online";
+
+    if (!heartbeat) {
+      return { 
+        status: "offline", 
+        message: "Aguardando telemetria", 
+        last_heartbeat: null,
+        db_status: dbStatus,
+        configs: configs || []
+      };
     }
 
-    const heartbeatData = data as any;
+    const heartbeatData = heartbeat as any;
     const lastHeartbeat = new Date(heartbeatData.last_heartbeat);
     const diff = Date.now() - lastHeartbeat.getTime();
     
-    if (diff > 120000) {
-      return { ...heartbeatData, status: "offline", message: "Worker possivelmente offline" };
-    }
+    const workerStatus = diff > 120000 ? "offline" : "online";
 
-    return { ...heartbeatData, status: "online", message: "Sistema operacional" };
+    return { 
+      ...heartbeatData, 
+      status: workerStatus, 
+      message: workerStatus === "online" ? "Worker operacional" : "Worker possivelmente offline",
+      db_status: dbStatus,
+      configs: configs || []
+    };
   });
 
 export const restartWorker = createServerFn({ method: "POST" })
