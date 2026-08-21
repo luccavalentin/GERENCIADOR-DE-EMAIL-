@@ -152,5 +152,6 @@
 @theme {
   --color-agilliza: #0000A0;
   --color-navy-dark: #000033;
+  --breakpoint-xs: 400px;
 }
 
