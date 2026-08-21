@@ -86,8 +86,8 @@ function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 pb-12">
-      <div>
+    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 pb-12 px-2 sm:px-0">
+      <div className="px-2 sm:px-0">
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Minha Conta e Configurações</h1>
         <p className="text-slate-500 mt-1">Gerencie seu perfil, altere sua senha e ajuste as preferências do sistema.</p>
       </div>

@@ -85,7 +85,7 @@ function MonitoringPage() {
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Monitoramento ao Vivo</h1>
           <p className="text-slate-500 mt-1 font-medium">Console operacional de eventos do sistema.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-start sm:justify-end">
            <div className={cn(
             "flex items-center gap-2 px-3 py-1.5 rounded-full border font-bold uppercase text-[10px] tracking-widest transition-all",
             isOnline ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"

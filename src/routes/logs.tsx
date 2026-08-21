@@ -62,7 +62,7 @@ function LogsIndexPage() {
   return (
     <AppLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Painel de Auditoria</h1>
             <p className="text-slate-500 mt-1 font-medium">Relatório detalhado de processamento e logs operacionais.</p>
@@ -111,7 +111,7 @@ function LogsIndexPage() {
                     <td colSpan={5} className="p-12 text-center text-slate-400">Carregando auditoria...</td>
                   </tr>
                 ) : logs.map((log: any) => (
-                  <tr key={log.id} className="hover:bg-slate-50/50 group md:table-row flex flex-col p-4 md:p-0 border-b md:border-none">
+                  <tr key={log.id} className="hover:bg-slate-50/50 group md:table-row flex flex-col p-4 md:p-0 border-b md:border-none w-full">
                     <td className="px-6 py-2 md:py-4 text-slate-400 font-mono text-xs whitespace-nowrap md:table-cell flex justify-between items-center w-full md:w-auto">
                       <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Horário</span>
                       {format(new Date(log.created_at), "dd/MM HH:mm:ss")}

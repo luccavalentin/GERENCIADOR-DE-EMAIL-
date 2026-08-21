@@ -89,6 +89,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ActiveAccountContext.Provider value={{ selectedConfigId, setSelectedConfigId: handleAccountChange, configs, refreshConfigs: fetchConfigs }}>
       <div className="flex min-h-screen bg-[#f8fafc] font-sans">
+        {/* Overlay for mobile sidebar */}
+        {!isCollapsed && (
+          <div 
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-40 md:hidden transition-opacity duration-300"
+            onClick={() => setIsCollapsed(true)}
+          />
+        )}
+
         <Sidebar 
           isCollapsed={isCollapsed} 
           setIsCollapsed={setIsCollapsed} 
@@ -114,7 +122,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           
           <div className="h-px bg-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]" />
 
-          <div className="p-4 md:p-8 max-w-[1600px] w-full mx-auto">
+          <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] w-full mx-auto overflow-hidden">
             {children}
           </div>
 

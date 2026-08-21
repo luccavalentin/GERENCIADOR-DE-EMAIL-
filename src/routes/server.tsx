@@ -83,7 +83,7 @@ function ServerPage() {
             <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Telemetria de Hardware</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ function ServerPage() {
               </div>
             </div>
             
-            <div className="mt-8 pt-6 border-t border-slate-100 flex flex-wrap gap-6 md:gap-12">
+            <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 md:gap-12">
                <div>
                   <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Hostname do Servidor</span>
                   <span className="text-sm font-semibold text-slate-700">{workerStatus?.hostname || "Aguardando dados..."}</span>

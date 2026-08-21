@@ -180,7 +180,7 @@ function UsersPage() {
             </TableHeader>
             <TableBody>
               {users?.map((profile: any) => (
-                <TableRow key={profile.id} className={cn("md:table-row flex flex-col p-4 md:p-0 border-b", !profile.is_active && "bg-slate-50 opacity-80")}>
+                <TableRow key={profile.id} className={cn("md:table-row flex flex-col p-4 md:p-0 border-b w-full", !profile.is_active && "bg-slate-50 opacity-80")}>
                   <TableCell className="pl-6 py-2 md:py-4 md:table-cell block">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0000A0] font-bold border border-blue-100 shrink-0 shadow-sm">
