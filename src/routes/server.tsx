@@ -120,9 +120,10 @@ function ServerPage() {
                     <Cpu className="h-3 w-3 text-blue-500" />
                     Processamento (CPU)
                   </div>
-                  <span>{isOnline ? `${cpu}%` : "—"}</span>
+                  <span>{isOnline && cpu !== null && cpu !== undefined ? `${cpu}%` : "Indisponível"}</span>
                 </div>
-                <Progress value={isOnline ? cpu : 0} className="h-1.5 bg-slate-100" />
+                <Progress value={isOnline && cpu !== null && cpu !== undefined ? cpu : 0} className="h-1.5 bg-slate-100" />
+
               </div>
 
               <div className="space-y-3">
