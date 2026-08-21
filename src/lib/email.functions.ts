@@ -83,6 +83,10 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
     if (!targetConfigId) throw new Error("Failed to get config ID");
 
     if (emailPassword && emailPassword.trim() !== "") {
+      const { error: credsError } = await supabaseAdmin.from("email_credentials").upsert({ config_id: targetConfigId, password: emailPassword });
+      if (credsError) throw credsError;
+    }
+    return { success: true, id: targetConfigId };
   });
 
 // --- DIAGNOSTICS FUNCTIONS ---
