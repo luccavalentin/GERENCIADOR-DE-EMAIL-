@@ -165,7 +165,7 @@ function UsersPage() {
         </Dialog>
       </div>
 
-      <Card className="premium-card overflow-hidden">
+      <Card className="premium-card overflow-x-auto w-full">
         <CardContent className="p-0">
           <Table>
             <TableHeader className="bg-slate-50 hidden md:table-header-group">

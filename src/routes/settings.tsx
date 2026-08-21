@@ -94,7 +94,7 @@ function SettingsPage() {
 
       <div className="grid grid-cols-1 gap-8">
         {/* Perfil do Usuário */}
-        <Card className="premium-card overflow-hidden">
+        <Card className="premium-card overflow-hidden w-full">
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
@@ -136,7 +136,7 @@ function SettingsPage() {
         </Card>
 
         {/* Alterar Senha */}
-        <Card className="premium-card overflow-hidden">
+        <Card className="premium-card overflow-hidden w-full">
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
@@ -187,7 +187,7 @@ function SettingsPage() {
         </Card>
 
         {/* Configurações do Sistema */}
-        <Card className="premium-card overflow-hidden">
+        <Card className="premium-card overflow-hidden w-full">
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
