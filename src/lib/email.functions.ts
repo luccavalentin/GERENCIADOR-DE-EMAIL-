@@ -553,8 +553,8 @@ export const getLogs = createServerFn({ method: "GET" })
 
 export const getDailyStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ userId: z.string() }).parse(data))
-  .handler(async ({ data: { userId }, context }) => {
+  .inputValidator((data) => z.object({ userId: z.string(), configId: z.string().optional().nullable() }).parse(data))
+  .handler(async ({ data: { userId, configId }, context }) => {
     if (userId !== context.userId) {
       throw new Error("Unauthorized");
     }
@@ -570,7 +570,14 @@ export const getDailyStats = createServerFn({ method: "GET" })
       .select("id")
       .eq("user_id", userId);
     
-    const configIds = userConfigs?.map(c => c.id) || [];
+    let configIds = userConfigs?.map(c => c.id) || [];
+    
+    if (configId) {
+      if (!configIds.includes(configId)) {
+        throw new Error("Unauthorized: Config not found");
+      }
+      configIds = [configId];
+    }
 
     const { data: logs } = await supabaseAdmin
       .from("email_logs")

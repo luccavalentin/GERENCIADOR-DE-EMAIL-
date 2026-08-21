@@ -199,6 +199,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.to}
                   to={item.to}
+                  onClick={() => {
+                    if (window.innerWidth < 768) {
+                      setIsCollapsed(true);
+                    }
+                  }}
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-lg text-[13px] font-bold uppercase tracking-wider transition-all duration-200",
                     isCollapsed && "justify-center px-0",

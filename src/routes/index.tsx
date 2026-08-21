@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -15,7 +15,7 @@ import {
   XCircle,
   Copy
 } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { AppLayout, useActiveAccount } from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,16 +51,18 @@ function DashboardPageWithLayout() {
 }
 
 function DashboardPage() {
+  const { selectedConfigId } = useActiveAccount();
   const { data: session } = useQuery({ 
     queryKey: ['session'], 
     queryFn: async () => (await supabase.auth.getSession()).data.session 
   });
   
   const { data: stats } = useQuery({
-    queryKey: ['stats'],
-    queryFn: () => getDailyStats({ data: { userId: session?.user?.id || '' } }),
+    queryKey: ['stats', selectedConfigId],
+    queryFn: () => getDailyStats({ data: { userId: session?.user?.id || '', configId: selectedConfigId } }),
     enabled: !!session?.user?.id
   });
+
 
   const { data: workerStatus } = useQuery({
     queryKey: ['workerStatus'],
@@ -69,8 +71,8 @@ function DashboardPage() {
   });
 
   const { data: recentLogs } = useQuery({
-    queryKey: ['recentLogs'],
-    queryFn: () => getLogs({ data: { limit: 10 } }),
+    queryKey: ['recentLogs', selectedConfigId],
+    queryFn: () => getLogs({ data: { limit: 10, configId: selectedConfigId || undefined } }),
   });
 
   const isWorkerOnline = workerStatus?.status === 'online';
@@ -212,10 +214,14 @@ function DashboardPage() {
             <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos processados.</p>
           </div>
           <Button variant="outline" size="sm" className="text-[#0000A0] border-[#0000A0]/20 font-bold hover:bg-blue-50" asChild>
-            <a href="/logs" className="flex items-center gap-2">
+            <Link 
+              to="/logs" 
+              search={{}}
+              className="flex items-center gap-2"
+            >
               Ver Histórico Completo
               <ArrowRight className="h-3 w-3" />
-            </a>
+            </Link>
           </Button>
         </CardHeader>
         <div className="overflow-x-auto">

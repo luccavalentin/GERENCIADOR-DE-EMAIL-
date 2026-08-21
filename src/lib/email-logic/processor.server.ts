@@ -140,8 +140,9 @@ export async function processEmailsForConfigLogic(
       socketTimeout: 30000,
     });
 
-    imap.on('error', (err: any) => {
+    imap.on('error', async (err: any) => {
       console.error(`[IMAP Global Error] Config ${configId}:`, err);
+      await log(`Erro crítico no socket IMAP: ${err.message}`, "error", { code: err.code });
     });
 
 
