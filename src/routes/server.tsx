@@ -144,9 +144,10 @@ function ServerPage() {
                     <Database className="h-3 w-3 text-slate-400" />
                     Armazenamento (Disco)
                   </div>
-                  <span>{isOnline && disk !== undefined ? `${disk}%` : "Não disponível"}</span>
+                  <span>{isOnline && disk !== null && disk !== undefined ? `${disk}%` : "Indisponível"}</span>
                 </div>
-                <Progress value={isOnline && disk !== undefined ? disk : 0} className="h-1.5 bg-slate-100" />
+                <Progress value={isOnline && disk !== null && disk !== undefined ? disk : 0} className="h-1.5 bg-slate-100" />
+
               </div>
             </div>
             
