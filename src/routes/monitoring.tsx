@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Activity, 
-  ShieldCheck,
+  Shield,
   Pause,
   Trash2,
   Play
