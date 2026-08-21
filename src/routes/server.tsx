@@ -83,9 +83,10 @@ function ServerPage() {
   const isStopped = workerState === 'offline';
   const isPending = operationState.status !== 'idle';
 
-  const cpu = workerStatus?.cpu_usage || 0;
-  const ram = workerStatus?.ram_usage || 0;
-  const disk = workerStatus?.disk_usage; // Use real telemetry if available
+  const cpu = workerStatus?.cpu_usage;
+  const ram = workerStatus?.ram_usage;
+  const disk = workerStatus?.disk_usage;
+
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10">
@@ -119,9 +120,10 @@ function ServerPage() {
                     <Cpu className="h-3 w-3 text-blue-500" />
                     Processamento (CPU)
                   </div>
-                  <span>{isOnline ? `${cpu}%` : "—"}</span>
+                  <span>{isOnline && cpu !== null && cpu !== undefined ? `${cpu}%` : "Indisponível"}</span>
                 </div>
-                <Progress value={isOnline ? cpu : 0} className="h-1.5 bg-slate-100" />
+                <Progress value={isOnline && cpu !== null && cpu !== undefined ? cpu : 0} className="h-1.5 bg-slate-100" />
+
               </div>
 
               <div className="space-y-3">
@@ -130,9 +132,10 @@ function ServerPage() {
                     <HardDrive className="h-3 w-3 text-indigo-500" />
                     Memória (RAM)
                   </div>
-                  <span>{isOnline ? `${ram}%` : "—"}</span>
+                  <span>{isOnline && ram !== null && ram !== undefined ? `${ram}%` : "Indisponível"}</span>
                 </div>
-                <Progress value={isOnline ? ram : 0} className="h-1.5 bg-slate-100" />
+                <Progress value={isOnline && ram !== null && ram !== undefined ? ram : 0} className="h-1.5 bg-slate-100" />
+
               </div>
 
               <div className="space-y-3">
@@ -141,9 +144,10 @@ function ServerPage() {
                     <Database className="h-3 w-3 text-slate-400" />
                     Armazenamento (Disco)
                   </div>
-                  <span>{isOnline && disk !== undefined ? `${disk}%` : "Não disponível"}</span>
+                  <span>{isOnline && disk !== null && disk !== undefined ? `${disk}%` : "Indisponível"}</span>
                 </div>
-                <Progress value={isOnline && disk !== undefined ? disk : 0} className="h-1.5 bg-slate-100" />
+                <Progress value={isOnline && disk !== null && disk !== undefined ? disk : 0} className="h-1.5 bg-slate-100" />
+
               </div>
             </div>
             
