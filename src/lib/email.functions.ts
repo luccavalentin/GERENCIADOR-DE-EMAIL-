@@ -166,21 +166,128 @@ export const getWorkerStatus = createServerFn({ method: "GET" })
     const heartbeat = heartbeatData as any;
     // FIXED: Multi-user configs
     const { data: configs } = await supabaseAdmin.from("email_configurations").select("id, status, email_user, is_active, last_heartbeat");
-    const isOnline = heartbeat && heartbeat.last_heartbeat && (Date.now() - new Date(heartbeat.last_heartbeat).getTime()) < 120000;
+    const heartbeatStatus = (heartbeat as any)?.status || "offline";
+    const isRecent = heartbeat && heartbeat.last_heartbeat && (Date.now() - new Date(heartbeat.last_heartbeat).getTime()) < 120000;
+    
+    let effectiveStatus = "offline";
+    if (isRecent) {
+      effectiveStatus = heartbeatStatus === 'paused' ? 'paused' : 'online';
+    }
+
     return { 
       ...(heartbeat || {}), 
-      status: isOnline ? "online" : "offline", 
-      message: isOnline ? "Worker operacional" : "Aguardando telemetria",
+      status: effectiveStatus,
+      message: effectiveStatus === 'online' ? "Worker operacional" : effectiveStatus === 'paused' ? "Worker pausado" : "Aguardando telemetria",
+
       db_status: "online",
       configs: configs || []
     };
   });
 
+export const updateWorkerState = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    command: z.enum(['pause', 'start', 'restart']),
+  }).parse(data))
+  .handler(async ({ data: { command }, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const userId = context.userId;
+
+    // 1. Log the administrative action
+    const commandLabels = {
+      pause: "pausa",
+      start: "início",
+      restart: "reinício"
+    };
+    
+    // Get profile for logging name
+    const { data: profile } = await supabaseAdmin
+      .from("profiles" as any)
+      .select("full_name")
+      .eq("id", userId)
+      .single();
+    
+    const userName = (profile as any)?.full_name || "Usuário";
+    
+    await supabaseAdmin.from("email_logs").insert({
+      config_id: "00000000-0000-0000-0000-000000000000", // System log
+      message: `${userName} solicitou ${commandLabels[command]} do Worker`,
+      level: "info",
+    });
+
+
+    // 2. Insert control request
+    const { data, error } = await supabaseAdmin
+      .from("worker_control" as any)
+      .insert({
+        command,
+        requested_by: userId,
+        status: 'pending'
+      } as any)
+      .select("id")
+      .single();
+
+    if (error) {
+      console.error("Error creating worker control request:", error);
+      throw error;
+    }
+
+    return { success: true, requestId: (data as any).id };
+  });
+
+export const waitForWorkerState = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    requestId: z.string(),
+    expectedStatus: z.string(),
+    timeoutMs: z.number().optional().default(30000)
+  }).parse(data))
+  .handler(async ({ data: { requestId, expectedStatus, timeoutMs } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    const startTime = Date.now();
+    
+    while (Date.now() - startTime < timeoutMs) {
+      // Check control request status
+      const { data: request } = await supabaseAdmin
+        .from("worker_control" as any)
+        .select("status, error_message")
+        .eq("id", requestId)
+        .single();
+      
+      if ((request as any)?.status === 'completed') {
+        // Double check heartbeat
+        const { data: heartbeat } = await supabaseAdmin
+          .from("worker_heartbeat" as any)
+          .select("status, last_heartbeat")
+          .order("last_heartbeat", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        const isRecent = heartbeat && (Date.now() - new Date((heartbeat as any).last_heartbeat).getTime()) < 60000;
+        
+        if (isRecent && (heartbeat as any).status === expectedStatus) {
+          return { success: true, confirmed: true };
+        }
+      }
+      
+      if ((request as any)?.status === 'failed') {
+        return { success: false, error: (request as any).error_message || "Comando falhou no worker" };
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    
+    return { success: false, timeout: true, message: "Tempo limite esgotado ao aguardar resposta do worker" };
+  });
+
 export const restartWorker = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
-    return { success: false, message: "Integração com VPS pendente" };
+    // Legacy support or direct call
+    return { success: false, message: "Use updateWorkerState({ command: 'restart' })" };
   });
+
 
 export const getSystemHealth = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
