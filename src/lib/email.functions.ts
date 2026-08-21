@@ -80,10 +80,9 @@ export const saveEmailConfiguration = createServerFn({ method: "POST" })
       if (insertError) throw insertError;
       targetConfigId = data.id;
     }
+    if (!targetConfigId) throw new Error("Failed to get config ID");
+
     if (emailPassword && emailPassword.trim() !== "") {
-      await supabaseAdmin.from("email_credentials").upsert({ config_id: targetConfigId, password: emailPassword });
-    }
-    return { success: true, id: targetConfigId };
   });
 
 // --- DIAGNOSTICS FUNCTIONS ---
@@ -162,9 +161,9 @@ export const getWorkerStatus = createServerFn({ method: "GET" })
     const { data: heartbeat } = await supabaseAdmin.from("worker_heartbeat" as any).select("*").order("last_heartbeat", { ascending: false }).limit(1).maybeSingle();
     // FIXED: Multi-user configs
     const { data: configs } = await supabaseAdmin.from("email_configurations").select("id, status, email_user, is_active, last_heartbeat");
-    const isOnline = heartbeat && (Date.now() - new Date(heartbeat.last_heartbeat).getTime()) < 120000;
+    const isOnline = heartbeat && (Date.now() - new Date((heartbeat as any).last_heartbeat).getTime()) < 120000;
     return { 
-      ...heartbeat, 
+      ...(heartbeat || {}), 
       status: isOnline ? "online" : "offline", 
       message: isOnline ? "Worker operacional" : "Aguardando telemetria",
       db_status: "online",
@@ -183,7 +182,7 @@ export const getSystemHealth = createServerFn({ method: "GET" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: heartbeat } = await supabaseAdmin.from("worker_heartbeat" as any).select("last_heartbeat").order("last_heartbeat", { ascending: false }).limit(1).maybeSingle();
-    const isWorkerOnline = heartbeat && (Date.now() - new Date(heartbeat.last_heartbeat).getTime()) < 120000;
+    const isWorkerOnline = heartbeat && (Date.now() - new Date((heartbeat as any).last_heartbeat).getTime()) < 120000;
     return {
       database: { status: 'healthy', message: 'Conectado' },
       worker: { status: isWorkerOnline ? 'healthy' : 'warning', message: isWorkerOnline ? 'Em execução' : 'Aguardando dados' },
@@ -191,3 +190,217 @@ export const getSystemHealth = createServerFn({ method: "GET" })
       auth: { status: 'healthy', message: 'Sistema ativo' }
     };
   });
+
+export const processEmailsForConfig = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
+  .handler(async ({ data: { configId } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { processEmailsForConfigLogic } = await import("./email-logic/processor.server");
+    return processEmailsForConfigLogic(configId, supabaseAdmin);
+  });
+
+export const deleteProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .handler(async ({ data: { id } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
+    if (authError) throw authError;
+    return { success: true };
+  });
+
+export const createSystemUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+    full_name: z.string().min(1)
+  }).parse(data))
+  .handler(async ({ data: { email, password, full_name } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name }
+    });
+
+    if (error) throw error;
+
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles" as any)
+      .update({ full_name } as any)
+      .eq("id", data.user.id);
+    
+    if (profileError) {
+      console.error("Error updating profile name:", profileError);
+    }
+
+    return { success: true, user: data.user };
+  });
+
+export const testImapConnectionDetailed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
+  .handler(async ({ data: { configId } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { ImapFlow } = await import("imapflow");
+    const dns = await import("dns/promises");
+    const net = await import("net");
+
+    type DiagnosticStep = { step: string; status: 'pending' | 'success' | 'error'; details?: string };
+    const steps: DiagnosticStep[] = [];
+    
+    try {
+      const { data: config } = await supabaseAdmin
+        .from("email_configurations")
+        .select("*")
+        .eq("id", configId)
+        .single();
+        
+      if (!config) throw new Error("Config not found");
+      
+      const { data: creds } = await supabaseAdmin
+        .from("email_credentials")
+        .select("password")
+        .eq("config_id", configId)
+        .single();
+        
+      if (!creds) throw new Error("Credentials not found");
+
+      // 1. DNS Lookup
+      const dnsStep: DiagnosticStep = { step: "Resolução DNS", status: 'pending' };
+      steps.push(dnsStep);
+      try {
+        const addresses = await dns.resolve4(config.imap_host);
+        dnsStep.status = 'success';
+        dnsStep.details = `Resolvido para: ${addresses.join(', ')}`;
+      } catch (err: any) {
+        dnsStep.status = 'error';
+        dnsStep.details = `Erro DNS: ${err.message}`;
+        return { success: false, steps };
+      }
+
+      // 2. TCP Connectivity
+      const tcpStep: DiagnosticStep = { step: "Conexão TCP", status: 'pending' };
+      steps.push(tcpStep);
+      try {
+        await new Promise((resolve, reject) => {
+          const socket = net.createConnection(config.imap_port, config.imap_host, () => {
+            socket.end();
+            resolve(true);
+          });
+          socket.setTimeout(5000);
+          socket.on('error', reject);
+          socket.on('timeout', () => reject(new Error("Timeout de conexão TCP")));
+        });
+        tcpStep.status = 'success';
+      } catch (err: any) {
+        tcpStep.status = 'error';
+        tcpStep.details = `Erro TCP: ${err.message}`;
+        return { success: false, steps };
+      }
+
+      // 3. IMAP Auth
+      const authStep: DiagnosticStep = { step: "Autenticação IMAP", status: 'pending' };
+      steps.push(authStep);
+      const imap = new ImapFlow({
+        host: config.imap_host,
+        port: config.imap_port,
+        secure: config.imap_secure,
+        auth: {
+          user: config.email_user,
+          pass: creds.password,
+        },
+        logger: false,
+        clientInfo: { name: 'Agilliza Diagnostics' }
+      });
+
+      try {
+        await imap.connect();
+        await imap.logout();
+        authStep.status = 'success';
+      } catch (err: any) {
+        authStep.status = 'error';
+        authStep.details = `Erro IMAP: ${err.message}`;
+        return { success: false, steps };
+      }
+
+      return { success: true, steps };
+    } catch (error: any) {
+      return { success: false, error: error.message, steps };
+    }
+  });
+
+export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ configId: z.string() }).parse(data))
+  .handler(async ({ data: { configId } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const nodemailer = (await import("nodemailer")).default;
+    const dns = await import("dns/promises");
+
+    type DiagnosticStep = { step: string; status: 'pending' | 'success' | 'error'; details?: string };
+    const steps: DiagnosticStep[] = [];
+    
+    try {
+      const { data: config } = await supabaseAdmin
+        .from("email_configurations")
+        .select("*")
+        .eq("id", configId)
+        .single();
+        
+      if (!config) throw new Error("Config not found");
+      
+      const { data: creds } = await supabaseAdmin
+        .from("email_credentials")
+        .select("password")
+        .eq("config_id", configId)
+        .single();
+        
+      if (!creds) throw new Error("Credentials not found");
+
+      // 1. DNS Lookup
+      const dnsStep: DiagnosticStep = { step: "Resolução DNS", status: 'pending' };
+      steps.push(dnsStep);
+      try {
+        const addresses = await dns.resolve4(config.smtp_host);
+        dnsStep.status = 'success';
+        dnsStep.details = `Resolvido para: ${addresses.join(', ')}`;
+      } catch (err: any) {
+        dnsStep.status = 'error';
+        dnsStep.details = `Erro DNS: ${err.message}`;
+        return { success: false, steps };
+      }
+
+      // 2. SMTP Auth
+      const authStep: DiagnosticStep = { step: "Autenticação SMTP", status: 'pending' };
+      steps.push(authStep);
+      const transporter = nodemailer.createTransport({
+        host: config.smtp_host,
+        port: config.smtp_port,
+        secure: config.smtp_secure,
+        auth: {
+          user: config.email_user,
+          pass: creds.password,
+        },
+        connectionTimeout: 10000
+      });
+
+      try {
+        await transporter.verify();
+        authStep.status = 'success';
+      } catch (err: any) {
+        authStep.status = 'error';
+        authStep.details = `Erro SMTP: ${err.message}`;
+        return { success: false, steps };
+      }
+
+      return { success: true, steps };
+    } catch (error: any) {
+      return { success: false, error: error.message, steps };
+    }
+  });
+
