@@ -66,7 +66,7 @@ function ServerPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Infraestrutura do Servidor</h1>
-          <p className="text-slate-500 mt-1 font-medium">Controle operacional e telemetria da instância Hostinger.</p>
+          <p className="text-slate-500 mt-1 font-medium">Controle operacional e telemetria da infraestrutura.</p>
         </div>
         <Badge variant="outline" className={cn(
           "px-3 py-1 font-bold tracking-wider",
@@ -185,12 +185,12 @@ function ServerPage() {
 
       {/* Serviços */}
       <section className="space-y-4">
-        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Serviços Agilliza</h2>
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Serviços do Motor</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: "Worker Core", status: isOnline ? 'online' : 'offline', icon: Activity, desc: "Processador de E-mail" },
             { label: "Engine IMAP", status: isOnline ? 'online' : 'aguardando', icon: Mail, desc: "Protocolo de Entrada" },
-            { label: "Engine SMTP", status: isOnline ? 'online' : 'aguardando', icon: ShieldCheck, desc: "Protocolo de Saída" },
+            { label: "Engine SMTP", status: isOnline ? 'online' : 'aguardando', icon: Shield, desc: "Protocolo de Saída" },
             { label: "Banco de Dados", status: 'online', icon: Database, desc: "Serviço de Dados" },
           ].map((service, i) => (
             <Card key={i} className="premium-card">
