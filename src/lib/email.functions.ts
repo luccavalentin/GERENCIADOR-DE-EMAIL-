@@ -187,7 +187,7 @@ export const getSystemHealth = createServerFn({ method: "GET" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: heartbeat } = await supabaseAdmin.from("worker_heartbeat" as any).select("last_heartbeat").order("last_heartbeat", { ascending: false }).limit(1).maybeSingle();
-    const isWorkerOnline = heartbeat && (Date.now() - new Date((heartbeat as any).last_heartbeat).getTime()) < 120000;
+    const isWorkerOnline = heartbeat && heartbeat.last_heartbeat && (Date.now() - new Date((heartbeat as any).last_heartbeat).getTime()) < 120000;
     return {
       database: { status: 'healthy', message: 'Conectado' },
       worker: { status: isWorkerOnline ? 'healthy' : 'warning', message: isWorkerOnline ? 'Em execução' : 'Aguardando dados' },
