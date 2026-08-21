@@ -16,12 +16,10 @@ import { SidebarItem } from "./SidebarItem";
 import { useLocation } from "@tanstack/react-router";
 
 export const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, to: "/" },
+  { label: "Monitor de E-mail", icon: Activity, to: "/" },
   { label: "Contas de E-mail", icon: Mail, to: "/accounts" },
-  { label: "Monitoramento", icon: Activity, to: "/monitoring" },
-  { label: "Logs", icon: History, to: "/logs" },
+  { label: "Logs Históricos", icon: History, to: "/logs" },
   { label: "Usuários", icon: Users, to: "/users" },
-  { label: "Servidor", icon: Server, to: "/server" },
   { label: "Configurações", icon: Settings, to: "/settings" },
 ];
 
