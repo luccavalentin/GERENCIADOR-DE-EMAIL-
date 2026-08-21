@@ -38,7 +38,7 @@ function DashboardPageWithLayout() {
           <div className="h-10 w-10 border-4 border-agilliza/20 border-t-agilliza rounded-full animate-spin mb-4" />
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Verificando acesso...</p>
           <div className="mt-8 p-4 bg-red-50 border border-red-100 rounded text-xs text-red-600 font-mono text-left">
-            Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec.
+            QUANDO EU CLICO EM EDITAR, O SISTEMA DEVE MOSTRAR AS REGRAS JA CADASTRADAS E PERMITIR EDICAO
           </div>
         </div>
       </div>
