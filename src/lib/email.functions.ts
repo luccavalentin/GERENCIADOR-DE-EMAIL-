@@ -166,11 +166,19 @@ export const getWorkerStatus = createServerFn({ method: "GET" })
     const heartbeat = heartbeatData as any;
     // FIXED: Multi-user configs
     const { data: configs } = await supabaseAdmin.from("email_configurations").select("id, status, email_user, is_active, last_heartbeat");
-    const isOnline = heartbeat && heartbeat.last_heartbeat && (Date.now() - new Date(heartbeat.last_heartbeat).getTime()) < 120000;
+    const heartbeatStatus = (heartbeat as any)?.status || "offline";
+    const isRecent = heartbeat && heartbeat.last_heartbeat && (Date.now() - new Date(heartbeat.last_heartbeat).getTime()) < 120000;
+    
+    let effectiveStatus = "offline";
+    if (isRecent) {
+      effectiveStatus = heartbeatStatus === 'paused' ? 'paused' : 'online';
+    }
+
     return { 
       ...(heartbeat || {}), 
-      status: isOnline ? "online" : "offline", 
-      message: isOnline ? "Worker operacional" : "Aguardando telemetria",
+      status: effectiveStatus,
+      message: effectiveStatus === 'online' ? "Worker operacional" : effectiveStatus === 'paused' ? "Worker pausado" : "Aguardando telemetria",
+
       db_status: "online",
       configs: configs || []
     };
