@@ -102,7 +102,7 @@ function DashboardPage() {
       {/* Infraestrutura Section */}
       <section className="space-y-4">
         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Saúde da Infraestrutura</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           {[
             { label: "Worker", status: workerStatus?.status === 'online' ? 'operacional' : 'falha', icon: Activity },
             { label: "IMAP", status: isOnline ? 'operacional' : 'aguardando', icon: Mail },
@@ -134,7 +134,7 @@ function DashboardPage() {
       </section>
 
       {/* Métricas Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
         {[
           { 
             label: "Processados hoje", 
@@ -173,12 +173,12 @@ function DashboardPage() {
           },
         ].map((stat, i) => (
           <Card key={i} className="premium-card group">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className={cn("p-3 w-fit rounded-xl mb-4 transition-transform group-hover:scale-110", stat.bg, stat.color)}>
                 <stat.icon className="h-6 w-6" />
               </div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
-              <h3 className="text-3xl font-bold text-slate-900 mt-2 tracking-tight">
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mt-2 tracking-tight">
                 {stat.value === "—" ? <span className="text-slate-200">—</span> : stat.value}
               </h3>
             </CardContent>
@@ -188,7 +188,7 @@ function DashboardPage() {
       
       {/* Atividade Recente Section */}
       <Card className="premium-card overflow-hidden">
-        <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between bg-slate-50/50">
+        <CardHeader className="p-4 md:p-6 border-b border-slate-100 flex flex-row items-center justify-between bg-slate-50/50">
           <div>
             <CardTitle className="text-lg font-bold text-slate-900">Atividade Recente</CardTitle>
             <p className="text-xs text-slate-500 mt-0.5">Timeline operacional de eventos processados.</p>
@@ -202,7 +202,7 @@ function DashboardPage() {
         </CardHeader>
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-slate-50/50">
+            <TableHeader className="bg-slate-50/50 hidden md:table-header-group">
               <TableRow className="hover:bg-transparent border-slate-100">
                 <TableHead className="w-[120px] font-bold text-slate-500 pl-6">Horário</TableHead>
                 <TableHead className="font-bold text-slate-500">Evento / Descrição</TableHead>
@@ -211,11 +211,12 @@ function DashboardPage() {
             </TableHeader>
             <TableBody>
               {recentLogs?.logs?.length ? recentLogs.logs.map((log: any) => (
-                <TableRow key={log.id} className="group hover:bg-slate-50/50 transition-colors border-slate-100">
-                  <TableCell className="text-xs text-slate-400 font-mono pl-6">
+                <TableRow key={log.id} className="group hover:bg-slate-50/50 transition-colors border-slate-100 md:table-row flex flex-col p-4 md:p-0">
+                  <TableCell className="text-xs text-slate-400 font-mono pl-6 md:table-cell flex justify-between items-center w-full md:w-[120px]">
+                    <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[10px]">Horário</span>
                     {log.created_at ? format(new Date(log.created_at), "HH:mm:ss") : "--:--:--"}
                   </TableCell>
-                  <TableCell className="py-4">
+                  <TableCell className="py-2 md:py-4 md:table-cell block">
                     <div className="text-sm font-semibold text-slate-900 leading-none mb-1">
                       {log.message.split(' - ')[0] || "Processamento"}
                     </div>
@@ -223,7 +224,8 @@ function DashboardPage() {
                       {log.message.includes(' - ') ? log.message.split(' - ').slice(1).join(' - ') : log.message}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right pr-6">
+                  <TableCell className="text-right pr-6 md:table-cell flex justify-between items-center w-full md:w-[120px]">
+                    <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[10px]">Status</span>
                     <Badge 
                       variant="secondary" 
                       className={cn(
@@ -237,6 +239,7 @@ function DashboardPage() {
                   </TableCell>
                 </TableRow>
               )) : (
+
                 <TableRow>
                   <TableCell colSpan={3} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2 opacity-50">
