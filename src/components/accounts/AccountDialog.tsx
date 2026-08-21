@@ -397,7 +397,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                           <Tags className="h-4 w-4 text-[#0000A0]" />
                           Palavras-chave
                         </CardTitle>
-                        <CardDescription className="text-[11px]">O sistema identifica automaticamente variações de maiúsculas, minúsculas e acentuação.</CardDescription>
+                        <CardDescription className="text-[11px]">Identificação tolerante a maiúsculas, minúsculas e acentos (ex: CÓDIGO, codigo, Código).</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="flex gap-2">
