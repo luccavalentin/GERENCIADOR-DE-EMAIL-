@@ -171,7 +171,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <aside 
           className={cn(
             "border-r border-white/5 bg-[#000033] flex flex-col fixed inset-y-0 shadow-2xl z-50 transition-all duration-300 ease-in-out",
-            isCollapsed ? "w-20" : "w-64"
+            isCollapsed ? "-translate-x-full md:translate-x-0 md:w-20" : "w-64"
           )}
         >
           <div className={cn(
@@ -186,7 +186,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="absolute -right-3 top-10 h-6 w-6 rounded-full bg-[#0000A0] text-white flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform z-50"
+              className="absolute -right-3 top-10 h-6 w-6 rounded-full bg-[#0000A0] text-white hidden md:flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform z-50"
             >
               {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
             </button>
@@ -235,12 +235,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <main 
           className={cn(
             "flex-1 flex flex-col transition-all duration-300 ease-in-out",
-            isCollapsed ? "pl-20" : "pl-64"
+            isCollapsed ? "md:pl-20" : "md:pl-64"
           )}
         >
           {/* Top Header */}
-          <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40 shadow-sm">
-            <div className="flex items-center gap-6">
+          <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 shadow-sm">
+            <div className="flex items-center gap-2 md:gap-6">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden text-slate-600"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+
               <div className="flex items-center gap-3">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -287,7 +296,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
               <div className="h-6 w-px bg-slate-200" />
 
-              <div className="flex items-center gap-3">
+              <div className="hidden xs:flex items-center gap-3">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 shadow-inner">
                   <div className={cn(
                     "h-1.5 w-1.5 rounded-full",
@@ -300,7 +309,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 md:gap-6">
               <div className="hidden md:flex flex-col text-right">
                 <span className="text-xs font-bold text-slate-900 leading-none mb-1">
                   {session?.user?.user_metadata?.full_name || session?.user?.email || "Usuário"}
@@ -333,12 +342,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="h-px bg-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]" />
 
           {/* Page Body */}
-          <div className="p-8 max-w-[1600px] w-full mx-auto">
+          <div className="p-4 md:p-8 max-w-[1600px] w-full mx-auto">
             {children}
           </div>
 
           {/* Footer */}
-          <footer className="py-6 px-8 border-t bg-white">
+          <footer className="py-6 px-4 md:px-8 border-t bg-white">
             <div className="max-w-[1600px] mx-auto flex justify-center items-center">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Desenvolvido por Lucca Santana

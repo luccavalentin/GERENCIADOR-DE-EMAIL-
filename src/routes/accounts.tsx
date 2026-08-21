@@ -116,8 +116,8 @@ function AccountsPage() {
       </div>
 
       <div className="premium-card overflow-hidden">
-        <div className="p-4 border-b bg-slate-50/50 flex items-center gap-4">
-          <div className="relative flex-1 max-w-sm">
+        <div className="p-4 border-b bg-slate-50/50 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="relative flex-1 max-w-full sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input 
               placeholder="Buscar por e-mail..." 
@@ -129,7 +129,7 @@ function AccountsPage() {
         </div>
         
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-slate-50 hidden md:table-header-group">
             <TableRow>
               <TableHead className="font-bold text-slate-700">E-mail de Saída</TableHead>
               <TableHead className="font-bold text-slate-700">E-mails de Recebimento</TableHead>
@@ -143,8 +143,8 @@ function AccountsPage() {
           </TableHeader>
           <TableBody>
             {filteredConfigs.map((config: any) => (
-              <TableRow key={config.id} className="group hover:bg-slate-50/50 transition-colors">
-                <TableCell>
+              <TableRow key={config.id} className="group hover:bg-slate-50/50 transition-colors md:table-row flex flex-col p-4 md:p-0 border-b">
+                <TableCell className="md:table-cell block py-2 md:py-4">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-50 rounded-lg shrink-0">
                       <Mail className="h-4 w-4 text-[#0000A0]" />
@@ -154,8 +154,9 @@ function AccountsPage() {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1 max-w-[150px]">
+                <TableCell className="md:table-cell flex justify-between items-center py-2 md:py-4">
+                  <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Destinos</span>
+                  <div className="flex flex-wrap gap-1 justify-end md:justify-start max-w-[150px]">
                     {config.destinations?.slice(0, 1).map((dest: string) => (
                       <Badge key={dest} variant="secondary" className="text-[9px] font-medium bg-slate-100 text-slate-600 border-none">
                         {dest.split('@')[0]}
@@ -171,8 +172,9 @@ function AccountsPage() {
                     )}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1 max-w-[150px]">
+                <TableCell className="md:table-cell flex justify-between items-center py-2 md:py-4">
+                  <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Regras</span>
+                  <div className="flex flex-wrap gap-1 justify-end md:justify-start max-w-[150px]">
                     {config.keywords?.slice(0, 2).map((kw: string) => (
                       <Badge key={kw} variant="outline" className="text-[9px] font-bold px-1.5 border-slate-200 bg-slate-50">
                         {kw}
@@ -185,29 +187,32 @@ function AccountsPage() {
                     )}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
-                    <ShieldCheck className="h-3 w-3 text-green-500 shrink-0" />
-                    {config.imap_port}
+                <TableCell className="md:table-cell flex justify-between items-center py-2 md:py-4">
+                   <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Portas (I/S)</span>
+                   <div className="flex gap-2">
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+                      <ShieldCheck className="h-3 w-3 text-green-500 shrink-0" />
+                      {config.imap_port}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+                      <ExternalLink className="h-3 w-3 text-blue-500 shrink-0" />
+                      {config.smtp_port}
+                    </div>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
-                    <ExternalLink className="h-3 w-3 text-blue-500 shrink-0" />
-                    {config.smtp_port}
-                  </div>
-                </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="md:table-cell flex justify-between items-center py-2 md:py-4 md:text-center">
+                  <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Status</span>
                   <Badge className="bg-green-50 text-green-700 hover:bg-green-50 shadow-none border border-green-100 font-bold text-[9px] uppercase tracking-wider">
                     Ativo
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="md:table-cell flex justify-between items-center py-2 md:py-4">
+                  <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Execução</span>
                   <div className="text-[10px] text-slate-400 font-mono">
                     {config.last_execution ? format(new Date(config.last_execution), "dd/MM HH:mm") : "Nunca"}
                   </div>
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="md:table-cell block py-2 md:py-4 text-right">
                   <div className="flex items-center justify-end gap-1">
                     <Button 
                       variant="ghost" 
@@ -248,6 +253,7 @@ function AccountsPage() {
                   </div>
                 </TableCell>
               </TableRow>
+
             ))}
             {filteredConfigs.length === 0 && (
               <TableRow>

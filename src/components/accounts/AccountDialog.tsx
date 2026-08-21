@@ -191,7 +191,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 overflow-hidden flex flex-col">
+      <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[90vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-xl font-bold text-[#0000A0]">
             {config ? "Editar Conta de E-mail" : "Nova Conta de E-mail"}
@@ -205,11 +205,11 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
           <form onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))} className="flex-1 overflow-hidden flex flex-col">
             <Tabs defaultValue="geral" className="flex-1 overflow-hidden flex flex-col">
               <div className="px-6 border-b">
-                <TabsList className="w-full justify-start bg-transparent h-12 p-0 gap-6">
-                  <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">CONTA PRINCIPAL</TabsTrigger>
-                  <TabsTrigger value="entrada" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">SERVIDORES</TabsTrigger>
-                  <TabsTrigger value="destinatarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">DESTINATÁRIOS</TabsTrigger>
-                  <TabsTrigger value="regras" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-12 font-bold text-slate-500 data-[state=active]:text-[#0000A0]">REGRAS</TabsTrigger>
+                <TabsList className="w-full justify-start bg-transparent h-auto md:h-12 p-0 gap-4 md:gap-6 flex-wrap md:flex-nowrap">
+                  <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000A0]">CONTA</TabsTrigger>
+                  <TabsTrigger value="entrada" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000A0]">SERVIDORES</TabsTrigger>
+                  <TabsTrigger value="destinatarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000A0]">DESTINOS</TabsTrigger>
+                  <TabsTrigger value="regras" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0000A0] data-[state=active]:bg-transparent px-0 h-10 md:h-12 font-bold text-[10px] md:text-[11px] text-slate-500 data-[state=active]:text-[#0000A0]">REGRAS</TabsTrigger>
                 </TabsList>
               </div>
 

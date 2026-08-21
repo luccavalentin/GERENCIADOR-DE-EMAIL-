@@ -55,8 +55,8 @@ function LogsIndexPage() {
         </div>
 
         <div className="premium-card overflow-hidden">
-          <div className="p-4 border-b bg-slate-50/50 flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1 max-w-sm">
+          <div className="p-4 border-b bg-slate-50/50 flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1 max-w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input 
                 placeholder="Buscar em logs globais..." 
@@ -66,7 +66,7 @@ function LogsIndexPage() {
               />
             </div>
             <Select value={level} onValueChange={setLevel}>
-              <SelectTrigger className="w-[180px] bg-white">
+              <SelectTrigger className="w-full sm:w-[180px] bg-white">
                 <SelectValue placeholder="Nível de log" />
               </SelectTrigger>
               <SelectContent>
@@ -81,7 +81,7 @@ function LogsIndexPage() {
           
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]">
+              <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] hidden md:table-header-group">
                 <tr>
                   <th className="px-6 py-3 text-left">Horário</th>
                   <th className="px-6 py-3 text-left">Nível</th>
@@ -96,11 +96,13 @@ function LogsIndexPage() {
                     <td colSpan={5} className="p-12 text-center text-slate-400">Carregando auditoria...</td>
                   </tr>
                 ) : logs.map((log: any) => (
-                  <tr key={log.id} className="hover:bg-slate-50/50 group">
-                    <td className="px-6 py-4 text-slate-400 font-mono text-xs whitespace-nowrap">
+                  <tr key={log.id} className="hover:bg-slate-50/50 group md:table-row flex flex-col p-4 md:p-0 border-b md:border-none">
+                    <td className="px-6 py-2 md:py-4 text-slate-400 font-mono text-xs whitespace-nowrap md:table-cell flex justify-between items-center w-full md:w-auto">
+                      <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Horário</span>
                       {format(new Date(log.created_at), "dd/MM HH:mm:ss")}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-2 md:py-4 md:table-cell flex justify-between items-center w-full md:w-auto">
+                      <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Nível</span>
                       <span className={cn(
                         "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
                         log.level === 'error' ? "bg-red-50 text-red-600" :
@@ -108,16 +110,19 @@ function LogsIndexPage() {
                         "bg-blue-50 text-blue-600"
                       )}>{log.level}</span>
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-700 text-xs">{log.message}</td>
-                    <td className="px-6 py-4 text-slate-400 font-mono text-[10px]">
+                    <td className="px-6 py-2 md:py-4 font-medium text-slate-700 text-xs md:table-cell block">
+                      {log.message}
+                    </td>
+                    <td className="px-6 py-2 md:py-4 text-slate-400 font-mono text-[10px] md:table-cell flex justify-between items-center w-full md:w-auto">
+                      <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Execução</span>
                       {log.details?.executionId ? (
                         <span className="opacity-50 group-hover:opacity-100 transition-opacity">
                           {log.details.executionId.substring(0,4)}...{log.details.executionId.substring(log.details.executionId.length - 4)}
                         </span>
                       ) : "-"}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                       <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" asChild>
+                    <td className="px-6 py-2 md:py-4 text-right md:table-cell flex justify-end items-center w-full md:w-auto">
+                       <Button variant="ghost" size="icon" className="h-7 w-7 md:opacity-0 group-hover:opacity-100 transition-opacity" asChild>
                          <a href={`/logs/${log.config_id || ''}`} title="Ver Detalhes">
                             <Eye className="h-3 w-3 text-slate-400" />
                          </a>
@@ -125,11 +130,12 @@ function LogsIndexPage() {
                     </td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>
           {totalPages > 1 && (
-            <div className="p-4 border-t bg-slate-50/50 flex items-center justify-between">
+            <div className="p-4 border-t bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-xs text-slate-500">
                 Mostrando {page * limit + 1} a {Math.min((page + 1) * limit, totalCount)} de {totalCount} logs
               </p>

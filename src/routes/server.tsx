@@ -63,7 +63,7 @@ function ServerPage() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Infraestrutura do Servidor</h1>
           <p className="text-slate-500 mt-1 font-medium">Controle operacional e telemetria da infraestrutura.</p>
@@ -83,7 +83,7 @@ function ServerPage() {
             <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Telemetria de Hardware</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ function ServerPage() {
               </div>
             </div>
             
-            <div className="mt-8 pt-6 border-t border-slate-100 flex gap-12">
+            <div className="mt-8 pt-6 border-t border-slate-100 flex flex-wrap gap-6 md:gap-12">
                <div>
                   <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-1">Hostname do Servidor</span>
                   <span className="text-sm font-semibold text-slate-700">{workerStatus?.hostname || "Aguardando dados..."}</span>
@@ -186,7 +186,7 @@ function ServerPage() {
       {/* Serviços */}
       <section className="space-y-4">
         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Serviços do Motor</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: "Worker Core", status: isOnline ? 'online' : 'offline', icon: Activity, desc: "Processador de E-mail" },
             { label: "Engine IMAP", status: isOnline ? 'online' : 'aguardando', icon: Mail, desc: "Protocolo de Entrada" },
