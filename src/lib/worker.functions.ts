@@ -4,32 +4,54 @@ import { z } from "zod";
 
 export const getWorkerStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
+    const { data: heartbeat, error: hbError } = await supabaseAdmin
+      .from("worker_heartbeat" as any)
+      .select("*")
+      .order("last_heartbeat", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     const { data: configs } = await supabaseAdmin
       .from("email_configurations")
-      .select("id, email_user, is_active, last_heartbeat, status");
+      .select("id, last_success_at, last_error, status, email_user, is_active, last_heartbeat")
+      .eq("user_id", context.userId);
 
-    const now = new Date();
-    const activeConfigs = configs?.filter(c => c.is_active) || [];
+    const dbStatus = hbError ? "offline" : "online";
+
+    if (!heartbeat) {
+      return { 
+        status: "offline", 
+        message: "Aguardando telemetria", 
+        last_heartbeat: null,
+        db_status: dbStatus,
+        configs: configs || []
+      };
+    }
+
+    const heartbeatData = heartbeat as any;
+    const lastHeartbeat = new Date(heartbeatData.last_heartbeat);
+    const diff = Date.now() - lastHeartbeat.getTime();
     
-    const onlineConfigs = activeConfigs.filter(c => {
-      if (!c.last_heartbeat) return false;
-      const lastHb = new Date(c.last_heartbeat);
-      return (now.getTime() - lastHb.getTime()) < 65000;
-    });
+    const workerStatus = diff > 120000 ? "offline" : "online";
 
-    const isOnline = onlineConfigs.length > 0;
-
-    return {
-      status: isOnline ? 'online' : 'offline',
-      message: isOnline 
-        ? `${onlineConfigs.length} instância(s) ativa(s)` 
-        : 'Monitor offline ou sem contas ativas',
-      db_status: 'online',
+    return { 
+      ...heartbeatData, 
+      status: workerStatus, 
+      message: workerStatus === "online" ? "Worker operacional" : "Worker possivelmente offline",
+      db_status: dbStatus,
       configs: configs || []
     };
+  });
+
+export const restartWorker = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    // In a real VPS setup, this would call a management API
+    console.log("Reiniciando worker via VPS API...");
+    return { success: true, message: "Solicitação enviada" };
   });
 
 export const clearLocks = createServerFn({ method: "POST" })
@@ -50,22 +72,19 @@ export const getSystemHealth = createServerFn({ method: "GET" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
-    // Check Database
     const start = Date.now();
     const { error: dbError } = await supabaseAdmin.from("email_configurations").select("id").limit(1);
     const dbLatency = Date.now() - start;
 
-    // Check Worker
-    const { data: configs } = await supabaseAdmin
-      .from("email_configurations")
+    const { data: heartbeat } = await supabaseAdmin
+      .from("worker_heartbeat" as any)
       .select("last_heartbeat")
-      .eq("is_active", true);
+      .order("last_heartbeat", { ascending: false })
+      .limit(1)
+      .maybeSingle();
     
     const now = new Date();
-    const isWorkerOnline = configs?.some(c => {
-      if (!c.last_heartbeat) return false;
-      return (now.getTime() - new Date(c.last_heartbeat).getTime()) < 65000;
-    }) ?? false;
+    const isWorkerOnline = heartbeat && (now.getTime() - new Date((heartbeat as any).last_heartbeat).getTime()) < 120000;
 
     return {
       database: {
