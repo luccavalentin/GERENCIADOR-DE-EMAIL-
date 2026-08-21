@@ -86,12 +86,12 @@ function MonitoringPage() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Monitoramento ao Vivo</h1>
           <p className="text-slate-500 mt-1 font-medium">Console operacional de eventos do sistema.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
            <div className={cn(
             "flex items-center gap-2 px-3 py-1.5 rounded-full border font-bold uppercase text-[10px] tracking-widest transition-all",
             isOnline ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"
@@ -119,8 +119,8 @@ function MonitoringPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 premium-card bg-slate-900 text-slate-100 overflow-hidden relative border-none shadow-xl ring-1 ring-slate-800">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <Card className="xl:col-span-2 premium-card bg-slate-900 text-slate-100 overflow-hidden relative border-none shadow-xl ring-1 ring-slate-800">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:30px_30px]" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 border-b border-white/5 bg-white/[0.02] backdrop-blur-sm relative z-10">
             <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
@@ -133,23 +133,25 @@ function MonitoringPage() {
           </CardHeader>
           <CardContent 
             ref={scrollRef}
-            className="p-6 relative z-10 font-mono text-[11px] leading-loose h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/5 bg-transparent"
+            className="p-4 md:p-6 relative z-10 font-mono text-[10px] md:text-[11px] leading-loose h-[400px] md:h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/5 bg-transparent"
           >
             <div className="space-y-2">
               {visibleLogs.slice().reverse().map((log: any) => (
-                <div key={log.id} className="flex gap-4 group hover:bg-white/5 transition-colors p-1 rounded">
-                  <span className="text-slate-500 shrink-0 select-none">
-                    {log.created_at ? format(new Date(log.created_at), "HH:mm:ss") : "--:--:--"}
-                  </span>
-                  <span className={cn(
-                    "font-bold uppercase tracking-tighter shrink-0 w-16 text-center rounded px-1",
-                    log.level === 'error' ? "text-red-400 bg-red-400/10" : 
-                    log.level === 'success' ? "text-green-500 bg-green-500/10" : 
-                    log.level === 'warning' ? "text-yellow-500 bg-yellow-500/10" : 
-                    "text-slate-400 bg-slate-800"
-                  )}>
-                    {log.level || 'INFO'}
-                  </span>
+                <div key={log.id} className="flex flex-col md:flex-row gap-1 md:gap-4 group hover:bg-white/5 transition-colors p-2 md:p-1 rounded border-b border-white/5 md:border-none">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-slate-500 select-none">
+                      {log.created_at ? format(new Date(log.created_at), "HH:mm:ss") : "--:--:--"}
+                    </span>
+                    <span className={cn(
+                      "font-bold uppercase tracking-tighter w-16 text-center rounded px-1 text-[9px]",
+                      log.level === 'error' ? "text-red-400 bg-red-400/10" : 
+                      log.level === 'success' ? "text-green-500 bg-green-500/10" : 
+                      log.level === 'warning' ? "text-yellow-500 bg-yellow-500/10" : 
+                      "text-slate-400 bg-slate-800"
+                    )}>
+                      {log.level || 'INFO'}
+                    </span>
+                  </div>
                   <span className={cn(
                     "break-all",
                     log.level === 'error' ? "text-red-200" : 
