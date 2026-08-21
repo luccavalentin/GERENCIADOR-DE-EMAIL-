@@ -4,7 +4,7 @@ import { Server, Cpu, HardDrive, Shield, RefreshCcw, Clock, Activity, Database, 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getWorkerStatus, restartWorker } from "@/lib/email.functions";
+import { getWorkerStatus, updateWorkerState } from "@/lib/email.functions";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 
@@ -33,7 +33,7 @@ export const Route = createTanstackFileRoute("/server")({
 
 function ServerPage() {
   const queryClient = useQueryClient();
-  const [isRestarting, setIsRestarting] = useState(false);
+  const [isOperating, setIsOperating] = useState(false);
 
   const { data: workerStatus, isLoading } = useQuery({
     queryKey: ['workerStatus'],
@@ -41,25 +41,63 @@ function ServerPage() {
     refetchInterval: 10000
   });
 
-  const restartMutation = useMutation({
-    mutationFn: () => restartWorker({}),
-    onSuccess: () => {
-      setIsRestarting(true);
-      toast.success("Solicitação de reinício enviada");
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['workerStatus'] });
-        setIsRestarting(false);
-      }, 5000);
+  const workerMutation = useMutation({
+    mutationFn: (action: 'start' | 'stop' | 'restart' | 'pause') => 
+      updateWorkerState({ data: { action } }),
+    onMutate: () => {
+      setIsOperating(true);
     },
-    onError: () => {
-      toast.error("Erro ao solicitar reinício");
+    onSuccess: (data, action) => {
+      const messages = {
+        start: "Serviço iniciado com sucesso.",
+        stop: "Serviço parado com sucesso.",
+        restart: "Serviço reiniciado com sucesso.",
+        pause: "Serviço pausado com sucesso."
+      };
+      toast.success(messages[action]);
+      
+      // Wait for heartbeat if start/restart
+      if (action === 'start' || action === 'restart') {
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ['workerStatus'] });
+          setIsOperating(false);
+        }, 3000);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['workerStatus'] });
+        setIsOperating(false);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro na operação");
+      setIsOperating(false);
     }
   });
 
   const isOnline = workerStatus?.status === 'online';
+  const isPaused = workerStatus?.status === 'pause';
+  const isStopped = workerStatus?.status === 'stop';
+  
   const cpu = workerStatus?.cpu_usage || 0;
   const ram = workerStatus?.ram_usage || 0;
-  const disk = workerStatus?.disk_usage; // Use real telemetry if available
+  const disk = workerStatus?.disk_usage;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'online': return 'text-green-500';
+      case 'pause': return 'text-yellow-500';
+      case 'stop': return 'text-red-500';
+      default: return 'text-slate-300';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'online': return 'Em execução';
+      case 'pause': return 'Pausado';
+      case 'stop': return 'Parado';
+      default: return 'Estado desconhecido';
+    }
+  };
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-10">
@@ -68,12 +106,20 @@ function ServerPage() {
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Infraestrutura do Servidor</h1>
           <p className="text-slate-500 mt-1 font-medium">Controle operacional e telemetria da infraestrutura.</p>
         </div>
-        <Badge variant="outline" className={cn(
-          "px-3 py-1 font-bold tracking-wider",
-          isOnline ? "text-green-600 border-green-200 bg-green-50" : "text-slate-400 border-slate-200 bg-slate-50"
-        )}>
-          {isOnline ? "● VPS ONLINE" : "○ VPS DESCONECTADA"}
-        </Badge>
+        <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Worker Status</span>
+                <span className={cn("text-xs font-bold", getStatusColor(workerStatus?.status))}>
+                    {getStatusLabel(workerStatus?.status)}
+                </span>
+            </div>
+            <Badge variant="outline" className={cn(
+            "px-3 py-1 font-bold tracking-wider",
+            isOnline ? "text-green-600 border-green-200 bg-green-50" : "text-slate-400 border-slate-200 bg-slate-50"
+            )}>
+            {isOnline ? "● VPS ONLINE" : "○ VPS DESCONECTADA"}
+            </Badge>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -112,7 +158,7 @@ function ServerPage() {
                     <Database className="h-3 w-3 text-slate-400" />
                     Armazenamento (Disco)
                   </div>
-                  <span>{isOnline && disk !== undefined ? `${disk}%` : "Não disponível"}</span>
+                  <span>{isOnline && disk !== undefined ? `${disk}%` : "—"}</span>
                 </div>
                 <Progress value={isOnline && disk !== undefined ? disk : 0} className="h-1.5 bg-slate-100" />
               </div>
@@ -134,30 +180,30 @@ function ServerPage() {
         {/* Controles de Serviço */}
         <Card className="premium-card">
           <CardHeader className="border-b border-slate-50 bg-slate-50/50 py-4">
-            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Controles</CardTitle>
+            <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Controle do Serviço</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-3">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start text-slate-400 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10 cursor-not-allowed"
-                  disabled={true}
+                  className="w-full justify-start text-slate-600 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10"
+                  disabled={isOperating || isPaused || isStopped}
                 >
-                  <RefreshCcw className="mr-3 h-4 w-4" />
-                  Integração com VPS pendente
+                  <Clock className="mr-3 h-4 w-4" />
+                  Pausar Serviço
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Reiniciar o Worker?</AlertDialogTitle>
+                  <AlertDialogTitle>Pausar o Worker?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esta ação interromperá o processamento atual. O sistema tentará reconectar em alguns segundos.
+                    Pausar o serviço interromperá temporariamente o processamento de novos e-mails. Deseja continuar?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => restartMutation.mutate()} className="bg-[#0000a2]">Confirmar Reinício</AlertDialogAction>
+                  <AlertDialogAction onClick={() => workerMutation.mutate('pause')} className="bg-[#0000a2]">Confirmar Pausa</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -165,23 +211,41 @@ function ServerPage() {
             <Button 
               variant="outline" 
               className="w-full justify-start text-slate-600 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10"
-              disabled={!isOnline}
+              onClick={() => workerMutation.mutate('start')}
+              disabled={isOperating || isOnline}
             >
               <Power className="mr-3 h-4 w-4" />
-              Parar Worker
+              {isOperating ? "Iniciando..." : "Iniciar Serviço"}
             </Button>
             
-            <Button 
-              variant="outline" 
-              className="w-full justify-start text-slate-600 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10"
-              disabled={!isOnline}
-            >
-              <Activity className="mr-3 h-4 w-4" />
-              Verificar Saúde
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-slate-600 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10"
+                  disabled={isOperating}
+                >
+                  <RefreshCcw className="mr-3 h-4 w-4" />
+                  {isOperating ? "Reiniciando..." : "Reiniciar Serviço"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Reiniciar o Worker?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    O serviço ficará indisponível por alguns segundos durante a reinicialização. Deseja continuar?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => workerMutation.mutate('restart')} className="bg-[#0000a2]">Confirmar Reinício</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardContent>
         </Card>
       </div>
+
 
       {/* Serviços */}
       <section className="space-y-4">
