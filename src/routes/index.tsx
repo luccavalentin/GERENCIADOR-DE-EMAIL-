@@ -50,8 +50,10 @@ function DashboardPageWithLayout() {
   );
 }
 
+import { useActiveAccount } from "@/components/layout/AppLayout";
+
 function DashboardPage() {
-  const { selectedConfigId } = AppLayout.useActiveAccount?.() || { selectedConfigId: null };
+  const { selectedConfigId } = useActiveAccount();
   const { data: session } = useQuery({ 
     queryKey: ['session'], 
     queryFn: async () => (await supabase.auth.getSession()).data.session 
