@@ -12,7 +12,7 @@ import {
   CheckCircle2,
   Server,
   Database,
-  ShieldCheck,
+  Shield,
   ArrowRight,
   TrendingUp,
   XCircle,
@@ -109,7 +109,7 @@ function DashboardPage() {
           {[
             { label: "Worker", status: workerStatus?.status === 'online' ? 'operacional' : 'falha', icon: Activity },
             { label: "IMAP", status: isOnline ? 'operacional' : 'aguardando', icon: Mail },
-            { label: "SMTP", status: isOnline ? 'operacional' : 'aguardando', icon: ShieldCheck },
+            { label: "SMTP", status: isOnline ? 'operacional' : 'aguardando', icon: Shield },
             { label: "Banco de Dados", status: 'operacional', icon: Database },
             { label: "Infraestrutura Hostinger", status: isOnline ? 'operacional' : 'falha', icon: Server },
           ].map((item, i) => (
