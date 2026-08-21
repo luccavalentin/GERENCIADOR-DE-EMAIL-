@@ -141,11 +141,11 @@ function ServerPage() {
               <AlertDialogTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start text-[#0000a2] border-[#0000a2]/10 hover:bg-blue-50 font-bold text-xs h-10"
-                  disabled={!isOnline || isRestarting}
+                  className="w-full justify-start text-slate-400 border-slate-200 hover:bg-slate-50 font-bold text-xs h-10 cursor-not-allowed"
+                  disabled={true}
                 >
-                  <RefreshCcw className={cn("mr-3 h-4 w-4", isRestarting && "animate-spin")} />
-                  Reiniciar Worker
+                  <RefreshCcw className="mr-3 h-4 w-4" />
+                  Integração com VPS pendente
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>

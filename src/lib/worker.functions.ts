@@ -49,9 +49,7 @@ export const getWorkerStatus = createServerFn({ method: "GET" })
 export const restartWorker = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
-    // In a real VPS setup, this would call a management API
-    console.log("Reiniciando worker via VPS API...");
-    return { success: true, message: "Solicitação enviada" };
+    return { success: false, message: "Integração com VPS pendente" };
   });
 
 export const clearLocks = createServerFn({ method: "POST" })
