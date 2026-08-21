@@ -220,7 +220,7 @@ export function AccountDialog({ open, onOpenChange, config }: AccountDialogProps
                       <CardHeader className="pb-4">
                         <CardTitle className="text-sm font-bold flex items-center gap-2">
                           <Globe className="h-4 w-4 text-[#0000A0]" />
-                          Informações Básicas
+                          Configuração da Conta de Saída
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
