@@ -86,7 +86,7 @@ function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-12">
+    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 pb-12">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Minha Conta e Configurações</h1>
         <p className="text-slate-500 mt-1">Gerencie seu perfil, altere sua senha e ajuste as preferências do sistema.</p>
@@ -106,7 +106,7 @@ function SettingsPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-4 md:p-6 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="full-name" className="text-sm font-bold text-slate-700 uppercase tracking-wider">Nome Completo</Label>
@@ -127,7 +127,7 @@ function SettingsPage() {
               <Button 
                 onClick={handleUpdateProfile} 
                 disabled={loading}
-                className="bg-[#0000A0] hover:bg-[#000080] h-11 px-8 font-bold shadow-lg shadow-blue-900/10 transition-all active:scale-95"
+                className="bg-[#0000A0] hover:bg-[#000080] h-11 w-full sm:w-auto px-8 font-bold shadow-lg shadow-blue-900/10 transition-all active:scale-95"
               >
                 {loading ? "Salvando..." : "Atualizar Perfil"}
               </Button>
@@ -148,7 +148,7 @@ function SettingsPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-4 md:p-6 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="new-password" title="password" className="text-sm font-bold text-slate-700 uppercase tracking-wider">Nova Senha</Label>
@@ -178,7 +178,7 @@ function SettingsPage() {
                 onClick={handleChangePassword} 
                 disabled={loading}
                 variant="outline"
-                className="h-11 px-8 border-agilliza text-agilliza font-bold hover:bg-blue-50 transition-all active:scale-95"
+                className="h-11 w-full sm:w-auto px-8 border-agilliza text-agilliza font-bold hover:bg-blue-50 transition-all active:scale-95"
               >
                 {loading ? "Processando..." : "Alterar Senha"}
               </Button>
@@ -199,7 +199,7 @@ function SettingsPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-6 space-y-8">
+          <CardContent className="p-4 md:p-6 space-y-8">
             <div className="space-y-3">
               <Label htmlFor="lock-ttl" className="text-sm font-bold text-slate-700 uppercase tracking-wider">Lock TTL (Segundos)</Label>
               <Input id="lock-ttl" type="number" defaultValue="300" readOnly className="h-11 border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed max-w-[200px]" />
@@ -208,7 +208,7 @@ function SettingsPage() {
             
             <Separator className="bg-slate-100" />
             
-            <div className="flex items-center justify-between group">
+            <div className="flex items-center justify-between group gap-4">
               <div className="space-y-1">
                 <Label className="text-base font-bold text-slate-800">Notificações por E-mail</Label>
                 <p className="text-sm text-slate-500">Receber alertas de erros críticos no processamento.</p>
