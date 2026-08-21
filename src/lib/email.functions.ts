@@ -202,10 +202,11 @@ export const updateWorkerState = createServerFn({ method: "POST" })
     const userName = (profile as any)?.full_name || "Usuário";
     
     await supabaseAdmin.from("email_logs").insert({
+      config_id: "00000000-0000-0000-0000-000000000000", // System log
       message: `${userName} solicitou ${commandLabels[command]} do Worker`,
       level: "info",
-      details: { action: "worker_control", command, userId }
     });
+
 
     // 2. Insert control request
     const { data, error } = await supabaseAdmin
