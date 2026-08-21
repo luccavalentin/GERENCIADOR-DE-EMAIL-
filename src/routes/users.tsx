@@ -94,7 +94,7 @@ function UsersPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0000A0]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0000a2]"></div>
       </div>
     );
   }
@@ -108,7 +108,7 @@ function UsersPage() {
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#0000A0] hover:bg-[#000080] w-full sm:w-auto">
+            <Button className="bg-[#0000a2] hover:bg-[#000082] w-full sm:w-auto">
               <UserPlus className="mr-2 h-4 w-4" />
               + Novo usuário
             </Button>
@@ -155,7 +155,7 @@ function UsersPage() {
                   }
                   createMutation.mutate();
                 }} 
-                className="bg-[#0000A0]"
+                className="bg-[#0000a2]"
                 disabled={createMutation.isPending}
               >
                 {createMutation.isPending ? "Criando..." : "Criar Usuário"}
@@ -183,7 +183,7 @@ function UsersPage() {
                 <TableRow key={profile.id} className={cn("md:table-row flex flex-col p-4 md:p-0 border-b w-full", !profile.is_active && "bg-slate-50 opacity-80")}>
                   <TableCell className="pl-6 py-2 md:py-4 md:table-cell block">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0000A0] font-bold border border-blue-100 shrink-0 shadow-sm">
+                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0000a2] font-bold border border-blue-100 shrink-0 shadow-sm">
                         {profile.full_name ? profile.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : <User className="h-5 w-5" />}
                       </div>
                       <div className="font-bold text-slate-900">{profile.full_name || "Sem nome"}</div>

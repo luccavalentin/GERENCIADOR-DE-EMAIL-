@@ -96,7 +96,7 @@ function MonitoringPage() {
           <Button 
             variant="outline" 
             size="sm" 
-            className={cn("h-8 text-[10px] font-bold uppercase tracking-widest transition-colors", isPaused && "bg-blue-50 border-blue-200 text-[#0000A0]")}
+            className={cn("h-8 text-[10px] font-bold uppercase tracking-widest transition-colors", isPaused && "bg-blue-50 border-blue-200 text-[#0000a2]")}
             onClick={() => setIsPaused(!isPaused)}
           >
             {isPaused ? <Play className="mr-2 h-3 w-3" /> : <Pause className="mr-2 h-3 w-3" />}
@@ -122,7 +122,7 @@ function MonitoringPage() {
               id="autoscroll" 
               checked={autoScroll} 
               onChange={(e) => setAutoScroll(e.target.checked)}
-              className="rounded border-slate-300 text-[#0000A0] focus:ring-[#0000A0]"
+              className="rounded border-slate-300 text-[#0000a2] focus:ring-[#0000a2]"
             />
             <label htmlFor="autoscroll" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 cursor-pointer">
               Auto-scroll Habilitado
@@ -138,7 +138,7 @@ function MonitoringPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-[#0000A0]" />
+                  <Shield className="h-4 w-4 text-[#0000a2]" />
                   <span className="text-sm font-semibold truncate max-w-[120px]">{workerStatus?.hostname || "Servidor Central"}</span>
                 </div>
                 <Badge className={cn(

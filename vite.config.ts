@@ -21,7 +21,7 @@ export default defineConfig({
           short_name: "Agilliza",
           description: "Sistema profissional para gerenciamento e monitoramento de e-mails Agilliza",
 
-          theme_color: "#0000A0",
+          theme_color: "#0000a2",
           background_color: "#fcfbf8",
           display: "standalone",
           icons: [],

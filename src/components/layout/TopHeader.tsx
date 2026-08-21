@@ -76,7 +76,7 @@ export function TopHeader({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-9 px-2 sm:px-3 gap-2 sm:gap-3 hover:bg-slate-50 transition-all max-w-[150px] sm:max-w-none">
                 <div className="p-1.5 bg-blue-50 rounded-md">
-                  <Mail className="h-4 w-4 text-[#0000A0]" />
+                  <Mail className="h-4 w-4 text-[#0000a2]" />
                 </div>
                 <div className="text-left hidden sm:block">
                   <div className="text-[10px] sm:text-xs font-bold text-slate-900 leading-none mb-0.5 truncate max-w-[80px] sm:max-w-none">
@@ -97,7 +97,7 @@ export function TopHeader({
                 <DropdownMenuItem 
                   key={config.id}
                   onClick={() => onAccountChange(config.id)}
-                  className="cursor-pointer font-semibold rounded-lg py-2 focus:bg-slate-50 focus:text-[#0000A0]"
+                  className="cursor-pointer font-semibold rounded-lg py-2 focus:bg-slate-50 focus:text-[#0000a2]"
                 >
                   <Mail className="mr-2 h-4 w-4 opacity-50" />
                   {config.email_user}
@@ -105,7 +105,7 @@ export function TopHeader({
               ))}
               <DropdownMenuSeparator className="my-1 bg-slate-100" />
               <DropdownMenuItem 
-                className="cursor-pointer text-[#0000A0] font-bold rounded-lg py-2 focus:bg-blue-50 focus:text-[#0000A0]"
+                className="cursor-pointer text-[#0000a2] font-bold rounded-lg py-2 focus:bg-blue-50 focus:text-[#0000a2]"
                 onClick={() => navigate({ to: "/accounts" })}
               >
                 <Plus className="mr-2 h-4 w-4" />
@@ -140,8 +140,8 @@ export function TopHeader({
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-9 w-9 p-0 rounded-full border border-slate-200 hover:border-[#0000A0] transition-colors overflow-hidden">
-              <div className="h-full w-full bg-slate-50 flex items-center justify-center text-[#0000A0] font-bold text-xs">
+            <Button variant="ghost" className="h-9 w-9 p-0 rounded-full border border-slate-200 hover:border-[#0000a2] transition-colors overflow-hidden">
+              <div className="h-full w-full bg-slate-50 flex items-center justify-center text-[#0000a2] font-bold text-xs">
                 {(session?.user?.user_metadata?.full_name || session?.user?.email || "U")[0]}
               </div>
             </Button>

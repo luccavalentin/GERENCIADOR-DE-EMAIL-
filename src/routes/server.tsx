@@ -141,7 +141,7 @@ function ServerPage() {
               <AlertDialogTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start text-[#0000A0] border-[#0000A0]/10 hover:bg-blue-50 font-bold text-xs h-10"
+                  className="w-full justify-start text-[#0000a2] border-[#0000a2]/10 hover:bg-blue-50 font-bold text-xs h-10"
                   disabled={!isOnline || isRestarting}
                 >
                   <RefreshCcw className={cn("mr-3 h-4 w-4", isRestarting && "animate-spin")} />
@@ -157,7 +157,7 @@ function ServerPage() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => restartMutation.mutate()} className="bg-[#0000A0]">Confirmar Reinício</AlertDialogAction>
+                  <AlertDialogAction onClick={() => restartMutation.mutate()} className="bg-[#0000a2]">Confirmar Reinício</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

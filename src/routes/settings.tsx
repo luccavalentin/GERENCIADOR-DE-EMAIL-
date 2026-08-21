@@ -98,7 +98,7 @@ function SettingsPage() {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
-                <User className="h-5 w-5 text-[#0000A0]" />
+                <User className="h-5 w-5 text-[#0000a2]" />
               </div>
               <div>
                 <CardTitle className="text-lg">Meu Perfil</CardTitle>
@@ -127,7 +127,7 @@ function SettingsPage() {
               <Button 
                 onClick={handleUpdateProfile} 
                 disabled={loading}
-                className="bg-[#0000A0] hover:bg-[#000080] h-11 w-full sm:w-auto px-8 font-bold shadow-lg shadow-blue-900/10 transition-all active:scale-95"
+                className="bg-[#0000a2] hover:bg-[#000082] h-11 w-full sm:w-auto px-8 font-bold shadow-lg shadow-blue-900/10 transition-all active:scale-95"
               >
                 {loading ? "Salvando..." : "Atualizar Perfil"}
               </Button>
@@ -140,7 +140,7 @@ function SettingsPage() {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
-                <Key className="h-5 w-5 text-[#0000A0]" />
+                <Key className="h-5 w-5 text-[#0000a2]" />
               </div>
               <div>
                 <CardTitle className="text-lg">Segurança da Conta</CardTitle>
@@ -191,7 +191,7 @@ function SettingsPage() {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
-                <Database className="h-5 w-5 text-[#0000A0]" />
+                <Database className="h-5 w-5 text-[#0000a2]" />
               </div>
               <div>
                 <CardTitle className="text-lg">Preferências do Sistema</CardTitle>

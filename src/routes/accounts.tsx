@@ -94,7 +94,7 @@ function AccountsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0000A0]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0000a2]"></div>
       </div>
     );
   }
@@ -108,7 +108,7 @@ function AccountsPage() {
         </div>
         <Button 
           onClick={handleCreate}
-          className="bg-[#0000A0] hover:bg-[#000080] shadow-md font-bold"
+          className="bg-[#0000a2] hover:bg-[#000082] shadow-md font-bold"
         >
           <Plus className="mr-2 h-4 w-4" />
           + Nova conta
@@ -147,7 +147,7 @@ function AccountsPage() {
                 <TableCell className="md:table-cell block py-2 md:py-4">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-50 rounded-lg shrink-0">
-                      <Mail className="h-4 w-4 text-[#0000A0]" />
+                      <Mail className="h-4 w-4 text-[#0000a2]" />
                     </div>
                     <div className="font-bold text-slate-900 truncate max-w-[150px] sm:max-w-[200px]" title={config.email_user}>
                       {config.email_user}
@@ -217,7 +217,7 @@ function AccountsPage() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-7 w-7 text-slate-400 hover:text-[#0000A0]"
+                      className="h-7 w-7 text-slate-400 hover:text-[#0000a2]"
                       onClick={() => navigate({ to: `/logs/${config.id}` })}
                       title="Ver Logs"
                     >
@@ -225,7 +225,7 @@ function AccountsPage() {
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-[#0000A0]">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-[#0000a2]">
                           <MoreVertical className="h-3.5 w-3.5" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -261,7 +261,7 @@ function AccountsPage() {
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Mail className="h-8 w-8 opacity-20" />
                     <p>Nenhuma conta encontrada.</p>
-                    <Button variant="link" onClick={handleCreate} className="text-[#0000A0] font-bold">
+                    <Button variant="link" onClick={handleCreate} className="text-[#0000a2] font-bold">
                       Cadastrar primeira conta
                     </Button>
                   </div>
