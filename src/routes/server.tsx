@@ -4,7 +4,7 @@ import { Server, Cpu, HardDrive, Shield, RefreshCcw, Clock, Activity, Database, 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getWorkerStatus, restartWorker } from "@/lib/email.functions";
+import { getWorkerStatus, updateWorkerState } from "@/lib/email.functions";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 
