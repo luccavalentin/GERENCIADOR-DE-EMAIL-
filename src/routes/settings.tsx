@@ -202,7 +202,7 @@ function SettingsPage() {
           <CardContent className="p-6 space-y-8">
             <div className="space-y-3">
               <Label htmlFor="lock-ttl" className="text-sm font-bold text-slate-700 uppercase tracking-wider">Lock TTL (Segundos)</Label>
-              <Input id="lock-ttl" type="number" defaultValue="300" className="h-11 border-slate-200 focus:border-agilliza focus:ring-agilliza/20 transition-all max-w-[200px]" />
+              <Input id="lock-ttl" type="number" defaultValue="300" readOnly className="h-11 border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed max-w-[200px]" />
               <p className="text-[11px] text-slate-400 italic">Tempo máximo que um worker segura o processamento de uma conta.</p>
             </div>
             
@@ -213,7 +213,7 @@ function SettingsPage() {
                 <Label className="text-base font-bold text-slate-800">Notificações por E-mail</Label>
                 <p className="text-sm text-slate-500">Receber alertas de erros críticos no processamento.</p>
               </div>
-              <Switch defaultChecked className="data-[state=checked]:bg-agilliza" />
+              <Switch disabled defaultChecked className="data-[state=checked]:bg-slate-300 opacity-50 cursor-not-allowed" />
             </div>
           </CardContent>
         </Card>
