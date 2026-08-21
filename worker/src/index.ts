@@ -47,8 +47,12 @@ async function runWorker() {
           if (cmd.command === 'restart') {
             await supabase.from('worker_control').update({ status: 'completed', processed_at: new Date().toISOString() }).eq('id', cmd.id);
             await updateWorkerHeartbeat('running');
-            console.log('[Worker] Reinício solicitado via Docker (simulado: saindo para restart)');
-            process.exit(0); // Docker Compose will restart the container
+            console.log('[Worker] Reinício solicitado via Docker');
+            // A implementação real do reinício do container requer um controlador externo (orquestrador).
+            // O worker sinaliza a intenção e encerra, aguardando que o Docker Compose (com restart: always) 
+            // ou um script supervisor reinicie o processo.
+            process.exit(0);
+
           }
           
           await supabase.from('worker_control').update({ status: 'completed', processed_at: new Date().toISOString() }).eq('id', cmd.id);

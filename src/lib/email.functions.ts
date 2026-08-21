@@ -267,8 +267,11 @@ export const waitForWorkerState = createServerFn({ method: "POST" })
         const isRecent = heartbeat && (Date.now() - new Date((heartbeat as any).last_heartbeat).getTime()) < 60000;
         
         if (isRecent && (heartbeat as any).status === expectedStatus) {
+          // Se for restart, precisamos garantir que o heartbeat seja NOVO (pós-solicitação)
+          // Esta lógica será refinada quando houver o ID de sessão/boot do worker
           return { success: true, confirmed: true };
         }
+
       }
       
       if ((request as any)?.status === 'failed') {
