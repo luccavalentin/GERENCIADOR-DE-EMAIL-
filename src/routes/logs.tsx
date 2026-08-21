@@ -81,7 +81,7 @@ function LogsIndexPage() {
           
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]">
+              <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] hidden md:table-header-group">
                 <tr>
                   <th className="px-6 py-3 text-left">Horário</th>
                   <th className="px-6 py-3 text-left">Nível</th>
