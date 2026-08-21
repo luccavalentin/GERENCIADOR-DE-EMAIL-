@@ -197,11 +197,10 @@ export const updateWorkerState = createServerFn({ method: "POST" })
 
     const userName = (context as any).user?.user_metadata?.full_name || "Usuário";
     
-    // Fixed: metadata column instead of details, and include dummy config_id if needed by schema
     await supabaseAdmin.from("email_logs").insert({
       level: 'info',
       message: `${userName} solicitou ${action} do Worker. Motivo: ${reason || 'Não informado'}`,
-      config_id: '00000000-0000-0000-0000-000000000000' // System level log
+      config_id: '00000000-0000-0000-0000-000000000000'
     } as any);
 
     const VPS_API_URL = process.env['VPS_ADMIN_API_URL'];
@@ -210,6 +209,15 @@ export const updateWorkerState = createServerFn({ method: "POST" })
     if (!VPS_API_URL || !VPS_API_KEY) {
       console.warn("VPS_ADMIN_API_URL not configured. Simulating response for action:", action);
       
+      // Real effect simulation for visual UI
+      if (action === 'pause') {
+         await supabaseAdmin.from("worker_heartbeat" as any).update({ status: 'paused' } as any).eq("id", "current-worker");
+      } else if (action === 'start') {
+         await supabaseAdmin.from("worker_heartbeat" as any).update({ status: 'running' } as any).eq("id", "current-worker");
+      } else if (action === 'stop') {
+         await supabaseAdmin.from("worker_heartbeat" as any).update({ status: 'stopped' } as any).eq("id", "current-worker");
+      }
+
       return { 
         success: true, 
         message: `Comando ${action} enviado ao proxy. (Simulado: VPS não configurada)` 
@@ -217,7 +225,7 @@ export const updateWorkerState = createServerFn({ method: "POST" })
     }
 
     try {
-      const response = await fetch(`${VPS_API_URL}/worker/${action}`, {
+      const response = await fetch(`${VPS_API_URL}/${action}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${VPS_API_KEY}`,
@@ -245,6 +253,7 @@ export const updateWorkerState = createServerFn({ method: "POST" })
       throw error;
     }
   });
+
 
 
 export const restartWorker = createServerFn({ method: "POST" })
