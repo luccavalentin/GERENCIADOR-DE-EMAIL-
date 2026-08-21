@@ -84,12 +84,11 @@ async function runWorker() {
         isPaused = false;
       }
 
-      await updateWorkerHeartbeat(isPaused ? 'paused' : 'running', {
-        hostname: require('os').hostname(),
-        uptime: `${Math.floor(process.uptime())}s`,
-        cpu_usage: Math.floor(Math.random() * 20), // Placeholder for real metrics
-        ram_usage: Math.floor(Math.random() * 30)
-      });
+      const { getSystemMetrics } = require('./system');
+      const metrics = getSystemMetrics();
+
+      await updateWorkerHeartbeat(isPaused ? 'paused' : 'running', metrics);
+
 
       if (isPaused) {
         console.log(`[${new Date().toISOString()}] Worker em pausa operacional.`);
