@@ -88,8 +88,8 @@ function MonitoringPage() {
     <div className="space-y-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Central Operacional</h1>
-          <p className="text-slate-500 mt-1">Logs em tempo real visualmente sofisticados.</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Monitoramento ao Vivo</h1>
+          <p className="text-slate-500 mt-1 font-medium">Console operacional de eventos do sistema.</p>
         </div>
         <div className="flex items-center gap-3">
            <div className={cn(
@@ -173,13 +173,13 @@ function MonitoringPage() {
         <div className="space-y-6">
           <Card className="premium-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold uppercase text-slate-400">Status da VPS</CardTitle>
+              <CardTitle className="text-xs font-bold uppercase text-slate-400">Infraestrutura</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-[#0000A0]" />
-                  <span className="text-sm font-semibold truncate max-w-[120px]">{workerStatus?.hostname || "VPS Hostinger"}</span>
+                  <Shield className="h-4 w-4 text-[#0000A0]" />
+                  <span className="text-sm font-semibold truncate max-w-[120px]">{workerStatus?.hostname || "Servidor Central"}</span>
                 </div>
                 <Badge className={cn(
                   isOnline ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
@@ -190,12 +190,12 @@ function MonitoringPage() {
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
                   <span className="text-[10px] text-slate-400 block uppercase font-bold">Uptime</span>
-                  <span className="text-sm font-medium">{workerStatus?.uptime || "Indisponível"}</span>
+                  <span className="text-sm font-medium">{workerStatus?.uptime || "Aguardando dados"}</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 block uppercase font-bold">Heartbeat</span>
                   <span className="text-sm font-medium">
-                    {workerStatus?.last_heartbeat ? format(new Date(workerStatus.last_heartbeat), "HH:mm:ss") : "Indisponível"}
+                    {workerStatus?.last_heartbeat ? format(new Date(workerStatus.last_heartbeat), "HH:mm:ss") : "Aguardando dados"}
                   </span>
                 </div>
               </div>
