@@ -101,19 +101,19 @@ function UsersPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Usuários do Sistema</h1>
           <p className="text-slate-500 mt-1">Administre as pessoas que possuem acesso operacional ao painel.</p>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#0000A0] hover:bg-[#000080]">
+            <Button className="bg-[#0000A0] hover:bg-[#000080] w-full sm:w-auto">
               <UserPlus className="mr-2 h-4 w-4" />
               + Novo usuário
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[95vw] sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Adicionar Novo Usuário</DialogTitle>
             </DialogHeader>
@@ -145,7 +145,7 @@ function UsersPage() {
                 />
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancelar</Button>
               <Button 
                 onClick={() => createMutation.mutate()} 
@@ -162,7 +162,7 @@ function UsersPage() {
       <Card className="premium-card overflow-hidden">
         <CardContent className="p-0">
           <Table>
-            <TableHeader className="bg-slate-50">
+            <TableHeader className="bg-slate-50 hidden md:table-header-group">
               <TableRow>
                 <TableHead className="pl-6 font-bold text-slate-700">Usuário</TableHead>
                 <TableHead className="font-bold text-slate-700">E-mail</TableHead>
@@ -174,8 +174,8 @@ function UsersPage() {
             </TableHeader>
             <TableBody>
               {users?.map((profile: any) => (
-                <TableRow key={profile.id}>
-                  <TableCell className="pl-6 py-4">
+                <TableRow key={profile.id} className="md:table-row flex flex-col p-4 md:p-0 border-b">
+                  <TableCell className="pl-6 py-2 md:py-4 md:table-cell block">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0000A0] font-bold border border-blue-100 shrink-0 shadow-sm">
                         {profile.full_name ? profile.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : <User className="h-5 w-5" />}
@@ -183,23 +183,27 @@ function UsersPage() {
                       <div className="font-bold text-slate-900">{profile.full_name || "Sem nome"}</div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-slate-500 font-medium">
+                  <TableCell className="text-sm text-slate-500 font-medium md:table-cell flex justify-between items-center py-2 md:py-4">
+                    <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">E-mail</span>
                     {profile.email || "--"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="md:table-cell flex justify-between items-center py-2 md:py-4">
+                    <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Status</span>
                     <Badge className={cn(
                       profile.is_active ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"
                     )} variant="outline">
                       {profile.is_active ? "ATIVO" : "INATIVO"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-sm text-slate-400 font-mono">
+                  <TableCell className="text-sm text-slate-400 font-mono md:table-cell flex justify-between items-center py-2 md:py-4">
+                    <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Acesso</span>
                     {profile.last_sign_in_at ? format(new Date(profile.last_sign_in_at), "dd/MM HH:mm") : "--"}
                   </TableCell>
-                  <TableCell className="text-sm text-slate-400 font-mono">
+                  <TableCell className="text-sm text-slate-400 font-mono md:table-cell flex justify-between items-center py-2 md:py-4">
+                    <span className="md:hidden font-bold text-slate-500 uppercase tracking-widest text-[9px]">Criado em</span>
                     {profile.created_at ? format(new Date(profile.created_at), "dd/MM/yyyy") : "--"}
                   </TableCell>
-                  <TableCell className="text-right pr-6">
+                  <TableCell className="text-right pr-6 md:table-cell flex justify-end items-center py-2 md:py-4">
                     <div className="flex items-center justify-end gap-2">
                       <Button 
                         variant="ghost" 
@@ -225,6 +229,7 @@ function UsersPage() {
                   </TableCell>
                 </TableRow>
               ))}
+
               {(!users || users.length === 0) && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-20 text-slate-400">
