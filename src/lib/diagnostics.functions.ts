@@ -65,9 +65,9 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
     const { ImapFlow } = await import("imapflow");
     const dns = await import("dns/promises");
     const net = await import("net");
-    const tls = await import("tls");
 
-    const steps: { step: string; status: 'pending' | 'success' | 'error'; details?: string }[] = [];
+    type DiagnosticStep = { step: string; status: 'pending' | 'success' | 'error'; details?: string };
+    const steps: DiagnosticStep[] = [];
     
     try {
       const { data: config } = await supabaseAdmin
@@ -87,19 +87,21 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
       if (!creds) throw new Error("Credentials not found");
 
       // 1. DNS Lookup
-      steps.push({ step: "Resolução DNS", status: 'pending' });
+      const dnsStep: DiagnosticStep = { step: "Resolução DNS", status: 'pending' };
+      steps.push(dnsStep);
       try {
         const addresses = await dns.resolve4(config.imap_host);
-        steps[0].status = 'success';
-        steps[0].details = `Resolvido para: ${addresses.join(', ')}`;
+        dnsStep.status = 'success';
+        dnsStep.details = `Resolvido para: ${addresses.join(', ')}`;
       } catch (err: any) {
-        steps[0].status = 'error';
-        steps[0].details = `Erro DNS: ${err.message}`;
+        dnsStep.status = 'error';
+        dnsStep.details = `Erro DNS: ${err.message}`;
         return { success: false, steps };
       }
 
       // 2. TCP Connectivity
-      steps.push({ step: "Conexão TCP", status: 'pending' });
+      const tcpStep: DiagnosticStep = { step: "Conexão TCP", status: 'pending' };
+      steps.push(tcpStep);
       try {
         await new Promise((resolve, reject) => {
           const socket = net.createConnection(config.imap_port, config.imap_host, () => {
@@ -110,15 +112,16 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
           socket.on('error', reject);
           socket.on('timeout', () => reject(new Error("Timeout de conexão TCP")));
         });
-        steps[1].status = 'success';
+        tcpStep.status = 'success';
       } catch (err: any) {
-        steps[1].status = 'error';
-        steps[1].details = `Erro TCP: ${err.message}`;
+        tcpStep.status = 'error';
+        tcpStep.details = `Erro TCP: ${err.message}`;
         return { success: false, steps };
       }
 
       // 3. IMAP Auth
-      steps.push({ step: "Autenticação IMAP", status: 'pending' });
+      const authStep: DiagnosticStep = { step: "Autenticação IMAP", status: 'pending' };
+      steps.push(authStep);
       const imap = new ImapFlow({
         host: config.imap_host,
         port: config.imap_port,
@@ -134,10 +137,10 @@ export const testImapConnectionDetailed = createServerFn({ method: "POST" })
       try {
         await imap.connect();
         await imap.logout();
-        steps[2].status = 'success';
+        authStep.status = 'success';
       } catch (err: any) {
-        steps[2].status = 'error';
-        steps[2].details = `Erro IMAP: ${err.message}`;
+        authStep.status = 'error';
+        authStep.details = `Erro IMAP: ${err.message}`;
         return { success: false, steps };
       }
 
@@ -155,7 +158,8 @@ export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
     const nodemailer = (await import("nodemailer")).default;
     const dns = await import("dns/promises");
 
-    const steps: { step: string; status: 'pending' | 'success' | 'error'; details?: string }[] = [];
+    type DiagnosticStep = { step: string; status: 'pending' | 'success' | 'error'; details?: string };
+    const steps: DiagnosticStep[] = [];
     
     try {
       const { data: config } = await supabaseAdmin
@@ -175,19 +179,21 @@ export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
       if (!creds) throw new Error("Credentials not found");
 
       // 1. DNS Lookup
-      steps.push({ step: "Resolução DNS", status: 'pending' });
+      const dnsStep: DiagnosticStep = { step: "Resolução DNS", status: 'pending' };
+      steps.push(dnsStep);
       try {
         const addresses = await dns.resolve4(config.smtp_host);
-        steps[0].status = 'success';
-        steps[0].details = `Resolvido para: ${addresses.join(', ')}`;
+        dnsStep.status = 'success';
+        dnsStep.details = `Resolvido para: ${addresses.join(', ')}`;
       } catch (err: any) {
-        steps[0].status = 'error';
-        steps[0].details = `Erro DNS: ${err.message}`;
+        dnsStep.status = 'error';
+        dnsStep.details = `Erro DNS: ${err.message}`;
         return { success: false, steps };
       }
 
       // 2. SMTP Auth
-      steps.push({ step: "Autenticação SMTP", status: 'pending' });
+      const authStep: DiagnosticStep = { step: "Autenticação SMTP", status: 'pending' };
+      steps.push(authStep);
       const transporter = nodemailer.createTransport({
         host: config.smtp_host,
         port: config.smtp_port,
@@ -201,10 +207,10 @@ export const testSmtpConnectionDetailed = createServerFn({ method: "POST" })
 
       try {
         await transporter.verify();
-        steps[1].status = 'success';
+        authStep.status = 'success';
       } catch (err: any) {
-        steps[1].status = 'error';
-        steps[1].details = `Erro SMTP: ${err.message}`;
+        authStep.status = 'error';
+        authStep.details = `Erro SMTP: ${err.message}`;
         return { success: false, steps };
       }
 
